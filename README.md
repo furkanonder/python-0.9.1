@@ -5,3 +5,6 @@ original source from [here](https://github.com/smontanaro/python-0.9.1).
 
 ### Removed
 - shar directory
+
+### Moved
+- License text
