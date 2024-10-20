@@ -12,6 +12,7 @@
 #else
 #include <sys/dir.h>
 #endif
+#include <unistd.h>
 
 #include "allobjects.h"
 #include "modsupport.h"
@@ -173,7 +174,6 @@ posix_getcwd(self, args)
 	object *args;
 {
 	char buf[1026];
-	extern char *getcwd PROTO((char *, int));
 	if (!getnoarg(args))
 		return NULL;
 	if (getcwd(buf, sizeof buf) == NULL)
