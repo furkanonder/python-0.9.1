@@ -7,3 +7,4 @@ object *getglobals PROTO((void));
 object *getlocals PROTO((void));
 
 void printtraceback PROTO((FILE *));
+void flushline();
