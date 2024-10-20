@@ -21,7 +21,7 @@ newsizedstringobject(str, size)
 }
 
 void
-stringdealloc(op)
+string_dealloc(op)
 	object *op;
 {
 	DEL(op);
@@ -265,7 +265,7 @@ typeobject Stringtype = {
 	"string",
 	sizeof(stringobject),
 	sizeof(char),
-	stringdealloc,		/*tp_dealloc*/
+	string_dealloc,		/*tp_dealloc*/
 	stringprint,	/*tp_print*/
 	0,		/*tp_getattr*/
 	0,		/*tp_setattr*/
