@@ -14,6 +14,9 @@
 #include "ceval.h"
 #include "pythonrun.h"
 #include "import.h"
+#include "config.h"
+#include "bltinmodule.h"
+#include "intrcheck.h"
 
 extern char *getpythonpath();
 
@@ -23,6 +26,9 @@ extern grammar gram; /* From graminit.c */
 int debugging; /* Needed by parser.c */
 #endif
 
+int isatty(int fd);
+
+int
 main(argc, argv)
 	int argc;
 	char **argv;
@@ -363,7 +369,7 @@ goaway(sts)
 }
 
 static
-finaloutput()
+void finaloutput()
 {
 #ifdef TRACE_REFS
 	if (!askyesno("Print left references?"))
