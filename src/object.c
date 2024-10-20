@@ -1,6 +1,7 @@
 /* Generic object operations; and implementation of None (NoObject) */
 
 #include "allobjects.h"
+#include "intrcheck.h"
 
 #ifdef REF_DEBUG
 long ref_total;
