@@ -6,6 +6,8 @@
 #include "frameobject.h"
 #include "traceback.h"
 #include "structmember.h"
+#include "intrcheck.h"
+#include "sysmodule.h"
 
 typedef struct _tracebackobject {
 	OB_HEAD
