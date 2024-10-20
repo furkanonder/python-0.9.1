@@ -18,6 +18,7 @@ Data members:
 #include "sysmodule.h"
 #include "import.h"
 #include "modsupport.h"
+#include "pythonrun.h"
 
 /* Define delimiter used in $PYTHONPATH */
 
