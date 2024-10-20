@@ -5,3 +5,4 @@ object *add_module PROTO((char *name));
 object *import_module PROTO((char *name));
 object *reload_module PROTO((object *m));
 void doneimport PROTO((void));
+extern void initimport();
