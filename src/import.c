@@ -9,6 +9,7 @@
 #include "errcode.h"
 #include "sysmodule.h"
 #include "pythonrun.h"
+#include "modsupport.h"
 
 /* Define pathname separator used in file names */
 
