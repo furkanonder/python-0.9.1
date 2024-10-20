@@ -8,6 +8,7 @@
 
 #include <signal.h>
 #include <setjmp.h>
+#include <unistd.h>
 
 #ifdef __STDC__
 #include <time.h>
