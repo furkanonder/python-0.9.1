@@ -12,7 +12,8 @@ A similar module that I saw by Chris Torek:
 */
 
 #include "allobjects.h"
-
+#include "pgenheaders.h"
+#include "modsupport.h"
 
 /*
 Table of primes suitable as keys, in ascending order.
