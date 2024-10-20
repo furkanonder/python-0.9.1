@@ -12,6 +12,7 @@
 #include "compile.h" /* For ceval.h */
 #include "ceval.h"
 #include "modsupport.h"
+#include "fgetsintr.h"
 
 static object *
 builtin_abs(self, v)
