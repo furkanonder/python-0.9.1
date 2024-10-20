@@ -10,6 +10,7 @@
 #include "opcode.h"
 #include "bltinmodule.h"
 #include "traceback.h"
+#include "intrcheck.h"
 
 #ifndef NDEBUG
 #define TRACE
@@ -673,7 +674,7 @@ eval_code(co, globals, locals, arg)
 	lineno = -1;
 	
 	for (;;) {
-		static ticker;
+		static int ticker;
 		
 		/* Do periodic things */
 		
