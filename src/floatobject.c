@@ -32,6 +32,13 @@ newfloatobject(fval)
 	return (object *) op;
 }
 
+void
+float_dealloc(op)
+	object *op;
+{
+	DEL(op);
+}
+
 double
 getfloatvalue(op)
 	object *op;
@@ -228,7 +235,7 @@ typeobject Floattype = {
 	"float",
 	sizeof(floatobject),
 	0,
-	free,			/*tp_dealloc*/
+	float_dealloc,			/*tp_dealloc*/
 	float_print,		/*tp_print*/
 	0,			/*tp_getattr*/
 	0,			/*tp_setattr*/
