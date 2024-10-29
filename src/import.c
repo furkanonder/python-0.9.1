@@ -28,8 +28,9 @@ static object *modules;
 void
 initimport()
 {
-	if ((modules = newdictobject()) == NULL)
+	if ((modules = newdictobject()) == NULL) {
 		fatal("no mem for dictionary of modules");
+    }
 }
 
 object *
@@ -39,15 +40,17 @@ get_modules()
 }
 
 object *
-add_module(name)
-	char *name;
+add_module(char *name)
 {
 	object *m;
-	if ((m = dictlookup(modules, name)) != NULL && is_moduleobject(m))
+
+	if ((m = dictlookup(modules, name)) != NULL && is_moduleobject(m)) {
 		return m;
+    }
 	m = newmoduleobject(name);
-	if (m == NULL)
+	if (m == NULL) {
 		return NULL;
+    }
 	if (dictinsert(modules, name, m) != 0) {
 		DECREF(m);
 		return NULL;
@@ -57,15 +60,12 @@ add_module(name)
 }
 
 static FILE *
-open_module(name, suffix, namebuf)
-	char *name;
-	char *suffix;
-	char *namebuf; /* XXX No buffer overflow checks! */
+open_module(char *name, char *suffix, char *namebuf)
 {
 	object *path;
 	FILE *fp;
-	
 	path = sysget("path");
+
 	if (path == NULL || !is_listobject(path)) {
 		strcpy(namebuf, name);
 		strcat(namebuf, suffix);
@@ -73,45 +73,46 @@ open_module(name, suffix, namebuf)
 	}
 	else {
 		int npath = getlistsize(path);
-		int i;
 		fp = NULL;
-		for (i = 0; i < npath; i++) {
+		for (int i = 0; i < npath; i++) {
 			object *v = getlistitem(path, i);
 			int len;
-			if (!is_stringobject(v))
+			if (!is_stringobject(v)) {
 				continue;
+            }
 			strcpy(namebuf, getstringvalue(v));
 			len = getstringsize(v);
-			if (len > 0 && namebuf[len-1] != SEP)
+			if (len > 0 && namebuf[len - 1] != SEP) {
 				namebuf[len++] = SEP;
-			strcpy(namebuf+len, name);
+            }
+			strcpy(namebuf + len, name);
 			strcat(namebuf, suffix);
 			fp = fopen(namebuf, "r");
-			if (fp != NULL)
+			if (fp != NULL) {
 				break;
+            }
 		}
 	}
 	return fp;
 }
 
 static object *
-get_module(m, name, m_ret)
-	/*module*/object *m;
-	char *name;
-	object **m_ret;
+get_module(object *m, char *name, object **m_ret)
 {
 	object *d;
 	FILE *fp;
 	node *n;
 	int err;
 	char namebuf[256];
-	
 	fp = open_module(name, ".py", namebuf);
+
 	if (fp == NULL) {
-		if (m == NULL)
+		if (m == NULL) {
 			err_setstr(NameError, name);
-		else
+        }
+		else {
 			err_setstr(RuntimeError, "no module source file");
+        }
 		return NULL;
 	}
 	err = parse_file(fp, namebuf, file_input, &n);
@@ -133,13 +134,14 @@ get_module(m, name, m_ret)
 }
 
 static object *
-load_module(name)
-	char *name;
+load_module(char *name)
 {
 	object *m, *v;
 	v = get_module((object *)NULL, name, &m);
-	if (v == NULL)
+
+	if (v == NULL) {
 		return NULL;
+    }
 	DECREF(v);
 	return m;
 }
@@ -147,14 +149,15 @@ load_module(name)
 static int init_builtin(char *name);
 
 object *
-import_module(name)
-	char *name;
+import_module(char *name)
 {
 	object *m;
+
 	if ((m = dictlookup(modules, name)) == NULL) {
 		if (init_builtin(name)) {
-			if ((m = dictlookup(modules, name)) == NULL)
+			if ((m = dictlookup(modules, name)) == NULL) {
 				err_setstr(SystemError, "builtin module missing");
+            }
 		}
 		else {
 			m = load_module(name);
@@ -164,8 +167,7 @@ import_module(name)
 }
 
 object *
-reload_module(m)
-	object *m;
+reload_module(object *m)
 {
 	if (m == NULL || !is_moduleobject(m)) {
 		err_setstr(TypeError, "reload() argument must be module");
@@ -176,15 +178,14 @@ reload_module(m)
 }
 
 static void
-cleardict(d)
-	object *d;
+cleardict(object *d)
 {
-	int i;
-	for (i = getdictsize(d); --i >= 0; ) {
+	for (int i = getdictsize(d); --i >= 0; ) {
 		char *k;
 		k = getdictkey(d, i);
-		if (k != NULL)
+		if (k != NULL) {
 			(void) dictremove(d, k);
+        }
 	}
 }
 
@@ -192,10 +193,9 @@ void
 doneimport()
 {
 	if (modules != NULL) {
-		int i;
 		/* Explicitly erase all modules; this is the safest way
 		   to get rid of at least *some* circular dependencies */
-		for (i = getdictsize(modules); --i >= 0; ) {
+		for (int i = getdictsize(modules); --i >= 0; ) {
 			char *k;
 			k = getdictkey(modules, i);
 			if (k != NULL) {
@@ -224,11 +224,9 @@ extern struct {
 } inittab[];
 
 static int
-init_builtin(name)
-	char *name;
+init_builtin(char *name)
 {
-	int i;
-	for (i = 0; inittab[i].name != NULL; i++) {
+	for (int i = 0; inittab[i].name != NULL; i++) {
 		if (strcmp(name, inittab[i].name) == 0) {
 			(*inittab[i].initfunc)();
 			return 1;
