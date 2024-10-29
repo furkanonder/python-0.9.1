@@ -33,45 +33,45 @@ Data members:
 static object *sysdict;
 
 object *
-sysget(name)
-	char *name;
+sysget(char *name)
 {
 	return dictlookup(sysdict, name);
 }
 
 FILE *
-sysgetfile(name, def)
-	char *name;
-	FILE *def;
+sysgetfile(char *name, FILE *def)
 {
 	FILE *fp = NULL;
 	object *v = sysget(name);
-	if (v != NULL)
+
+	if (v != NULL) {
 		fp = getfilefile(v);
-	if (fp == NULL)
+    }
+	if (fp == NULL) {
 		fp = def;
+    }
 	return fp;
 }
 
 int
-sysset(name, v)
-	char *name;
-	object *v;
+sysset(char *name, object *v)
 {
-	if (v == NULL)
+	if (v == NULL) {
 		return dictremove(sysdict, name);
-	else
+    }
+	else {
 		return dictinsert(sysdict, name, v);
+    }
 }
 
 static object *
-sys_exit(self, args)
-	object *self;
-	object *args;
+sys_exit(object *self, object *args)
 {
 	int sts;
-	if (!getintarg(args, &sts))
+
+	if (!getintarg(args, &sts)) {
 		return NULL;
+    }
 	goaway(sts);
 	exit(sts); /* Just in case */
 	/* NOTREACHED */
@@ -88,6 +88,7 @@ void
 initsys()
 {
 	object *m = initmodule("sys", sys_methods);
+
 	sysdict = getmoduledict(m);
 	INCREF(sysdict);
 	/* NB keep an extra ref to the std files to avoid closing them
@@ -96,75 +97,79 @@ initsys()
 	sysin = newopenfileobject(stdin, "<stdin>", "r");
 	sysout = newopenfileobject(stdout, "<stdout>", "w");
 	syserr = newopenfileobject(stderr, "<stderr>", "w");
-	if (err_occurred())
+	if (err_occurred()) {
 		fatal("can't create sys.std* file objects");
+    }
 	dictinsert(sysdict, "stdin", sysin);
 	dictinsert(sysdict, "stdout", sysout);
 	dictinsert(sysdict, "stderr", syserr);
 	dictinsert(sysdict, "modules", get_modules());
-	if (err_occurred())
+	if (err_occurred()) {
 		fatal("can't insert sys.* objects in sys dict");
+    }
 }
 
 static object *
-makepathobject(path, delim)
-	char *path;
-	int delim;
+makepathobject(char *path, int delim)
 {
 	int i, n;
 	char *p;
 	object *v, *w;
-	
 	n = 1;
 	p = path;
+
 	while ((p = strchr(p, delim)) != NULL) {
 		n++;
 		p++;
 	}
 	v = newlistobject(n);
-	if (v == NULL)
+	if (v == NULL) {
 		return NULL;
+    }
 	for (i = 0; ; i++) {
 		p = strchr(path, delim);
-		if (p == NULL)
+		if (p == NULL) {
 			p = strchr(path, '\0'); /* End of string */
-		w = newsizedstringobject(path, (int) (p - path));
+        }
+		w = newsizedstringobject(path, (int)(p - path));
 		if (w == NULL) {
 			DECREF(v);
 			return NULL;
 		}
 		setlistitem(v, i, w);
-		if (*p == '\0')
+		if (*p == '\0') {
 			break;
-		path = p+1;
+        }
+		path = p + 1;
 	}
 	return v;
 }
 
 void
-setpythonpath(path)
-	char *path;
+setpythonpath(char *path)
 {
 	object *v;
-	if ((v = makepathobject(path, DELIM)) == NULL)
+
+	if ((v = makepathobject(path, DELIM)) == NULL) {
 		fatal("can't create sys.path");
-	if (sysset("path", v) != 0)
+    }
+	if (sysset("path", v) != 0) {
 		fatal("can't assign sys.path");
+    }
 	DECREF(v);
 }
 
 static object *
-makeargvobject(argc, argv)
-	int argc;
-	char **argv;
+makeargvobject(int argc, char **argv)
 {
 	object *av;
-	if (argc < 0 || argv == NULL)
+
+	if (argc < 0 || argv == NULL) {
 		argc = 0;
+    }
 	av = newlistobject(argc);
 	if (av != NULL) {
-		int i;
-		for (i = 0; i < argc; i++) {
+		for (int i = 0; i < argc; i++) {
 			object *v = newstringobject(argv[i]);
 			if (v == NULL) {
 				DECREF(av);
@@ -178,14 +183,15 @@ makeargvobject(argc, argv)
 }
 
 void
-setpythonargv(argc, argv)
-	int argc;
-	char **argv;
+setpythonargv(int argc, char **argv)
 {
 	object *av = makeargvobject(argc, argv);
-	if (av == NULL)
+
+	if (av == NULL) {
 		fatal("no mem for sys.argv");
-	if (sysset("argv", av) != 0)
+	}
+	if (sysset("argv", av) != 0) {
 		fatal("can't assign sys.argv");
+    }
 	DECREF(av);
 }
