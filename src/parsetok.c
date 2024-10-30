@@ -8,19 +8,12 @@
 #include "parsetok.h"
 #include "errcode.h"
 
-
 /* Forward */
 static int parsetok PROTO((struct tok_state *, grammar *, int, node **));
 
-
 /* Parse input coming from a string.  Return error code, print some errors. */
-
 int
-parsestring(s, g, start, n_ret)
-	char *s;
-	grammar *g;
-	int start;
-	node **n_ret;
+parsestring(char *s, grammar *g, int start, node **n_ret)
 {
 	struct tok_state *tok = tok_setups(s);
 	int ret;
@@ -31,8 +24,7 @@ parsestring(s, g, start, n_ret)
 	}
 	ret = parsetok(tok, g, start, n_ret);
 	if (ret == E_TOKEN || ret == E_SYNTAX) {
-		fprintf(stderr, "String parsing error at line %d\n",
-			tok->lineno);
+		fprintf(stderr, "String parsing error at line %d\n", tok->lineno);
 	}
 	tok_free(tok);
 	return ret;
@@ -40,15 +32,9 @@ parsestring(s, g, start, n_ret)
 
 
 /* Parse input coming from a file.  Return error code, print some errors. */
-
 int
-parsefile(fp, filename, g, start, ps1, ps2, n_ret)
-	FILE *fp;
-	char *filename;
-	grammar *g;
-	int start;
-	char *ps1, *ps2;
-	node **n_ret;
+parsefile(FILE *fp, char *filename, grammar *g, int start, char *ps1,
+          char *ps2, node **n_ret)
 {
 	struct tok_state *tok = tok_setupf(fp, ps1, ps2);
 	int ret;
@@ -61,16 +47,19 @@ parsefile(fp, filename, g, start, ps1, ps2, n_ret)
 	if (ret == E_TOKEN || ret == E_SYNTAX) {
 		char *p;
 		fprintf(stderr, "Parsing error: file %s, line %d:\n",
-						filename, tok->lineno);
+				filename, tok->lineno);
 		*tok->inp = '\0';
-		if (tok->inp > tok->buf && tok->inp[-1] == '\n')
+		if (tok->inp > tok->buf && tok->inp[-1] == '\n') {
 			tok->inp[-1] = '\0';
+        }
 		fprintf(stderr, "%s\n", tok->buf);
 		for (p = tok->buf; p < tok->cur; p++) {
-			if (*p == '\t')
+			if (*p == '\t') {
 				putc('\t', stderr);
-			else
+            }
+			else {
 				putc(' ', stderr);
+            }
 		}
 		fprintf(stderr, "^\n");
 	}
@@ -78,16 +67,10 @@ parsefile(fp, filename, g, start, ps1, ps2, n_ret)
 	return ret;
 }
 
-
 /* Parse input coming from the given tokenizer structure.
    Return error code. */
-
 static int
-parsetok(tok, g, start, n_ret)
-	struct tok_state *tok;
-	grammar *g;
-	int start;
-	node **n_ret;
+parsetok(struct tok_state *tok, grammar *g, int start, node **n_ret)
 {
 	parser_state *ps;
 	int ret;
@@ -102,8 +85,8 @@ parsetok(tok, g, start, n_ret)
 		int type;
 		int len;
 		char *str;
-		
 		type = tok_get(tok, &a, &b);
+
 		if (type == ERRORTOKEN) {
 			ret = tok->done;
 			break;
@@ -123,8 +106,9 @@ parsetok(tok, g, start, n_ret)
 				*n_ret = ps->p_tree;
 				ps->p_tree = NULL;
 			}
-			else if (tok->lineno <= 1 && tok->done == E_EOF)
+			else if (tok->lineno <= 1 && tok->done == E_EOF) {
 				ret = E_EOF;
+            }
 			break;
 		}
 	}
