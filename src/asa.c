@@ -90,9 +90,7 @@
 
 #include "asa.h"
 
-
 /* Asynchronous execution facility (lower layer) */
-
 
 /* Signal used to cancel requests in progress */
 #define MYSIG SIGUSR1
@@ -110,8 +108,7 @@ static void *work_result;
 
 /*ARGSUSED*/
 static void
-handler(sig)
-	int sig;
+handler(int sig)
 {
 	/* Reinstate the handler (non-BSD signal semantics) */
 	signal(sig, handler);
@@ -120,22 +117,20 @@ handler(sig)
 /* Subroutine to fiddle signals */
 
 static void
-dosig(sig)
-	int sig;
+dosig(int sig)
 {
-	if (signal(sig, SIG_IGN) != SIG_IGN)
+	if (signal(sig, SIG_IGN) != SIG_IGN) {
 		signal(sig, SIG_DFL);
+    }
 }
 
 /* Slave control flow */
 
 /*ARGSUSED*/
 static void
-slave(arg)
-	void *arg;
+slave(void *arg)
 {
 	void * (*func)();
-	void *arg;
 	void *result;
 	
 	/* Reset signal handlers that interactive programs often catch.
@@ -148,8 +143,9 @@ slave(arg)
 	dosig(SIGPIPE);
 	
 	/* Ignore SIGINT if caught or ignored */
-	if (signal(SIGINT, SIG_IGN) == SIG_DFL)
+	if (signal(SIGINT, SIG_IGN) == SIG_DFL) {
 		signal(SIGINT, SIG_DFL);
+    }
 	
 	/* Let the handler install itself */
 	handler(MYSIG);
@@ -167,19 +163,23 @@ slave(arg)
 	/* Loop forever, waiting for and executing work */
 	for (;;) {
 		/* First rendezvous: store previous result */
-		if (blockproc(slave_pid) < 0)
+		if (blockproc(slave_pid) < 0) {
 			perror("slave: [result] blockproc(slave_pid)");
+        }
 		work_result = result;
-		if (unblockproc(master_pid) < 0)
+		if (unblockproc(master_pid) < 0) {
 			perror("slave: [result] unblockproc(master_pid)");
+        }
 		
 		/* Second rendezvous: fetch work */
-		if (blockproc(slave_pid) < 0)
+		if (blockproc(slave_pid) < 0) {
 			perror("slave: [func,arg] blockproc(slave_pid)");
+        }
 		func = work_func;
 		arg = work_arg;
-		if (unblockproc(master_pid) < 0)
+		if (unblockproc(master_pid) < 0) {
 			perror("slave: [func,arg] unblockproc(master_pid)");
+    	}
 		
 		/* Execute work, computing new result */
 		if (func == NULL) {
@@ -194,8 +194,9 @@ slave(arg)
 static int
 slave_init()
 {
-	if (slave_pid > 0)
+	if (slave_pid > 0) {
 		return slave_pid;
+    }
 	master_pid = getpid();
 	
 	/* Reset the queue, in case this is a re-init after asa_done() */
@@ -205,8 +206,9 @@ slave_init()
 	
 	/* Create the slave process, sharing all segments and properties */
 	slave_pid = sproc(slave, PR_SALL, (char *)NULL);
-	if (slave_pid < 0)
+	if (slave_pid < 0) {
 		perror("slave_init: sproc(slave, PR_SALL, NULL)");
+    }
 	
 	/* Set up initial conditions---tricky!
 	   Both the master and the slave start with one credit, since
@@ -226,45 +228,46 @@ static void
 slave_done()
 {
 	if (slave_pid > 0) {
-		if (kill(slave_pid, SIGKILL) < 0)
+		if (kill(slave_pid, SIGKILL) < 0) {
 			perror("slave_done: kill(slave_pid, SIGKILL)");
+        }
 	}
 	slave_pid = -1;
 }
 
 /* Queue new work and return result of previous work */
-
 static void *
-rendezvous(func, arg)
-	void * (*func)();
-	void *arg;
+rendezvous(void * (*func)(), void *arg)
 {
 	void *result;
 	
-	if (slave_pid <= 0)
+	if (slave_pid <= 0) {
 		abort(); /* Illegal call: not initialized properly */
+    }
 	
 	/* First rendezvous: store new work */
-	if (blockproc(master_pid) < 0)
+	if (blockproc(master_pid) < 0) {
 		perror("rendezvous: [func,arg] blockproc(master_pid)");
+    }
 	work_func = func;
 	work_arg = arg;
-	if (unblockproc(slave_pid) < 0)
+	if (unblockproc(slave_pid) < 0) {
 		perror("rendezvous: [func,arg] unblockproc(slave_pid)");
+    }
 	
 	/* Second rendezvous: fetch previous result */
-	if (blockproc(master_pid) < 0)
+	if (blockproc(master_pid) < 0) {
 		perror("rendezvous: [result] blockproc(master_pid)");
+    }
 	result = work_result;
-	if (unblockproc(slave_pid) < 0)
+	if (unblockproc(slave_pid) < 0) {
 		perror("rendezvous: [result] unblockproc(slave_pid)");
+    }
 	
 	return result;
 }
 
-
 /* Asynchronous audio interface (higher layer) */
-
 
 int audio_fd = -1;	/* File descriptor -- not initialized yet */
 
@@ -284,8 +287,9 @@ asa_init()
 	int fd;
 	char *p;
 	
-	if (audio_fd >= 0)
+	if (audio_fd >= 0) {
 		return audio_fd;
+    }
 	fd = open("/dev/audio", 2);
 	if (fd < 0) {
 		perror("asa_init: Can't open /dev/audio");
@@ -305,8 +309,9 @@ asa_done()
 {
 	slave_done();
 	if (audio_fd >= 0) {
-		if (close(audio_fd) < 0)
+		if (close(audio_fd) < 0) {
 			perror("asa_done: close(audio_fd)");
+        }
 	}
 	audio_fd = -1;
 }
@@ -321,14 +326,17 @@ runjob(arg)
 	int len = q->len;
 	int n = 0;
 	
-	if (q->func == 0)
+	if (q->func == 0) {
 		n = read(audio_fd, buf, len);
-	else
+    }
+	else {
 		n = write(audio_fd, buf, len);
+    }
 	if (q->func == 0 && n >= 0) {
-		while (--len >= n && buf[len] == '\0')
+		while (--len >= n && buf[len] == '\0') {
 			;
-		n = len+1;
+        }
+		n = len + 1;
 	}
 	q->result = n;
 	q->error = oserror();
@@ -336,10 +344,7 @@ runjob(arg)
 }
 
 static void
-startjob(func, buf, len)
-	int func;
-	char *buf;
-	int len;
+startjob(int func, char *buf, int len)
 {
 	struct queue *q;
 	
@@ -352,18 +357,14 @@ startjob(func, buf, len)
 }
 
 void
-asa_start_read(buf, len)
-	char *buf;
-	int len;
+asa_start_read(char *buf, int len)
 {
 	memset(buf, '\0', len);
 	startjob(0, buf, len);
 }
 
 void
-asa_start_write(buf, len)
-	char *buf;
-	int len;
+asa_start_write(char *buf, int len)
 {
 	startjob(1, buf, len);
 }
@@ -386,20 +387,22 @@ int
 asa_poll()
 {
 	int err;
-	
 	err = prctl(PR_ISBLOCKED, slave_pid);
+
 	if (err < 0) {
 		perror("prctl(PR_ISBLOCKED, slave_pid)");
 		return -1;
 	}
-	else if (err == 0)
+	else if (err == 0) {
 		return 0;
+    }
 	else if (work_result == NULL) {
 		setoserror(0);
 		return -1;
 	}
-	else
+	else {
 		return 1;
+    }
 }
 
 int
@@ -412,7 +415,6 @@ asa_cancel()
 	return result;
 }
 
-
 #ifdef MAIN
 
 /* Test program */
@@ -421,12 +423,13 @@ asa_cancel()
 
 main()
 {
-	static char buf[10*16*1024]; /* 10 seconds of sound at 16K/sec */
+	static char buf[10 * 16 * 1024]; /* 10 seconds of sound at 16K/sec */
 	int n;
 	int afd;
 	
-	if ((afd = asa_init()) < 0)
+	if ((afd = asa_init()) < 0) {
 		exit(1);
+    }
 	ioctl(afd, AUDIOCSETRATE, 3);
 	ioctl(afd, AUDIOCSETOUTGAIN, 0);
 	printf("Poll returns %d\n", asa_poll());
@@ -435,8 +438,9 @@ main()
 	go("Hit enter to stop recording:\n");
 	/*printf("Poll returns %d\n", asa_poll());*/
 	n = asa_cancel();
-	if (n < 0)
+	if (n < 0) {
 		perror("Read failed");
+    }
 	else {
 		printf("Got %d bytes\n", n);
 		printf("Poll returns %d\n", asa_poll());
@@ -446,18 +450,19 @@ main()
 		go("Hit enter to stop playing:\n");
 		printf("Poll returns %d\n", asa_poll());
 		n = asa_cancel();
-		if (n < 0)
+		if (n < 0) {
 			perror("Write failed");
-		else
+        }
+		else {
 			printf("Stopped at %d bytes\n", n);
+        }
 	}
 	ioctl(afd, AUDIOCSETOUTGAIN, 0);
 	asa_done();
 	exit(n < 0 ? 1 : 0);
 }
 
-go(str)
-	char *str;
+go(char *str)
 {
 	char line[100];
 	
