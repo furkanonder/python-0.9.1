@@ -16,15 +16,14 @@
 #include "cgensupport.h"
 #include "errors.h"
 
-
 /* Functions to construct return values */
 
 object *
-mknewcharobject(c)
-	int c;
+mknewcharobject(int c)
 {
 	char ch[1];
 	ch[0] = c;
+
 	return newsizedstringobject(ch, 1);
 }
 
@@ -34,15 +33,12 @@ mknewcharobject(c)
    one argument. */
 
 int
-getiobjectarg(args, nargs, i, p_arg)
-	register object *args;
-	int nargs, i;
-	object **p_arg;
+getiobjectarg(register object *args, int nargs, int i, object **p_arg)
 {
 	if (nargs != 1) {
-		if (args == NULL || !is_tupleobject(args) ||
-				nargs != gettuplesize(args) ||
-				i < 0 || i >= nargs) {
+		if (args == NULL || !is_tupleobject(args)
+            || nargs != gettuplesize(args) || i < 0 || i >= nargs)
+        {
 			return err_badarg();
 		}
 		else {
@@ -57,15 +53,12 @@ getiobjectarg(args, nargs, i, p_arg)
 }
 
 int
-getilongarg(args, nargs, i, p_arg)
-	register object *args;
-	int nargs, i;
-	long *p_arg;
+getilongarg(register object *args, int nargs, int i, long *p_arg)
 {
 	if (nargs != 1) {
-		if (args == NULL || !is_tupleobject(args) ||
-				nargs != gettuplesize(args) ||
-				i < 0 || i >= nargs) {
+		if (args == NULL || !is_tupleobject(args)
+            || nargs != gettuplesize(args) || i < 0 || i >= nargs)
+        {
 			return err_badarg();
 		}
 		args = gettupleitem(args, i);
@@ -78,22 +71,19 @@ getilongarg(args, nargs, i, p_arg)
 }
 
 int
-getishortarg(args, nargs, i, p_arg)
-	register object *args;
-	int nargs, i;
-	short *p_arg;
+getishortarg(register object *args, int nargs, int i, short *p_arg)
 {
 	long x;
-	if (!getilongarg(args, nargs, i, &x))
+
+	if (!getilongarg(args, nargs, i, &x)) {
 		return 0;
+    }
 	*p_arg = x;
 	return 1;
 }
 
 static int
-extractdouble(v, p_arg)
-	register object *v;
-	double *p_arg;
+extractdouble(register object *v, double *p_arg)
 {
 	if (v == NULL) {
 		/* Fall through to error return at end of function */
@@ -110,9 +100,7 @@ extractdouble(v, p_arg)
 }
 
 static int
-extractfloat(v, p_arg)
-	register object *v;
-	float *p_arg;
+extractfloat(register object *v, float *p_arg)
 {
 	if (v == NULL) {
 		/* Fall through to error return at end of function */
@@ -129,30 +117,29 @@ extractfloat(v, p_arg)
 }
 
 int
-getifloatarg(args, nargs, i, p_arg)
-	register object *args;
-	int nargs, i;
-	float *p_arg;
+getifloatarg(register object *args, int nargs, int i, float *p_arg)
 {
 	object *v;
 	float x;
-	if (!getiobjectarg(args, nargs, i, &v))
+
+	if (!getiobjectarg(args, nargs, i, &v)) {
 		return 0;
-	if (!extractfloat(v, &x))
+    }
+	if (!extractfloat(v, &x)) {
 		return 0;
+    }
 	*p_arg = x;
 	return 1;
 }
 
 int
-getistringarg(args, nargs, i, p_arg)
-	object *args;
-	int nargs, i;
-	string *p_arg;
+getistringarg(object *args, int nargs, int i, string *p_arg)
 {
 	object *v;
-	if (!getiobjectarg(args, nargs, i, &v))
+
+	if (!getiobjectarg(args, nargs, i, &v)) {
 		return NULL;
+    }
 	if (!is_stringobject(v)) {
 		return err_badarg();
 	}
@@ -161,14 +148,13 @@ getistringarg(args, nargs, i, p_arg)
 }
 
 int
-getichararg(args, nargs, i, p_arg)
-	object *args;
-	int nargs, i;
-	char *p_arg;
+getichararg(object *args, int nargs, int i, char *p_arg)
 {
 	string x;
-	if (!getistringarg(args, nargs, i, &x))
+
+	if (!getistringarg(args, nargs, i, &x)) {
 		return 0;
+    }
 	if (x[0] == '\0' || x[1] != '\0') {
 		/* Not exactly one char */
 		return err_badarg();
@@ -178,14 +164,13 @@ getichararg(args, nargs, i, p_arg)
 }
 
 int
-getilongarraysize(args, nargs, i, p_arg)
-	object *args;
-	int nargs, i;
-	long *p_arg;
+getilongarraysize(object *args, int nargs, int i, long *p_arg)
 {
 	object *v;
-	if (!getiobjectarg(args, nargs, i, &v))
+
+	if (!getiobjectarg(args, nargs, i, &v)) {
 		return 0;
+    }
 	if (is_tupleobject(v)) {
 		*p_arg = gettuplesize(v);
 		return 1;
@@ -198,14 +183,13 @@ getilongarraysize(args, nargs, i, p_arg)
 }
 
 int
-getishortarraysize(args, nargs, i, p_arg)
-	object *args;
-	int nargs, i;
-	short *p_arg;
+getishortarraysize(object *args, int nargs, int i, short *p_arg)
 {
 	long x;
-	if (!getilongarraysize(args, nargs, i, &x))
+
+	if (!getilongarraysize(args, nargs, i, &x)) {
 		return 0;
+    }
 	*p_arg = x;
 	return 1;
 }
@@ -213,15 +197,13 @@ getishortarraysize(args, nargs, i, p_arg)
 /* XXX The following four are too similar.  Should share more code. */
 
 int
-getilongarray(args, nargs, i, n, p_arg)
-	object *args;
-	int nargs, i;
-	int n;
-	long *p_arg; /* [n] */
+getilongarray(object *args, int nargs, int i, int n, long *p_arg)
 {
 	object *v, *w;
-	if (!getiobjectarg(args, nargs, i, &v))
+
+	if (!getiobjectarg(args, nargs, i, &v)) {
 		return 0;
+    }
 	if (is_tupleobject(v)) {
 		if (gettuplesize(v) != n) {
 			return err_badarg();
@@ -254,15 +236,13 @@ getilongarray(args, nargs, i, n, p_arg)
 }
 
 int
-getishortarray(args, nargs, i, n, p_arg)
-	object *args;
-	int nargs, i;
-	int n;
-	short *p_arg; /* [n] */
+getishortarray(object *args, int nargs, int i, int n, short *p_arg)
 {
 	object *v, *w;
-	if (!getiobjectarg(args, nargs, i, &v))
+
+	if (!getiobjectarg(args, nargs, i, &v)) {
 		return 0;
+    }
 	if (is_tupleobject(v)) {
 		if (gettuplesize(v) != n) {
 			return err_badarg();
@@ -295,23 +275,22 @@ getishortarray(args, nargs, i, n, p_arg)
 }
 
 int
-getidoublearray(args, nargs, i, n, p_arg)
-	object *args;
-	int nargs, i;
-	int n;
-	double *p_arg; /* [n] */
+getidoublearray(object *args, int nargs, int i, int n, double *p_arg)
 {
 	object *v, *w;
-	if (!getiobjectarg(args, nargs, i, &v))
+
+	if (!getiobjectarg(args, nargs, i, &v)) {
 		return 0;
+    }
 	if (is_tupleobject(v)) {
 		if (gettuplesize(v) != n) {
 			return err_badarg();
 		}
 		for (i = 0; i < n; i++) {
 			w = gettupleitem(v, i);
-			if (!extractdouble(w, &p_arg[i]))
+			if (!extractdouble(w, &p_arg[i])) {
 				return 0;
+            }
 		}
 		return 1;
 	}
@@ -321,8 +300,9 @@ getidoublearray(args, nargs, i, n, p_arg)
 		}
 		for (i = 0; i < n; i++) {
 			w = getlistitem(v, i);
-			if (!extractdouble(w, &p_arg[i]))
+			if (!extractdouble(w, &p_arg[i])) {
 				return 0;
+            }
 		}
 		return 1;
 	}
@@ -332,23 +312,22 @@ getidoublearray(args, nargs, i, n, p_arg)
 }
 
 int
-getifloatarray(args, nargs, i, n, p_arg)
-	object *args;
-	int nargs, i;
-	int n;
-	float *p_arg; /* [n] */
+getifloatarray(object *args, int nargs, int i, int n, float *p_arg)
 {
 	object *v, *w;
-	if (!getiobjectarg(args, nargs, i, &v))
+
+	if (!getiobjectarg(args, nargs, i, &v)) {
 		return 0;
+    }
 	if (is_tupleobject(v)) {
 		if (gettuplesize(v) != n) {
 			return err_badarg();
 		}
 		for (i = 0; i < n; i++) {
 			w = gettupleitem(v, i);
-			if (!extractfloat(w, &p_arg[i]))
+			if (!extractfloat(w, &p_arg[i])) {
 				return 0;
+            }
 		}
 		return 1;
 	}
@@ -358,8 +337,9 @@ getifloatarray(args, nargs, i, n, p_arg)
 		}
 		for (i = 0; i < n; i++) {
 			w = getlistitem(v, i);
-			if (!extractfloat(w, &p_arg[i]))
+			if (!extractfloat(w, &p_arg[i])) {
 				return 0;
+            }
 		}
 		return 1;
 	}
