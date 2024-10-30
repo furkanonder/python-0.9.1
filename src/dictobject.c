@@ -65,16 +65,19 @@ object *
 newdictobject()
 {
 	register dictobject *dp;
+
 	if (dummy == NULL) { /* Auto-initialize dummy */
-		dummy = (stringobject *) newstringobject("");
-		if (dummy == NULL)
+		dummy = (stringobject *)newstringobject("");
+		if (dummy == NULL) {
 			return NULL;
+        }
 	}
 	dp = NEWOBJ(dictobject, &Dicttype);
-	if (dp == NULL)
+	if (dp == NULL) {
 		return NULL;
+    }
 	dp->di_size = primes[0];
-	dp->di_table = (dictentry *) calloc(sizeof(dictentry), dp->di_size);
+	dp->di_table = (dictentry *)calloc(sizeof(dictentry), dp->di_size);
 	if (dp->di_table == NULL) {
 		DEL(dp);
 		return err_nomem();
@@ -103,16 +106,16 @@ is a prime number).  My choice for incr is somewhat arbitrary.
 */
 static dictentry *lookdict PROTO((dictobject *, char *));
 static dictentry *
-lookdict(dp, key)
-	register dictobject *dp;
-	char *key;
+lookdict(register dictobject *dp, char *key)
 {
 	register int i, incr;
 	register dictentry *freeslot = NULL;
-	register unsigned char *p = (unsigned char *) key;
+	register unsigned char *p = (unsigned char *)key;
 	register unsigned long sum = *p << 7;
-	while (*p != '\0')
+
+	while (*p != '\0') {
 		sum = sum + sum + *p++;
+    }
 	i = sum % dp->di_size;
 	do {
 		sum = sum + sum + 1;
@@ -121,14 +124,17 @@ lookdict(dp, key)
 	for (;;) {
 		register dictentry *ep = &dp->di_table[i];
 		if (ep->de_key == NULL) {
-			if (freeslot != NULL)
+			if (freeslot != NULL) {
 				return freeslot;
-			else
+            }
+			else {
 				return ep;
+            }
 		}
 		if (ep->de_key == dummy) {
-			if (freeslot != NULL)
+			if (freeslot != NULL) {
 				freeslot = ep;
+            }
 		}
 		else if (GETSTRINGVALUE(ep->de_key)[0] == key[0]) {
 			if (strcmp(GETSTRINGVALUE(ep->de_key), key) == 0) {
@@ -146,22 +152,22 @@ Eats a reference to key and one to value.
 */
 static void insertdict PROTO((dictobject *, stringobject *, object *));
 static void
-insertdict(dp, key, value)
-	register dictobject *dp;
-	stringobject *key;
-	object *value;
+insertdict(register dictobject *dp, stringobject *key, object *value)
 {
 	register dictentry *ep;
 	ep = lookdict(dp, GETSTRINGVALUE(key));
+
 	if (ep->de_value != NULL) {
 		DECREF(ep->de_value);
 		DECREF(key);
 	}
 	else {
-		if (ep->de_key == NULL)
+		if (ep->de_key == NULL) {
 			dp->di_fill++;
-		else
+        }
+		else {
 			DECREF(ep->de_key);
+        }
 		ep->de_key = key;
 		dp->di_used++;
 	}
@@ -175,8 +181,7 @@ actually be smaller than the old one.
 */
 static int dictresize PROTO((dictobject *));
 static int
-dictresize(dp)
-	dictobject *dp;
+dictresize(dictobject *dp)
 {
 	register int oldsize = dp->di_size;
 	register int newsize;
@@ -185,13 +190,14 @@ dictresize(dp)
 	register dictentry *ep;
 	register int i;
 	newsize = dp->di_size;
+
 	for (i = 0; ; i++) {
-		if (primes[i] > dp->di_used*2) {
+		if (primes[i] > dp->di_used * 2) {
 			newsize = primes[i];
 			break;
 		}
 	}
-	newtable = (dictentry *) calloc(sizeof(dictentry), newsize);
+	newtable = (dictentry *)calloc(sizeof(dictentry), newsize);
 	if (newtable == NULL) {
 		err_nomem();
 		return -1;
@@ -201,32 +207,32 @@ dictresize(dp)
 	dp->di_fill = 0;
 	dp->di_used = 0;
 	for (i = 0, ep = oldtable; i < oldsize; i++, ep++) {
-		if (ep->de_value != NULL)
+		if (ep->de_value != NULL) {
 			insertdict(dp, ep->de_key, ep->de_value);
-		else if (ep->de_key != NULL)
+        }
+		else if (ep->de_key != NULL) {
 			DECREF(ep->de_key);
+        }
 	}
 	DEL(oldtable);
 	return 0;
 }
 
 object *
-dictlookup(op, key)
-	object *op;
-	char *key;
+dictlookup(object *op, char *key)
 {
-	if (!is_dictobject(op))
+	if (!is_dictobject(op)) {
 		fatal("dictlookup on non-dictionary");
+    }
 	return lookdict((dictobject *)op, key) -> de_value;
 }
 
 #ifdef NOT_USED
 static object *
-dict2lookup(op, key)
-	register object *op;
-	register object *key;
+dict2lookup(register object *op, register object *key)
 {
 	register object *res;
+
 	if (!is_dictobject(op)) {
 		err_badcall();
 		return NULL;
@@ -235,22 +241,20 @@ dict2lookup(op, key)
 		err_badarg();
 		return NULL;
 	}
-	res = lookdict((dictobject *)op, ((stringobject *)key)->ob_sval)
-								-> de_value;
-	if (res == NULL)
+	res = lookdict((dictobject *)op, ((stringobject *)key)->ob_sval)->de_value;
+	if (res == NULL) {
 		err_setstr(KeyError, "key not in dictionary");
+    }
 	return res;
 }
 #endif
 
 static int
-dict2insert(op, key, value)
-	register object *op;
-	object *key;
-	object *value;
+dict2insert(register object *op, object *key, object *value)
 {
 	register dictobject *dp;
 	register stringobject *keyobj;
+
 	if (!is_dictobject(op)) {
 		err_badcall();
 		return -1;
@@ -262,10 +266,11 @@ dict2insert(op, key, value)
 	}
 	keyobj = (stringobject *)key;
 	/* if fill >= 2/3 size, resize */
-	if (dp->di_fill*3 >= dp->di_size*2) {
+	if (dp->di_fill * 3 >= dp->di_size * 2) {
 		if (dictresize(dp) != 0) {
-			if (dp->di_fill+1 > dp->di_size)
+			if (dp->di_fill + 1 > dp->di_size) {
 				return -1;
+            }
 		}
 	}
 	INCREF(keyobj);
@@ -275,14 +280,12 @@ dict2insert(op, key, value)
 }
 
 int
-dictinsert(op, key, value)
-	object *op;
-	char *key;
-	object *value;
+dictinsert(object *op, char *key, object *value)
 {
 	register object *keyobj;
 	register int err;
 	keyobj = newstringobject(key);
+
 	if (keyobj == NULL) {
 		err_nomem();
 		return -1;
@@ -293,12 +296,11 @@ dictinsert(op, key, value)
 }
 
 int
-dictremove(op, key)
-	object *op;
-	char *key;
+dictremove(object *op, char *key)
 {
 	register dictobject *dp;
 	register dictentry *ep;
+
 	if (!is_dictobject(op)) {
 		err_badcall();
 		return -1;
@@ -319,9 +321,7 @@ dictremove(op, key)
 }
 
 static int
-dict2remove(op, key)
-	object *op;
-	register object *key;
+dict2remove(object *op, register object *key)
 {
 	if (!is_stringobject(key)) {
 		err_badarg();
@@ -331,24 +331,22 @@ dict2remove(op, key)
 }
 
 int
-getdictsize(op)
-	register object *op;
+getdictsize(register object *op)
 {
 	if (!is_dictobject(op)) {
 		err_badcall();
 		return -1;
 	}
-	return ((dictobject *)op) -> di_size;
+	return ((dictobject *)op)->di_size;
 }
 
 static object *
-getdict2key(op, i)
-	object *op;
-	register int i;
+getdict2key(object *op, register int i)
 {
 	/* XXX This can't return errors since its callers assume
 	   that NULL means there was no key at that point */
 	register dictobject *dp;
+
 	if (!is_dictobject(op)) {
 		/* err_badcall(); */
 		return NULL;
@@ -362,55 +360,58 @@ getdict2key(op, i)
 		/* Not an error! */
 		return NULL;
 	}
-	return (object *) dp->di_table[i].de_key;
+	return (object *)dp->di_table[i].de_key;
 }
 
 char *
-getdictkey(op, i)
-	object *op;
-	int i;
+getdictkey(object *op, int i)
 {
 	register object *keyobj = getdict2key(op, i);
-	if (keyobj == NULL)
+
+	if (keyobj == NULL) {
 		return NULL;
+    }
 	return GETSTRINGVALUE((stringobject *)keyobj);
 }
 
 /* Methods */
 
 static void
-dict_dealloc(dp)
-	register dictobject *dp;
+dict_dealloc(register object *op)
 {
+	register dictobject *dp = (dictobject *)op;
 	register int i;
 	register dictentry *ep;
+
 	for (i = 0, ep = dp->di_table; i < dp->di_size; i++, ep++) {
-		if (ep->de_key != NULL)
+		if (ep->de_key != NULL) {
 			DECREF(ep->de_key);
-		if (ep->de_value != NULL)
+        }
+		if (ep->de_value != NULL) {
 			DECREF(ep->de_value);
+        }
 	}
-	if (dp->di_table != NULL)
+	if (dp->di_table != NULL) {
 		DEL(dp->di_table);
+    }
 	DEL(dp);
 }
 
 static void
-dict_print(dp, fp, flags)
-	register dictobject *dp;
-	register FILE *fp;
-	register int flags;
+dict_print(register object *op, register FILE *fp, register int flags)
 {
+	register dictobject *dp = (dictobject *)op;
 	register int i;
 	register int any;
 	register dictentry *ep;
-	fprintf(fp, "{");
 	any = 0;
-	for (i = 0, ep = dp->di_table; i < dp->di_size && !StopPrint;
-							i++, ep++) {
+
+	fprintf(fp, "{");
+	for (i = 0, ep = dp->di_table; i < dp->di_size && !StopPrint; i++, ep++) {
 		if (ep->de_value != NULL) {
-			if (any++ > 0)
+			if (any++ > 0) {
 				fprintf(fp, "; ");
+            }
 			printobject((object *)ep->de_key, fp, flags);
 			fprintf(fp, ": ");
 			printobject(ep->de_value, fp, flags);
@@ -420,19 +421,18 @@ dict_print(dp, fp, flags)
 }
 
 static void
-js(pv, w)
-	object **pv;
-	object *w;
+js(object **pv, object *w)
 {
 	joinstring(pv, w);
-	if (w != NULL)
+	if (w != NULL) {
 		DECREF(w);
+    }
 }
 
 static object *
-dict_repr(dp)
-	dictobject *dp;
+dict_repr(object *op)
 {
+	register dictobject *dp = (dictobject *)op;
 	auto object *v;
 	register object *w;
 	object *semi, *colon;
@@ -443,57 +443,62 @@ dict_repr(dp)
 	semi = newstringobject("; ");
 	colon = newstringobject(": ");
 	any = 0;
-	for (i = 0, ep = dp->di_table; i < dp->di_size && !StopPrint;
-							i++, ep++) {
+
+	for (i = 0, ep = dp->di_table; i < dp->di_size && !StopPrint; i++, ep++) {
 		if (ep->de_value != NULL) {
-			if (any++)
+			if (any++) {
 				joinstring(&v, semi);
+            }
 			js(&v, w = reprobject((object *)ep->de_key));
 			joinstring(&v, colon);
 			js(&v, w = reprobject(ep->de_value));
 		}
 	}
 	js(&v, w = newstringobject("}"));
-	if (semi != NULL)
+	if (semi != NULL) {
 		DECREF(semi);
-	if (colon != NULL)
+    }
+	if (colon != NULL) {
 		DECREF(colon);
+    }
 	return v;
 }
 
 static int
-dict_length(dp)
-	dictobject *dp;
+dict_length(object *op)
 {
+	dictobject *dp = (dictobject *)op;
 	return dp->di_used;
 }
 
 static object *
-dict_subscript(dp, v)
-	dictobject *dp;
-	register object *v;
+dict_subscript(object *op, register object *v)
 {
+	dictobject *dp = (dictobject *)op;
+
 	if (!is_stringobject(v)) {
 		err_badarg();
 		return NULL;
 	}
-	v = lookdict(dp, GETSTRINGVALUE((stringobject *)v)) -> de_value;
-	if (v == NULL)
+	v = lookdict(dp, GETSTRINGVALUE((stringobject *)v))->de_value;
+	if (v == NULL) {
 		err_setstr(KeyError, "key not in dictionary");
-	else
+    }
+	else {
 		INCREF(v);
+    }
 	return v;
 }
 
 static int
-dict_ass_sub(dp, v, w)
-	dictobject *dp;
-	object *v, *w;
+dict_ass_sub(object *dp, object *v, object *w)
 {
-	if (w == NULL)
-		return dict2remove((object *)dp, v);
-	else
-		return dict2insert((object *)dp, v, w);
+	if (w == NULL) {
+		return dict2remove(dp, v);
+    }
+	else {
+		return dict2insert(dp, v, w);
+    }
 }
 
 static mapping_methods dict_as_mapping = {
@@ -503,17 +508,19 @@ static mapping_methods dict_as_mapping = {
 };
 
 static object *
-dict_keys(dp, args)
-	register dictobject *dp;
-	object *args;
+dict_keys(register object *op, object *args)
 {
+	register dictobject *dp = (dictobject *)op;
 	register object *v;
 	register int i, j;
-	if (!getnoarg(args))
+
+	if (!getnoarg(args)) {
 		return NULL;
+    }
 	v = newlistobject(dp->di_used);
-	if (v == NULL)
+	if (v == NULL) {
 		return NULL;
+    }
 	for (i = 0, j = 0; i < dp->di_size; i++) {
 		if (dp->di_table[i].de_value != NULL) {
 			stringobject *key = dp->di_table[i].de_key;
@@ -526,27 +533,26 @@ dict_keys(dp, args)
 }
 
 object *
-getdictkeys(dp)
-	object *dp;
+getdictkeys(object *dp)
 {
 	if (dp == NULL || !is_dictobject(dp)) {
 		err_badcall();
 		return NULL;
 	}
-	return dict_keys((dictobject *)dp, (object *)NULL);
+	return dict_keys(dp, (object *)NULL);
 }
 
 static object *
-dict_has_key(dp, args)
-	register dictobject *dp;
-	object *args;
+dict_has_key(register object *op, object *args)
 {
+	dictobject *dp = (dictobject *)op;
 	object *key;
 	register long ok;
-	if (!getstrarg(args, &key))
+
+	if (!getstrarg(args, &key)) {
 		return NULL;
-	ok = lookdict(dp, GETSTRINGVALUE((stringobject *)key))->de_value
-								!= NULL;
+    }
+	ok = lookdict(dp, GETSTRINGVALUE((stringobject *)key))->de_value != NULL;
 	return newintobject(ok);
 }
 
@@ -557,11 +563,9 @@ static struct methodlist dict_methods[] = {
 };
 
 static object *
-dict_getattr(dp, name)
-	dictobject *dp;
-	char *name;
+dict_getattr(object *op, char *name)
 {
-	return findmethod(dict_methods, (object *)dp, name);
+	return findmethod(dict_methods, op, name);
 }
 
 typeobject Dicttype = {
