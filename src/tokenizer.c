@@ -7,8 +7,8 @@
 #include "pgenheaders.h"
 
 #include <ctype.h>
-#include "string.h"
 
+#include "string.h"
 #include "fgetsintr.h"
 #include "tokenizer.h"
 #include "errcode.h"
@@ -27,7 +27,6 @@ static int tok_nextc PROTO((struct tok_state *tok));
 static void tok_backup PROTO((struct tok_state *tok, int c));
 
 /* Token names */
-
 char *tok_name[] = {
 	"ENDMARKER",
 	"NAME",
@@ -62,15 +61,15 @@ char *tok_name[] = {
 	"<N_TOKENS>"
 };
 
-
 /* Create and initialize a new tok_state structure */
-
 static struct tok_state *
 tok_new()
 {
 	struct tok_state *tok = NEW(struct tok_state, 1);
-	if (tok == NULL)
+
+	if (tok == NULL) {
 		return NULL;
+    }
 	tok->buf = tok->cur = tok->end = tok->inp = NULL;
 	tok->done = E_OK;
 	tok->fp = NULL;
@@ -84,32 +83,29 @@ tok_new()
 	return tok;
 }
 
-
 /* Set up tokenizer for string */
-
 struct tok_state *
-tok_setups(str)
-	char *str;
+tok_setups(char *str)
 {
 	struct tok_state *tok = tok_new();
-	if (tok == NULL)
+
+	if (tok == NULL) {
 		return NULL;
+    }
 	tok->buf = tok->cur = str;
 	tok->end = tok->inp = strchr(str, '\0');
 	return tok;
 }
 
-
 /* Set up tokenizer for string */
-
 struct tok_state *
-tok_setupf(fp, ps1, ps2)
-	FILE *fp;
-	char *ps1, *ps2;
+tok_setupf(FILE *fp, char *ps1, char *ps2)
 {
 	struct tok_state *tok = tok_new();
-	if (tok == NULL)
+
+	if (tok == NULL) {
 		return NULL;
+    }
 	if ((tok->buf = NEW(char, BUFSIZ)) == NULL) {
 		DEL(tok);
 		return NULL;
@@ -122,42 +118,40 @@ tok_setupf(fp, ps1, ps2)
 	return tok;
 }
 
-
 /* Free a tok_state structure */
-
 void
-tok_free(tok)
-	struct tok_state *tok;
+tok_free(struct tok_state *tok)
 {
 	/* XXX really need a separate flag to say 'my buffer' */
-	if (tok->fp != NULL && tok->buf != NULL)
+	if (tok->fp != NULL && tok->buf != NULL) {
 		DEL(tok->buf);
+    }
 	DEL(tok);
 }
 
-
 /* Get next char, updating state; error code goes into tok->done */
-
 static int
-tok_nextc(tok)
-	register struct tok_state *tok;
+tok_nextc(register struct tok_state *tok)
 {
-	if (tok->done != E_OK)
+	if (tok->done != E_OK) {
 		return EOF;
+    }
 	
 	for (;;) {
-		if (tok->cur < tok->inp)
+		if (tok->cur < tok->inp) {
 			return *tok->cur++;
+        }
 		if (tok->fp == NULL) {
 			tok->done = E_EOF;
 			return EOF;
 		}
-		if (tok->inp > tok->buf && tok->inp[-1] == '\n')
+		if (tok->inp > tok->buf && tok->inp[-1] == '\n') {
 			tok->inp = tok->buf;
+        }
 		if (tok->inp == tok->end) {
 			int n = tok->end - tok->buf;
 			char *new = tok->buf;
-			RESIZE(new, char, n+n);
+			RESIZE(new, char, n + n);
 			if (new == NULL) {
 				fprintf(stderr, "tokenizer out of mem\n");
 				tok->done = E_NOMEM;
@@ -177,25 +171,29 @@ tok_nextc(tok)
 				rl_bind_key('\t', rl_insert);
 				been_here++;
 			}
-			if (tok->buf != NULL)
+			if (tok->buf != NULL) {
 				free(tok->buf);
+            }
 			tok->buf = readline(tok->prompt);
-			(void) intrcheck(); /* Clear pending interrupt */
-			if (tok->nextprompt != NULL)
+			(void)intrcheck(); /* Clear pending interrupt */
+			if (tok->nextprompt != NULL) {
 				tok->prompt = tok->nextprompt;
 				/* XXX different semantics w/o readline()! */
+            }
 			if (tok->buf == NULL) {
 				tok->done = E_EOF;
 			}
 			else {
 				unsigned int n = strlen(tok->buf);
-				if (n > 0)
+				if (n > 0) {
 					add_history(tok->buf);
+                }
 				/* Append the '\n' that readline()
 				   doesn't give us, for the tokenizer... */
-				tok->buf = realloc(tok->buf, n+2);
-				if (tok->buf == NULL)
+				tok->buf = realloc(tok->buf, n + 2);
+				if (tok->buf == NULL) {
 					tok->done = E_NOMEM;
+                }
 				else {
 					tok->end = tok->buf + n;
 					*tok->end++ = '\n';
@@ -213,76 +211,91 @@ tok_nextc(tok)
 				fprintf(stderr, "%s", tok->prompt);
 				tok->prompt = tok->nextprompt;
 			}
-			tok->done = fgets_intr(tok->inp,
-				(int)(tok->end - tok->inp), tok->fp);
+			tok->done = fgets_intr(tok->inp, (int)(tok->end - tok->inp),
+                                   tok->fp);
 		}
 		if (tok->done != E_OK) {
-			if (tok->prompt != NULL)
+			if (tok->prompt != NULL) {
 				fprintf(stderr, "\n");
+            }
 			return EOF;
 		}
 		tok->inp = strchr(tok->inp, '\0');
 	}
 }
 
-
 /* Back-up one character */
-
 static void
-tok_backup(tok, c)
-	register struct tok_state *tok;
-	register int c;
+tok_backup(register struct tok_state *tok, register int c)
 {
 	if (c != EOF) {
 		if (--tok->cur < tok->buf) {
 			fprintf(stderr, "tok_backup: begin of buffer\n");
 			abort();
 		}
-		if (*tok->cur != c)
+		if (*tok->cur != c) {
 			*tok->cur = c;
+        }
 	}
 }
-
 
 /* Return the token corresponding to a single character */
-
 int
-tok_1char(c)
-	int c;
+tok_1char(int c)
 {
 	switch (c) {
-	case '(':	return LPAR;
-	case ')':	return RPAR;
-	case '[':	return LSQB;
-	case ']':	return RSQB;
-	case ':':	return COLON;
-	case ',':	return COMMA;
-	case ';':	return SEMI;
-	case '+':	return PLUS;
-	case '-':	return MINUS;
-	case '*':	return STAR;
-	case '/':	return SLASH;
-	case '|':	return VBAR;
-	case '&':	return AMPER;
-	case '<':	return LESS;
-	case '>':	return GREATER;
-	case '=':	return EQUAL;
-	case '.':	return DOT;
-	case '%':	return PERCENT;
-	case '`':	return BACKQUOTE;
-	case '{':	return LBRACE;
-	case '}':	return RBRACE;
-	default:	return OP;
+		case '(':
+			return LPAR;
+		case ')':
+			return RPAR;
+		case '[':
+			return LSQB;
+		case ']':
+			return RSQB;
+		case ':':
+			return COLON;
+		case ',':
+			return COMMA;
+		case ';':
+			return SEMI;
+		case '+':
+			return PLUS;
+		case '-':
+			return MINUS;
+		case '*':
+			return STAR;
+		case '/':
+			return SLASH;
+		case '|':
+			return VBAR;
+		case '&':
+			return AMPER;
+		case '<':
+			return LESS;
+		case '>':
+			return GREATER;
+		case '=':
+			return EQUAL;
+		case '.':
+			return DOT;
+		case '%':
+			return PERCENT;
+		case '`':
+			return BACKQUOTE;
+		case '{':
+			return LBRACE;
+		case '}':
+			return RBRACE;
+		default:
+			return OP;
 	}
 }
 
-
-/* Get next token, after space stripping etc. */
-
+/*	Get next token, after space stripping etc.
+ *  tok   			In/out: tokenizer state
+ *  p_start p_end  	Out: point to start/end of token */
 int
-tok_get(tok, p_start, p_end)
-	register struct tok_state *tok; /* In/out: tokenizer state */
-	char **p_start, **p_end; /* Out: point to start/end of token */
+tok_get(register struct tok_state *tok, char **p_start, char **p_end)
 {
 	register int c;
 	
@@ -293,12 +306,15 @@ tok_get(tok, p_start, p_end)
 		tok->lineno++;
 		for (;;) {
 			c = tok_nextc(tok);
-			if (c == ' ')
+			if (c == ' ') {
 				col++;
-			else if (c == '\t')
-				col = (col/tok->tabsize + 1) * tok->tabsize;
-			else
+            }
+			else if (c == '\t') {
+				col = (col / tok->tabsize + 1) * tok->tabsize;
+            }
+			else {
 				break;
+            }
 		}
 		tok_backup(tok, c);
 		if (col == tok->indstack[tok->indent]) {
@@ -306,7 +322,7 @@ tok_get(tok, p_start, p_end)
 		}
 		else if (col > tok->indstack[tok->indent]) {
 			/* Indent -- always one */
-			if (tok->indent+1 >= MAXINDENT) {
+			if (tok->indent + 1 >= MAXINDENT) {
 				fprintf(stderr, "excessive indent\n");
 				tok->done = E_TOKEN;
 				return ERRORTOKEN;
@@ -316,8 +332,7 @@ tok_get(tok, p_start, p_end)
 		}
 		else /* col < tok->indstack[tok->indent] */ {
 			/* Dedent -- any number, must be consistent */
-			while (tok->indent > 0 &&
-				col < tok->indstack[tok->indent]) {
+			while (tok->indent > 0 && col < tok->indstack[tok->indent]) {
 				tok->indent--;
 				tok->pendin--;
 			}
@@ -343,7 +358,7 @@ tok_get(tok, p_start, p_end)
 		}
 	}
 	
- again:
+again:
 	/* Skip spaces */
 	do {
 		c = tok_nextc(tok);
@@ -360,8 +375,7 @@ tok_get(tok, p_start, p_end)
 		int x;
 		/* XXX The case to (unsigned char *) is needed by THINK C 3.0 */
 		if (sscanf(/*(unsigned char *)*/tok->cur,
-				" vi:set tabsize=%d:", &x) == 1 &&
-						x >= 1 && x <= 40) {
+				   " vi:set tabsize=%d:", &x) == 1 && x >= 1 && x <= 40) {
 			fprintf(stderr, "# vi:set tabsize=%d:\n", x);
 			tok->tabsize = x;
 		}
@@ -371,8 +385,9 @@ tok_get(tok, p_start, p_end)
 	}
 	
 	/* Check for EOF and errors now */
-	if (c == EOF)
+	if (c == EOF) {
 		return tok->done == E_EOF ? ENDMARKER : ERRORTOKEN;
+    }
 	
 	/* Identifier (most frequent token!) */
 	if (isalpha(c) || c == '_') {
@@ -396,8 +411,9 @@ tok_get(tok, p_start, p_end)
 		if (c == '0') {
 			/* Hex or octal */
 			c = tok_nextc(tok);
-			if (c == '.')
+			if (c == '.') {
 				goto fraction;
+            }
 			if (c == 'x' || c == 'X') {
 				/* Hex */
 				do {
@@ -431,8 +447,9 @@ tok_get(tok, p_start, p_end)
 			if (c == 'e' || c == 'E') {
 				/* Exponent part */
 				c = tok_nextc(tok);
-				if (c == '+' || c == '-')
+				if (c == '+' || c == '-') {
 					c = tok_nextc(tok);
+                }
 				while (isdigit(c)) {
 					c = tok_nextc(tok);
 				}
@@ -460,8 +477,9 @@ tok_get(tok, p_start, p_end)
 				}
 				continue;
 			}
-			if (c == '\'')
+			if (c == '\'') {
 				break;
+            }
 		}
 		*p_end = tok->cur;
 		return STRING;
@@ -483,17 +501,13 @@ tok_get(tok, p_start, p_end)
 	return tok_1char(c);
 }
 
-
 #ifdef DEBUG
-
 void
-tok_dump(type, start, end)
-	int type;
-	char *start, *end;
+tok_dump(int type, char *start, char *end)
 {
 	printf("%s", tok_name[type]);
-	if (type == NAME || type == NUMBER || type == STRING || type == OP)
+	if (type == NAME || type == NUMBER || type == STRING || type == OP) {
 		printf("(%.*s)", (int)(end - start), start);
+    }
 }
-
 #endif
