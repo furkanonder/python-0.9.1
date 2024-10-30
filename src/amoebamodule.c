@@ -40,25 +40,21 @@ object *StubcodeError;
 static object *sc_dict;
 
 /* Module initialization */
-
 extern struct methodlist amoeba_methods[]; /* Forward */
 extern object *convertcapv(); /* Forward */
 
 static void
-ins(d, name, v)
-	object *d;
-	char *name;
-	object *v;
+ins(object *d, char *name, object *v)
 {
-	if (v == NULL || dictinsert(d, name, v) != 0)
+	if (v == NULL || dictinsert(d, name, v) != 0) {
 		fatal("can't initialize amoeba module");
+    }
 }
 
 void
 initamoeba()
 {
 	object *m, *d, *v;
-	
 	m = initmodule("amoeba", amoeba_methods);
 	d = getmoduledict(m);
 	
@@ -78,27 +74,24 @@ initamoeba()
 	sc_dict = newdictobject();
 }
 
-
 /* Set an Amoeba-specific error, and return NULL */
-
 object *
-amoeba_error(err)
-	errstat err;
+amoeba_error(errstat err)
 {
 	object *v = newtupleobject(2);
+
 	if (v != NULL) {
 		settupleitem(v, 0, newintobject((long)err));
 		settupleitem(v, 1, newstringobject(err_why(err)));
 	}
 	err_setval(AmoebaError, v);
-	if (v != NULL)
+	if (v != NULL) {
 		DECREF(v);
+    }
 	return NULL;
 }
 
-
 /* Capability object implementation */
-
 extern typeobject Captype; /* Forward */
 
 #define is_capobject(v) ((v)->ob_type == &Captype)
@@ -109,54 +102,44 @@ typedef struct {
 } capobject;
 
 object *
-newcapobject(cap)
-	capability *cap;
+newcapobject(capability *cap)
 {
 	capobject *v = NEWOBJ(capobject, &Captype);
-	if (v == NULL)
+
+	if (v == NULL) {
 		return NULL;
+    }
 	v->ob_cap = *cap;
 	return (object *)v;
 }
 
-getcapability(v, cap)
-	object *v;
-	capability *cap;
+getcapability(object *v, capability *cap)
 {
-
-	if (!is_capobject(v))
+	if (!is_capobject(v)) {
 		return err_badarg();
+    }
 	*cap = ((capobject *)v)->ob_cap;
 	return 0;
 }
 
-/*
- *	is_capobj exports the is_capobject macro to the stubcode modules
- */
-
+/* is_capobj exports the is_capobject macro to the stubcode modules */
 int
-is_capobj(v)
-	object *v;
+is_capobj(object *v)
 {
-
 	return is_capobject(v);
 }
 
 /* Methods */
 
 static void
-capprint(v, fp, flags)
-	capobject *v;
-	FILE *fp;
-	int flags;
+capprint(capobject *v, FILE *fp, int flags)
 {
 	/* XXX needs lock when multi-threading */
 	fputs(ar_cap(&v->ob_cap), fp);
 }
 
 static object *
-caprepr(v)
-	capobject *v;
+caprepr(capobject *v)
 {
 	/* XXX needs lock when multi-threading */
 	return newstringobject(ar_cap(&v->ob_cap));
@@ -167,15 +150,14 @@ extern object *sc_interpreter();
 extern struct methodlist cap_methods[]; /* Forward */
 
 object *
-sc_makeself(cap, stubcode, name)
-	object *cap, *stubcode;
-	char *name;
+sc_makeself(object *cap, object *stubcode, char *name)
 {
 	object *sc_name, *sc_self;
-
 	sc_name = newstringobject(name);
-	if (sc_name == NULL)
+
+	if (sc_name == NULL) {
 		return NULL;
+    }
 	sc_self = newtupleobject(3);
 	if (sc_self == NULL) {
 		DECREF(sc_name);
@@ -198,11 +180,8 @@ sc_makeself(cap, stubcode, name)
 	return sc_self;
 }
 
-
 static void
-swapcode(code, len)
-	char *code;
-	int len;
+swapcode(char *code, int len)
 {
 	int i = sizeof(TscOperand);
 	TscOpcode opcode;
@@ -223,9 +202,7 @@ swapcode(code, len)
 }
 
 object *
-sc_findstubcode(v, name)
-	object *v;
-	char *name;
+sc_findstubcode(object *v, char *name)
 {
 	int fd, fsize;
 	char *fname, *buffer;
@@ -233,9 +210,7 @@ sc_findstubcode(v, name)
 	object *sc_stubcode, *ret;
 	TscOperand sc_magic;
 
-	/*
-	 *   Only look in the current directory for now.
-	 */
+	/* Only look in the current directory for now. */
 	fname = malloc(strlen(name) + 4);
 	if (fname == NULL) {
 		return err_nomem();
@@ -243,11 +218,8 @@ sc_findstubcode(v, name)
 	sprintf(fname, "%s.sc", name);
 	if ((fd = open(fname, O_RDONLY)) == -1) {
 		extern int errno;
-
 		if (errno == 2) {
-			/*
-			**	errno == 2 is file not found.
-			*/
+			/* errno == 2 is file not found. */
 			err_setstr(NameError, fname);
 			return NULL;
 		}
@@ -279,8 +251,8 @@ sc_findstubcode(v, name)
 			swapcode(buffer, fsize);
 		}
 	}
-	sc_stubcode = newsizedstringobject(	&buffer[sizeof(TscOperand)], 
-						fsize - sizeof(TscOperand));
+	sc_stubcode = newsizedstringobject(&buffer[sizeof(TscOperand)],
+									   fsize - sizeof(TscOperand));
 	free(buffer);
 	if (sc_stubcode == NULL) {
 		return NULL;
@@ -298,27 +270,21 @@ sc_findstubcode(v, name)
 }
 
 object *
-capgetattr(v, name)
-	capobject *v;
-	char *name;
+capgetattr(capobject *v, char *name)
 {
 	object *sc_method, *sc_stubcodemethod;
 
 	if (sc_dict == NULL) {
-		/*
-		**	For some reason the dictionary has not been
-		**	initialized.  Try to find one of the built in
-		**	methods.
-		*/
+		/*	For some reason the dictionary has not been
+		 *	initialized. Try to find one of the built in
+		 *	methods. */
 		return findmethod(cap_methods, (object *)v, name);
 	}
 	sc_stubcodemethod = dictlookup(sc_dict, name);
 	if (sc_stubcodemethod != NULL) {
-		/*
-		**	There is a stubcode method in the dictionary.
-		**	Execute the stubcode interpreter with the right
-		**	arguments.
-		*/
+		/* There is a stubcode method in the dictionary.
+		 * Execute the stubcode interpreter with the right
+		 * arguments. */
 		object *self, *ret;
 
 		self = sc_makeself((object *)v, sc_stubcodemethod, name);
@@ -332,10 +298,8 @@ capgetattr(v, name)
 	err_clear();
 	sc_method = findmethod(cap_methods, (object *)v, name);
 	if (sc_method == NULL) {
-		/*
-		**	The method is not built in and not in the
-		**	dictionary. Try to find it as a stubcode file.
-		*/
+		/* The method is not built in and not in the
+		 * dictionary. Try to find it as a stubcode file. */
 		object *self, *ret;
 
 		err_clear();
@@ -351,15 +315,13 @@ capgetattr(v, name)
 }
 
 int
-capcompare(v, w)
-	capobject *v, *w;
+capcompare(capobject *v, capobject *w)
 {
-	int cmp = bcmp((char *)&v->ob_cap.cap_port,
-					(char *)&w->ob_cap, PORTSIZE);
-	if (cmp != 0)
+	int cmp = bcmp((char *)&v->ob_cap.cap_port, (char *)&w->ob_cap, PORTSIZE);
+	if (cmp != 0) {
 		return cmp;
-	return prv_number(&v->ob_cap.cap_priv) -
-					prv_number(&w->ob_cap.cap_priv);
+    }
+	return prv_number(&v->ob_cap.cap_priv) - prv_number(&w->ob_cap.cap_priv);
 }
 
 static typeobject Captype = {
@@ -371,17 +333,15 @@ static typeobject Captype = {
 	free,		/*tp_dealloc*/
 	capprint,	/*tp_print*/
 	capgetattr,	/*tp_getattr*/
-	0,		/*tp_setattr*/
+	0,			/*tp_setattr*/
 	capcompare,	/*tp_compare*/
 	caprepr,	/*tp_repr*/
-	0,		/*tp_as_number*/
-	0,		/*tp_as_sequence*/
-	0,		/*tp_as_mapping*/
+	0,			/*tp_as_number*/
+	0,			/*tp_as_sequence*/
+	0,			/*tp_as_mapping*/
 };
 
-
 /* Return a dictionary corresponding to capv */
-
 extern struct caplist *capv;
 
 static object *
@@ -390,10 +350,13 @@ convertcapv()
 	object *d;
 	struct caplist *c;
 	d = newdictobject();
-	if (d == NULL)
+
+	if (d == NULL) {
 		return NULL;
-	if (capv == NULL)
+    }
+	if (capv == NULL) {
 		return d;
+    }
 	for (c = capv; c->cl_name != NULL; c++) {
 		object *v = newcapobject(c->cl_cap);
 		if (v == NULL || dictinsert(d, c->cl_name, v) != 0) {
@@ -405,115 +368,114 @@ convertcapv()
 	return d;
 }
 
-
 /* Strongly Amoeba-specific argument handlers */
-
 static int
-getcaparg(v, a)
-	object *v;
-	capability *a;
+getcaparg(object *v, capability *a)
 {
-	if (v == NULL || !is_capobject(v))
+	if (v == NULL || !is_capobject(v)) {
 		return err_badarg();
+    }
 	*a = ((capobject *)v) -> ob_cap;
 	return 1;
 }
 
 static int
-getstrcapargs(v, a, b)
-	object *v;
-	object **a;
-	capability *b;
+getstrcapargs(object *v, object **a, capability *b)
 {
-	if (v == NULL || !is_tupleobject(v) || gettuplesize(v) != 2)
+	if (v == NULL || !is_tupleobject(v) || gettuplesize(v) != 2) {
 		return err_badarg();
-	return getstrarg(gettupleitem(v, 0), a) &&
-		getcaparg(gettupleitem(v, 1), b);
+    }
+	return getstrarg(gettupleitem(v, 0), a)
+           && getcaparg(gettupleitem(v, 1), b);
 }
-
 
 /* Amoeba methods */
 
 static object *
-amoeba_name_lookup(self, args)
-	object *self;
-	object *args;
+amoeba_name_lookup(object *self, object *args)
 {
 	object *name;
 	capability cap;
 	errstat err;
-	if (!getstrarg(args, &name))
+
+	if (!getstrarg(args, &name)) {
 		return NULL;
+    }
 	err = name_lookup(getstringvalue(name), &cap);
-	if (err != STD_OK)
+	if (err != STD_OK) {
 		return amoeba_error(err);
+    }
 	return newcapobject(&cap);
 }
 
 static object *
-amoeba_name_append(self, args)
-	object *self;
-	object *args;
+amoeba_name_append(object *self, object *args)
 {
 	object *name;
 	capability cap;
 	errstat err;
-	if (!getstrcapargs(args, &name, &cap))
+
+	if (!getstrcapargs(args, &name, &cap)) {
 		return NULL;
+    }
 	err = name_append(getstringvalue(name), &cap);
-	if (err != STD_OK)
+	if (err != STD_OK) {
 		return amoeba_error(err);
+    }
 	INCREF(None);
 	return None;
 }
 
 static object *
-amoeba_name_replace(self, args)
-	object *self;
-	object *args;
+amoeba_name_replace(object *self, object *args)
 {
 	object *name;
 	capability cap;
 	errstat err;
-	if (!getstrcapargs(args, &name, &cap))
+
+	if (!getstrcapargs(args, &name, &cap)) {
 		return NULL;
+    }
 	err = name_replace(getstringvalue(name), &cap);
-	if (err != STD_OK)
+	if (err != STD_OK) {
 		return amoeba_error(err);
+    }
 	INCREF(None);
 	return None;
 }
 
 static object *
-amoeba_name_delete(self, args)
-	object *self;
-	object *args;
+amoeba_name_delete(object *self, object *args)
 {
 	object *name;
 	errstat err;
-	if (!getstrarg(args, &name))
+
+	if (!getstrarg(args, &name)) {
 		return NULL;
+    }
 	err = name_delete(getstringvalue(name));
-	if (err != STD_OK)
+	if (err != STD_OK) {
 		return amoeba_error(err);
+    }
 	INCREF(None);
 	return None;
 }
 
 static object *
-amoeba_timeout(self, args)
-	object *self;
-	object *args;
+amoeba_timeout(object *self, object *args)
 {
 	int i;
 	object *v;
 	interval tout;
-	if (!getintarg(args, &i))
+
+	if (!getintarg(args, &i)) {
 		return NULL;
+    }
 	tout = timeout((interval)i);
 	v = newintobject((long)tout);
-	if (v == NULL)
+	if (v == NULL) {
 		timeout(tout);
+    }
 	return v;
 }
 
@@ -522,45 +484,45 @@ static struct methodlist amoeba_methods[] = {
 	{"name_delete",		amoeba_name_delete},
 	{"name_lookup",		amoeba_name_lookup},
 	{"name_replace",	amoeba_name_replace},
-	{"timeout",		amoeba_timeout},
-	{NULL,			NULL}		 	/* Sentinel */
+	{"timeout",			amoeba_timeout},
+	{NULL,				NULL}		 	/* Sentinel */
 };
 
 /* Capability methods */
 
 static object *
-cap_b_size(self, args)
-	capobject *self;
-	object *args;
+cap_b_size(capobject *self, object *args)
 {
 	errstat err;
 	b_fsize size;
-	if (!getnoarg(args))
+
+	if (!getnoarg(args)) {
 		return NULL;
+    }
 	err = b_size(&self->ob_cap, &size);
-	if (err != STD_OK)
+	if (err != STD_OK) {
 		return amoeba_error(err);
+    }
 	return newintobject((long)size);
 }
 
 static object *
-cap_b_read(self, args)
-	capobject *self;
-	object *args;
+cap_b_read(capobject *self, object *args)
 {
 	errstat err;
 	char *buf;
 	object *v;
 	long offset, size;
 	b_fsize nread;
-	if (!getlonglongargs(args, &offset, &size))
+
+	if (!getlonglongargs(args, &offset, &size)) {
 		return NULL;
+    }
 	buf = malloc((unsigned int)size);
 	if (buf == NULL) {
 		return err_nomem();
 	}
-	err = b_read(&self->ob_cap, (b_fsize)offset, buf, (b_fsize)size,
-								&nread);
+	err = b_read(&self->ob_cap, (b_fsize)offset, buf, (b_fsize)size, &nread);
 	if (err != STD_OK) {
 		free(buf);
 		return amoeba_error(err);
@@ -571,84 +533,89 @@ cap_b_read(self, args)
 }
 
 static object *
-cap_dir_lookup(self, args)
-	capobject *self;
-	object *args;
+cap_dir_lookup(capobject *self, object *args)
 {
 	object *name;
 	capability cap;
 	errstat err;
-	if (!getstrarg(args, &name))
+
+	if (!getstrarg(args, &name)) {
 		return NULL;
+    }
 	err = dir_lookup(&self->ob_cap, getstringvalue(name), &cap);
-	if (err != STD_OK)
+	if (err != STD_OK) {
 		return amoeba_error(err);
+    }
 	return newcapobject(&cap);
 }
 
 static object *
-cap_dir_append(self, args)
-	capobject *self;
-	object *args;
+cap_dir_append(capobject *self, object *args)
 {
 	object *name;
 	capability cap;
 	errstat err;
-	if (!getstrcapargs(args, &name, &cap))
+
+	if (!getstrcapargs(args, &name, &cap)) {
 		return NULL;
+    }
 	err = dir_append(&self->ob_cap, getstringvalue(name), &cap);
-	if (err != STD_OK)
+	if (err != STD_OK) {
 		return amoeba_error(err);
+    }
 	INCREF(None);
 	return None;
 }
 
 static object *
-cap_dir_delete(self, args)
-	capobject *self;
-	object *args;
+cap_dir_delete(capobject *self, object *args)
 {
 	object *name;
 	errstat err;
-	if (!getstrarg(args, &name))
+
+	if (!getstrarg(args, &name)) {
 		return NULL;
+    }
 	err = dir_delete(&self->ob_cap, getstringvalue(name));
-	if (err != STD_OK)
+	if (err != STD_OK) {
 		return amoeba_error(err);
+    }
 	INCREF(None);
 	return None;
 }
 
 static object *
-cap_dir_replace(self, args)
-	capobject *self;
-	object *args;
+cap_dir_replace(capobject *self, object *args)
 {
 	object *name;
 	capability cap;
 	errstat err;
-	if (!getstrcapargs(args, &name, &cap))
+
+	if (!getstrcapargs(args, &name, &cap)) {
 		return NULL;
+    }
 	err = dir_replace(&self->ob_cap, getstringvalue(name), &cap);
-	if (err != STD_OK)
+	if (err != STD_OK) {
 		return amoeba_error(err);
+    }
 	INCREF(None);
 	return None;
 }
 
 static object *
-cap_dir_list(self, args)
-	capobject *self;
-	object *args;
+cap_dir_list(capobject *self, object *args)
 {
 	errstat err;
 	struct dir_open *dd;
 	object *d;
 	char *name;
-	if (!getnoarg(args))
+
+	if (!getnoarg(args)) {
 		return NULL;
-	if ((dd = dir_open(&self->ob_cap)) == NULL)
+    }
+	if ((dd = dir_open(&self->ob_cap)) == NULL) {
 		return amoeba_error(STD_COMBAD);
+    }
 	if ((d = newlistobject(0)) == NULL) {
 		dir_close(dd);
 		return NULL;
@@ -674,69 +641,72 @@ cap_dir_list(self, args)
 }
 
 object *
-cap_std_info(self, args)
-	capobject *self;
-	object *args;
+cap_std_info(capobject *self, object *args)
 {
 	char buf[256];
 	errstat err;
 	int n;
-	if (!getnoarg(args))
+
+	if (!getnoarg(args)) {
 		return NULL;
+    }
 	err = std_info(&self->ob_cap, buf, sizeof buf, &n);
-	if (err != STD_OK)
+	if (err != STD_OK) {
 		return amoeba_error(err);
+    }
 	return newsizedstringobject(buf, n);
 }
 
 object *
-cap_tod_gettime(self, args)
-	capobject *self;
-	object *args;
+cap_tod_gettime(capobject *self, object *args)
 {
 	header h;
 	errstat err;
 	bufsize n;
 	long sec;
 	int msec, tz, dst;
-	if (!getnoarg(args))
+
+	if (!getnoarg(args)) {
 		return NULL;
+    }
 	h.h_port = self->ob_cap.cap_port;
 	h.h_priv = self->ob_cap.cap_priv;
 	h.h_command = TOD_GETTIME;
 	n = trans(&h, NILBUF, 0, &h, NILBUF, 0);
-	if (ERR_STATUS(n))
+	if (ERR_STATUS(n)) {
 		return amoeba_error(ERR_CONVERT(n));
+    }
 	tod_decode(&h, &sec, &msec, &tz, &dst);
 	return newintobject(sec);
 }
 
 object *
-cap_tod_settime(self, args)
-	capobject *self;
-	object *args;
+cap_tod_settime(capobject *self, object *args)
 {
 	header h;
 	errstat err;
 	bufsize n;
 	long sec;
-	if (!getlongarg(args, &sec))
+
+	if (!getlongarg(args, &sec)) {
 		return NULL;
+    }
 	h.h_port = self->ob_cap.cap_port;
 	h.h_priv = self->ob_cap.cap_priv;
 	h.h_command = TOD_SETTIME;
 	tod_encode(&h, sec, 0, 0, 0);
 	n = trans(&h, NILBUF, 0, &h, NILBUF, 0);
-	if (ERR_STATUS(n))
+	if (ERR_STATUS(n)) {
 		return amoeba_error(ERR_CONVERT(n));
+    }
 	INCREF(None);
 	return None;
 }
 
 static struct methodlist cap_methods[] = {
-	{ STUBCODE,		sc_interpreter},
-	{"b_read",		cap_b_read},
-	{"b_size",		cap_b_size},
+	{ STUBCODE,			sc_interpreter},
+	{"b_read",			cap_b_read},
+	{"b_size",			cap_b_size},
 	{"dir_append",		cap_dir_append},
 	{"dir_delete",		cap_dir_delete},
 	{"dir_list",		cap_dir_list},
@@ -745,5 +715,5 @@ static struct methodlist cap_methods[] = {
 	{"std_info",		cap_std_info},
 	{"tod_gettime",		cap_tod_gettime},
 	{"tod_settime",		cap_tod_settime},
-	{NULL,			NULL} 			/* Sentinel */
+	{NULL,				NULL} 			/* Sentinel */
 };
