@@ -8,7 +8,7 @@ A similar module that I saw by Chris Torek:
 - remembers the hash value with the entry to speed up table resizing
 - sets the table size to a power of 2
 - uses a different hash function:
-	h = 0; p = str; while (*p) h = (h<<5) - h + *p++;
+	h = 0; p = str; while (*p) h = (h << 5) - h + *p++;
 */
 
 #include "allobjects.h"
@@ -41,8 +41,8 @@ is either NULL or dummy.  A dummy key value cannot be replaced by NULL,
 since otherwise other keys may be lost.
 */
 typedef struct {
-	stringobject *de_key;
-	object *de_value;
+	stringobject 	*de_key;
+	object 			*de_value;
 } dictentry;
 
 /*
@@ -224,7 +224,7 @@ dictlookup(object *op, char *key)
 	if (!is_dictobject(op)) {
 		fatal("dictlookup on non-dictionary");
     }
-	return lookdict((dictobject *)op, key) -> de_value;
+	return lookdict((dictobject *)op, key)->de_value;
 }
 
 #ifdef NOT_USED
@@ -377,9 +377,8 @@ getdictkey(object *op, int i)
 /* Methods */
 
 static void
-dict_dealloc(register object *op)
+dict_dealloc(register dictobject *dp)
 {
-	register dictobject *dp = (dictobject *)op;
 	register int i;
 	register dictentry *ep;
 
@@ -398,9 +397,8 @@ dict_dealloc(register object *op)
 }
 
 static void
-dict_print(register object *op, register FILE *fp, register int flags)
+dict_print(register dictobject *dp, register FILE *fp, register int flags)
 {
-	register dictobject *dp = (dictobject *)op;
 	register int i;
 	register int any;
 	register dictentry *ep;
@@ -430,9 +428,8 @@ js(object **pv, object *w)
 }
 
 static object *
-dict_repr(object *op)
+dict_repr(dictobject *dp)
 {
-	register dictobject *dp = (dictobject *)op;
 	auto object *v;
 	register object *w;
 	object *semi, *colon;
@@ -465,17 +462,14 @@ dict_repr(object *op)
 }
 
 static int
-dict_length(object *op)
+dict_length(dictobject *dp)
 {
-	dictobject *dp = (dictobject *)op;
 	return dp->di_used;
 }
 
 static object *
-dict_subscript(object *op, register object *v)
+dict_subscript(dictobject *dp, register object *v)
 {
-	dictobject *dp = (dictobject *)op;
-
 	if (!is_stringobject(v)) {
 		err_badarg();
 		return NULL;
@@ -491,26 +485,25 @@ dict_subscript(object *op, register object *v)
 }
 
 static int
-dict_ass_sub(object *dp, object *v, object *w)
+dict_ass_sub(dictobject *dp, object *v, object *w)
 {
 	if (w == NULL) {
-		return dict2remove(dp, v);
+		return dict2remove((object *)dp, v);
     }
 	else {
-		return dict2insert(dp, v, w);
+		return dict2insert((object *)dp, v, w);
     }
 }
 
 static mapping_methods dict_as_mapping = {
-	dict_length,	/*mp_length*/
-	dict_subscript,	/*mp_subscript*/
-	dict_ass_sub,	/*mp_ass_subscript*/
+	(inquiry)dict_length,			/*mp_length*/
+	(binaryfunc)dict_subscript,		/*mp_subscript*/
+	(objobjargproc)dict_ass_sub,	/*mp_ass_subscript*/
 };
 
 static object *
-dict_keys(register object *op, object *args)
+dict_keys(register dictobject *dp, object *args)
 {
-	register dictobject *dp = (dictobject *)op;
 	register object *v;
 	register int i, j;
 
@@ -539,13 +532,12 @@ getdictkeys(object *dp)
 		err_badcall();
 		return NULL;
 	}
-	return dict_keys(dp, (object *)NULL);
+	return dict_keys((dictobject *)dp, (object *)NULL);
 }
 
 static object *
-dict_has_key(register object *op, object *args)
+dict_has_key(register dictobject *dp, object *args)
 {
-	dictobject *dp = (dictobject *)op;
 	object *key;
 	register long ok;
 
@@ -557,15 +549,15 @@ dict_has_key(register object *op, object *args)
 }
 
 static struct methodlist dict_methods[] = {
-	{"keys",	dict_keys},
-	{"has_key",	dict_has_key},
+	{"keys",	(method)dict_keys},
+	{"has_key",	(method)dict_has_key},
 	{NULL,		NULL}		/* sentinel */
 };
 
 static object *
-dict_getattr(object *op, char *name)
+dict_getattr(dictobject *dp, char *name)
 {
-	return findmethod(dict_methods, op, name);
+	return findmethod(dict_methods, (object *)dp, name);
 }
 
 typeobject Dicttype = {
@@ -574,13 +566,13 @@ typeobject Dicttype = {
 	"dictionary",
 	sizeof(dictobject),
 	0,
-	dict_dealloc,	/*tp_dealloc*/
-	dict_print,	/*tp_print*/
-	dict_getattr,	/*tp_getattr*/
-	0,		/*tp_setattr*/
-	0,		/*tp_compare*/
-	dict_repr,	/*tp_repr*/
-	0,		/*tp_as_number*/
-	0,		/*tp_as_sequence*/
-	&dict_as_mapping,	/*tp_as_mapping*/
+	(destructor)dict_dealloc,	/*tp_dealloc*/
+	(printfunc)dict_print,		/*tp_print*/
+	(getattrfunc)dict_getattr,	/*tp_getattr*/
+	0,							/*tp_setattr*/
+	0,							/*tp_compare*/
+	(reprfunc)dict_repr,		/*tp_repr*/
+	0,							/*tp_as_number*/
+	0,							/*tp_as_sequence*/
+	&dict_as_mapping,			/*tp_as_mapping*/
 };
