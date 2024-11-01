@@ -9,9 +9,7 @@
 #endif
 
 void
-initargs(p_argc, p_argv)
-	int *p_argc;
-	char ***p_argv;
+initargs(int *p_argc, char ***p_argv)
 {
 #ifdef USE_STDWIN
 
@@ -75,7 +73,6 @@ struct {
 	{"time",	inittime},
 	{"math",	initmath},
 	{"regexp",	initregexp},
-	
 	/* Mac-specific modules */
 	{"mac",		initmac},
 #ifdef USE_STDWIN
