@@ -17,11 +17,9 @@ extern int errno;
 extern char *getwd();
 
 char *
-getcwd(buf, size)
-	char *buf;
-	int size;
+getcwd(char *buf, int size)
 {
-	char localbuf[MAXPATHLEN+1];
+	char localbuf[MAXPATHLEN + 1];
 	char *ret;
 	
 	if (size <= 0) {
@@ -48,19 +46,19 @@ getcwd(buf, size)
 #define PWD_CMD "/bin/pwd"
 
 char *
-getcwd(buf, size)
-	char *buf;
-	int size;
+getcwd(char *buf, int size)
 {
 	FILE *fp;
 	char *p;
 	int sts;
+
 	if (size <= 0) {
 		errno = EINVAL;
 		return NULL;
 	}
-	if ((fp = popen(PWD_CMD, "r")) == NULL)
+	if ((fp = popen(PWD_CMD, "r")) == NULL) {
 		return NULL;
+	}
 	if (fgets(buf, size, fp) == NULL || (sts = pclose(fp)) != 0) {
 		errno = EACCES; /* Most likely error */
 		return NULL;
