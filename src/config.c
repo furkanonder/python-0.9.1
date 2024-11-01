@@ -10,9 +10,7 @@ static int use_stdwin;
 
 /*ARGSUSED*/
 void
-initargs(p_argc, p_argv)
-	int *p_argc;
-	char ***p_argv;
+initargs(int *p_argc, char ***p_argv)
 {
 #ifdef USE_STDWIN
 	extern char *getenv();
@@ -31,12 +29,12 @@ initargs(p_argc, p_argv)
 	*/
 	
 	display = getenv("DISPLAY");
-	if (display != 0)
+	if (display != 0) {
 		use_stdwin = 1;
+    }
 	else {
-		int i;
 		/* Scan through the arguments looking for "-display" */
-		for (i = 1; i < *p_argc; i++) {
+		for (int i = 1; i < *p_argc; i++) {
 			if (strcmp((*p_argv)[i], "-display") == 0) {
 				use_stdwin = 1;
 				break;
@@ -44,8 +42,9 @@ initargs(p_argc, p_argv)
 		}
 	}
 	
-	if (use_stdwin)
+	if (use_stdwin) {
 		wargs(p_argc, p_argv);
+    }
 #endif
 }
 
@@ -58,8 +57,9 @@ void
 donecalls()
 {
 #ifdef USE_STDWIN
-	if (use_stdwin)
+	if (use_stdwin) {
 		wdone();
+    }
 #endif
 #ifdef USE_AUDIO
 	asa_done();
@@ -70,11 +70,13 @@ donecalls()
 static void
 maybeinitstdwin()
 {
-	if (use_stdwin)
+	if (use_stdwin) {
 		initstdwin();
-	else
+    }
+	else {
 		fprintf(stderr,
-		 "No $DISPLAY nor -display arg -- stdwin not available\n");
+                "No $DISPLAY nor -display arg -- stdwin not available\n");
+	}
 }
 #endif
 
@@ -88,8 +90,9 @@ char *
 getpythonpath()
 {
 	char *path = getenv("PYTHONPATH");
-	if (path == 0)
+	if (path == 0) {
 		path = PYTHONPATH;
+    }
 	return path;
 }
 
@@ -122,35 +125,26 @@ struct {
 	char *name;
 	void (*initfunc)();
 } inittab[] = {
-
 	/* Standard modules */
-
 	{"time",	inittime},
 	{"math",	initmath},
 	{"regexp",	initregexp},
 	{"posix",	initposix},
-
-
 	/* Optional modules */
-
 #ifdef USE_AUDIO
 	{"audio",	initaudio},
 #endif
-
 #ifdef USE_AMOEBA
 	{"amoeba",	initamoeba},
 #endif
-
 #ifdef USE_GL
 	{"gl",		initgl},
 #ifdef USE_PANEL
 	{"pnl",		initpanel},
 #endif
 #endif
-
 #ifdef USE_STDWIN
 	{"stdwin",	maybeinitstdwin},
 #endif
-
 	{0,		0}		/* Sentinel */
 };
