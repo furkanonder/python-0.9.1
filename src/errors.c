@@ -48,9 +48,7 @@ static object *last_exception;
 static object *last_exc_val;
 
 void
-err_setval(exception, value)
-	object *exception;
-	object *value;
+err_setval(object *exception, object *value)
 {
 	XDECREF(last_exception);
 	XINCREF(exception);
@@ -62,16 +60,13 @@ err_setval(exception, value)
 }
 
 void
-err_set(exception)
-	object *exception;
+err_set(object *exception)
 {
 	err_setval(exception, (object *)NULL);
 }
 
 void
-err_setstr(exception, string)
-	object *exception;
-	char *string;
+err_setstr(object *exception, char *string)
 {
 	object *value = newstringobject(string);
 	err_setval(exception, value);
@@ -85,9 +80,7 @@ err_occurred()
 }
 
 void
-err_get(p_exc, p_val)
-	object **p_exc;
-	object **p_val;
+err_get(object **p_exc, object **p_val)
 {
 	*p_exc = last_exception;
 	last_exception = NULL;
@@ -121,10 +114,10 @@ err_nomem()
 }
 
 object *
-err_errno(exc)
-	object *exc;
+err_errno(object *exc)
 {
 	object *v = newtupleobject(2);
+
 	if (v != NULL) {
 		settupleitem(v, 0, newintobject((long)errno));
 		settupleitem(v, 1, newstringobject(strerror(errno)));
@@ -143,30 +136,29 @@ err_badcall()
 /* Set the error appropriate to the given input error code (see errcode.h) */
 
 void
-err_input(err)
-	int err;
+err_input(int err)
 {
 	switch (err) {
-	case E_DONE:
-	case E_OK:
-		break;
-	case E_SYNTAX:
-		err_setstr(RuntimeError, "syntax error");
-		break;
-	case E_TOKEN:
-		err_setstr(RuntimeError, "illegal token");
-		break;
-	case E_INTR:
-		err_set(KeyboardInterrupt);
-		break;
-	case E_NOMEM:
-		err_nomem();
-		break;
-	case E_EOF:
-		err_set(EOFError);
-		break;
-	default:
-		err_setstr(RuntimeError, "unknown input error");
-		break;
+		case E_DONE:
+		case E_OK:
+			break;
+		case E_SYNTAX:
+			err_setstr(RuntimeError, "syntax error");
+			break;
+		case E_TOKEN:
+			err_setstr(RuntimeError, "illegal token");
+			break;
+		case E_INTR:
+			err_set(KeyboardInterrupt);
+			break;
+		case E_NOMEM:
+			err_nomem();
+			break;
+		case E_EOF:
+			err_set(EOFError);
+			break;
+		default:
+			err_setstr(RuntimeError, "unknown input error");
+			break;
 	}
 }
