@@ -13,9 +13,11 @@ int
 intrcheck()
 {
 	int interrupted = 0;
+
 	while (kbhit()) {
-		if (getch() == '\003')
+		if (getch() == '\003') {
 			interrupted = 1;
+        }
 	}
 	return interrupted;
 }
@@ -37,18 +39,19 @@ intrcheck()
 static int interrupted;
 
 static SIGTYPE
-intcatcher(sig)
-	int sig;
+intcatcher(int sig)
 {
 	interrupted = 1;
+
 	signal(SIGINT, intcatcher);
 }
 
 void
 initintr()
 {
-	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
+	if (signal(SIGINT, SIG_IGN) != SIG_IGN) {
 		signal(SIGINT, intcatcher);
+    }
 }
 
 int
@@ -60,9 +63,8 @@ intrcheck()
 	   I'm not sure why FlushEvents must be called from asm{}. */
 	for (q = (EvQElPtr)EventQueue.qHead; q; q = (EvQElPtr)q->qLink) {
 		if (q->evtQWhat == keyDown &&
-				(char)q->evtQMessage == '.' &&
-				(q->evtQModifiers & cmdKey) != 0) {
-			
+			(char)q->evtQMessage == '.' && (q->evtQModifiers & cmdKey) != 0)
+        {
 			asm {
 				moveq	#keyDownMask,d0
 				_FlushEvents
@@ -94,25 +96,27 @@ intrcheck()
 static int interrupted;
 
 static SIGTYPE
-intcatcher(sig)
-	int sig;
+intcatcher(int sig)
 {
 	interrupted = 1;
+
 	signal(SIGINT, intcatcher);
 }
 
 void
 initintr()
 {
-	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
+	if (signal(SIGINT, SIG_IGN) != SIG_IGN) {
 		signal(SIGINT, intcatcher);
+    }
 }
 
 int
 intrcheck()
 {
-	if (!interrupted)
+	if (!interrupted) {
 		return 0;
+    }
 	interrupted = 0;
 	return 1;
 }
