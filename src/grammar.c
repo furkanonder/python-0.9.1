@@ -11,14 +11,13 @@
 extern int debugging;
 
 grammar *
-newgrammar(start)
-	int start;
+newgrammar(int start)
 {
-	grammar *g;
-	
-	g = NEW(grammar, 1);
-	if (g == NULL)
+	grammar *g = NEW(grammar, 1);
+
+	if (g == NULL) {
 		fatal("no mem for new grammar");
+    }
 	g->g_ndfas = 0;
 	g->g_dfa = NULL;
 	g->g_start = start;
@@ -28,16 +27,14 @@ newgrammar(start)
 }
 
 dfa *
-adddfa(g, type, name)
-	grammar *g;
-	int type;
-	char *name;
+adddfa(grammar *g, int type, char *name)
 {
 	dfa *d;
 	
 	RESIZE(g->g_dfa, dfa, g->g_ndfas + 1);
-	if (g->g_dfa == NULL)
+	if (g->g_dfa == NULL) {
 		fatal("no mem to resize dfa in adddfa");
+    }
 	d = &g->g_dfa[g->g_ndfas++];
 	d->d_type = type;
 	d->d_name = name;
@@ -49,14 +46,14 @@ adddfa(g, type, name)
 }
 
 int
-addstate(d)
-	dfa *d;
+addstate(dfa *d)
 {
 	state *s;
 	
 	RESIZE(d->d_state, state, d->d_nstates + 1);
-	if (d->d_state == NULL)
+	if (d->d_state == NULL) {
 		fatal("no mem to resize state in addstate");
+    }
 	s = &d->d_state[d->d_nstates++];
 	s->s_narcs = 0;
 	s->s_arc = NULL;
@@ -64,9 +61,7 @@ addstate(d)
 }
 
 void
-addarc(d, from, to, lbl)
-	dfa *d;
-	int lbl;
+addarc(dfa *d, int from, int to, int lbl)
 {
 	state *s;
 	arc *a;
@@ -76,18 +71,16 @@ addarc(d, from, to, lbl)
 	
 	s = &d->d_state[from];
 	RESIZE(s->s_arc, arc, s->s_narcs + 1);
-	if (s->s_arc == NULL)
+	if (s->s_arc == NULL) {
 		fatal("no mem to resize arc list in addarc");
+    }
 	a = &s->s_arc[s->s_narcs++];
 	a->a_lbl = lbl;
 	a->a_arrow = to;
 }
 
 int
-addlabel(ll, type, str)
-	labellist *ll;
-	int type;
-	char *str;
+addlabel(labellist *ll, int type, char *str)
 {
 	int i;
 	label *lb;
@@ -98,8 +91,9 @@ addlabel(ll, type, str)
 			return i;
 	}
 	RESIZE(ll->ll_label, label, ll->ll_nlabels + 1);
-	if (ll->ll_label == NULL)
+	if (ll->ll_label == NULL) {
 		fatal("no mem to resize labellist in addlabel");
+    }
 	lb = &ll->ll_label[ll->ll_nlabels++];
 	lb->lb_type = type;
 	lb->lb_str = str; /* XXX strdup(str) ??? */
@@ -109,10 +103,7 @@ addlabel(ll, type, str)
 /* Same, but rather dies than adds */
 
 int
-findlabel(ll, type, str)
-	labellist *ll;
-	int type;
-	char *str;
+findlabel(labellist *ll, int type, char *str)
 {
 	int i;
 	label *lb;
@@ -130,44 +121,37 @@ findlabel(ll, type, str)
 static void translabel PROTO((grammar *, label *));
 
 void
-translatelabels(g)
-	grammar *g;
+translatelabels(grammar *g)
 {
-	int i;
-	
 	printf("Translating labels ...\n");
 	/* Don't translate EMPTY */
-	for (i = EMPTY+1; i < g->g_ll.ll_nlabels; i++)
+	for (int i = EMPTY+1; i < g->g_ll.ll_nlabels; i++)
 		translabel(g, &g->g_ll.ll_label[i]);
 }
 
 static void
-translabel(g, lb)
-	grammar *g;
-	label *lb;
+translabel(grammar *g, label *lb)
 {
-	int i;
-	
 	if (debugging)
 		printf("Translating label %s ...\n", labelrepr(lb));
 	
 	if (lb->lb_type == NAME) {
-		for (i = 0; i < g->g_ndfas; i++) {
+		for (int i = 0; i < g->g_ndfas; i++) {
 			if (strcmp(lb->lb_str, g->g_dfa[i].d_name) == 0) {
-				if (debugging)
-					printf("Label %s is non-terminal %d.\n",
-						lb->lb_str,
+				if (debugging) {
+					printf("Label %s is non-terminal %d.\n", lb->lb_str,
 						g->g_dfa[i].d_type);
+                }
 				lb->lb_type = g->g_dfa[i].d_type;
 				lb->lb_str = NULL;
 				return;
 			}
 		}
-		for (i = 0; i < (int)N_TOKENS; i++) {
+		for (int i = 0; i < (int)N_TOKENS; i++) {
 			if (strcmp(lb->lb_str, tok_name[i]) == 0) {
-				if (debugging)
-					printf("Label %s is terminal %d.\n",
-						lb->lb_str, i);
+				if (debugging) {
+					printf("Label %s is terminal %d.\n", lb->lb_str, i);
+                }
 				lb->lb_type = i;
 				lb->lb_str = NULL;
 				return;
@@ -180,30 +164,33 @@ translabel(g, lb)
 	if (lb->lb_type == STRING) {
 		if (isalpha(lb->lb_str[1])) {
 			char *p, *strchr();
-			if (debugging)
+			if (debugging) {
 				printf("Label %s is a keyword\n", lb->lb_str);
+            }
 			lb->lb_type = NAME;
 			lb->lb_str++;
 			p = strchr(lb->lb_str, '\'');
-			if (p)
+			if (p) {
 				*p = '\0';
+            }
 		}
 		else {
 			if (lb->lb_str[2] == lb->lb_str[0]) {
-				int type = (int) tok_1char(lb->lb_str[1]);
+				int type = (int)tok_1char(lb->lb_str[1]);
 				if (type != OP) {
 					lb->lb_type = type;
 					lb->lb_str = NULL;
 				}
-				else
-					printf("Unknown OP label %s\n",
-						lb->lb_str);
+				else {
+					printf("Unknown OP label %s\n", lb->lb_str);
+                }
 			}
-			else
-				printf("Can't translate STRING label %s\n",
-					lb->lb_str);
+			else {
+				printf("Can't translate STRING label %s\n", lb->lb_str);
+            }
 		}
 	}
-	else
+	else {
 		printf("Can't translate label '%s'\n", labelrepr(lb));
+    }
 }
