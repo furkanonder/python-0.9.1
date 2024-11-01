@@ -1,7 +1,6 @@
 /* Function object implementation */
 
 #include "allobjects.h"
-
 #include "structmember.h"
 
 typedef struct {
@@ -11,11 +10,10 @@ typedef struct {
 } funcobject;
 
 object *
-newfuncobject(code, globals)
-	object *code;
-	object *globals;
+newfuncobject(object *code, object *globals)
 {
 	funcobject *op = NEWOBJ(funcobject, &Functype);
+
 	if (op != NULL) {
 		INCREF(code);
 		op->func_code = code;
@@ -26,25 +24,23 @@ newfuncobject(code, globals)
 }
 
 object *
-getfunccode(op)
-	object *op;
+getfunccode(object *op)
 {
 	if (!is_funcobject(op)) {
 		err_badcall();
 		return NULL;
 	}
-	return ((funcobject *) op) -> func_code;
+	return ((funcobject *)op)->func_code;
 }
 
 object *
-getfuncglobals(op)
-	object *op;
+getfuncglobals(object *op)
 {
 	if (!is_funcobject(op)) {
 		err_badcall();
 		return NULL;
 	}
-	return ((funcobject *) op) -> func_globals;
+	return ((funcobject *)op)->func_globals;
 }
 
 /* Methods */
@@ -52,22 +48,19 @@ getfuncglobals(op)
 #define OFF(x) offsetof(funcobject, x)
 
 static struct memberlist func_memberlist[] = {
-	{"func_code",	T_OBJECT,	OFF(func_code)},
-	{"func_globals",T_OBJECT,	OFF(func_globals)},
+	{"func_code",		T_OBJECT,	OFF(func_code)},
+	{"func_globals",	T_OBJECT,	OFF(func_globals)},
 	{NULL}	/* Sentinel */
 };
 
 static object *
-func_getattr(op, name)
-	funcobject *op;
-	char *name;
+func_getattr(funcobject *op, char *name)
 {
 	return getmember((char *)op, func_memberlist, name);
 }
 
 static void
-func_dealloc(op)
-	funcobject *op;
+func_dealloc(funcobject *op)
 {
 	DECREF(op->func_code);
 	DECREF(op->func_globals);
@@ -80,10 +73,10 @@ typeobject Functype = {
 	"function",
 	sizeof(funcobject),
 	0,
-	func_dealloc,	/*tp_dealloc*/
-	0,		/*tp_print*/
-	func_getattr,	/*tp_getattr*/
-	0,		/*tp_setattr*/
-	0,		/*tp_compare*/
-	0,		/*tp_repr*/
+	(destructor)func_dealloc,	/*tp_dealloc*/
+	0,							/*tp_print*/
+	(getattrfunc)func_getattr,	/*tp_getattr*/
+	0,							/*tp_setattr*/
+	0,							/*tp_compare*/
+	0,							/*tp_repr*/
 };
