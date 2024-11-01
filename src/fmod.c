@@ -6,8 +6,7 @@
 extern int errno;
 
 double
-fmod(x, y)
-	double x, y;
+fmod(double x, double y)
 {
 	double i, f;
 	
@@ -16,12 +15,12 @@ fmod(x, y)
 		return 0.0;
 	}
 	
-	/* return f such that x = i*y + f for some integer i
+	/* return f such that x = i * y + f for some integer i
 	   such that |f| < |y| and f has the same sign as x */
-	
-	i = floor(x/y);
-	f = x - i*y;
-	if ((x < 0.0) != (y < 0.0))
-		f = f-y;
+	i = floor(x / y);
+	f = x - i * y;
+	if ((x < 0.0) != (y < 0.0)) {
+		f = f - y;
+    }
 	return f;
 }
