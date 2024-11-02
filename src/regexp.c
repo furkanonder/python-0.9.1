@@ -174,16 +174,16 @@ static int regnl;			/* '\n' detected. */
 #ifndef STATIC
 #define	STATIC	static
 #endif
-STATIC char *reg();
-STATIC char *regbranch();
-STATIC char *regpiece();
-STATIC char *regatom();
-STATIC char *regnode();
-STATIC char *regnext();
-STATIC void regc();
-STATIC void reginsert();
-STATIC void regtail();
-STATIC void regoptail();
+STATIC char *reg(int paren, int *flagp);
+STATIC char *regbranch(int *flagp);
+STATIC char *regpiece(int *flagp);
+STATIC char *regatom(int *flagp);
+STATIC char *regnode(char op);
+STATIC char *regnext(register char *p);
+STATIC void regc(char b);
+STATIC void reginsert(char op, char *opnd);
+STATIC void regtail(char *p, char *val);
+STATIC void regoptail(char *p, char *val);
 #ifdef STRCSPN
 STATIC int strcspn();
 #endif
@@ -612,7 +612,7 @@ regnode(char op)
 
 	if (ret == &regdummy) {
 		regsize += 3;
-		return(ret);
+		return ret;
 	}
 
 	ptr = ret;
@@ -621,7 +621,7 @@ regnode(char op)
 	*ptr++ = '\0';
 	regcode = ptr;
 
-	return(ret);
+	return ret;
 }
 
 /* regc - emit (if appropriate) a byte of code */
