@@ -1,12 +1,11 @@
 /* Use this file as a template to start implementing a new object type.
-   If your objects will be called foobar, start by copying this file to
-   foobarobject.c, changing all occurrences of xx to foobar and all
-   occurrences of Xx by Foobar.  You will probably want to delete all
-   references to 'x_attr' and add your own types of attributes
-   instead.  Maybe you want to name your local variables other than
-   'xp'.  If your object type is needed in other files, you'll have to
-   create a file "foobarobject.h"; see intobject.h for an example. */
-
+ * If your objects will be called foobar, start by copying this file to
+ * foobarobject.c, changing all occurrences of xx to foobar and all
+ * occurrences of Xx by Foobar.  You will probably want to delete all
+ * references to 'x_attr' and add your own types of attributes
+ * instead.  Maybe you want to name your local variables other than
+ * 'xp'.  If your object type is needed in other files, you'll have to
+ * create a file "foobarobject.h"; see intobject.h for an example. */
 
 /* Xx objects */
 
@@ -19,16 +18,16 @@ typedef struct {
 
 extern typeobject Xxtype;	/* Really static, forward */
 
-#define is_xxobject(v)		((v)->ob_type == &Xxtype)
+#define is_xxobject(v)	((v)->ob_type == &Xxtype)
 
 static xxobject *
-newxxobject(arg)
-	object *arg;
+newxxobject(object *arg)
 {
-	xxobject *xp;
-	xp = NEWOBJ(xxobject, &Xxtype);
-	if (xp == NULL)
+	xxobject *xp = NEWOBJ(xxobject, &Xxtype);
+
+	if (xp == NULL) {
 		return NULL;
+    }
 	xp->x_attr = NULL;
 	return xp;
 }
@@ -36,33 +35,29 @@ newxxobject(arg)
 /* Xx methods */
 
 static void
-xx_dealloc(xp)
-	xxobject *xp;
+xx_dealloc(xxobject *xp)
 {
 	XDECREF(xp->x_attr);
 	DEL(xp);
 }
 
 static object *
-xx_demo(self, args)
-	xxobject *self;
-	object *args;
+xx_demo(xxobject *self, object *args)
 {
-	if (!getnoarg(args))
+	if (!getnoarg(args)) {
 		return NULL;
+    }
 	INCREF(None);
 	return None;
 }
 
 static struct methodlist xx_methods[] = {
-	"demo",		xx_demo,
-	{NULL,		NULL}		/* sentinel */
+	"demo",		(method)xx_demo,
+	{NULL,		NULL}	/* sentinel */
 };
 
 static object *
-xx_getattr(xp, name)
-	xxobject *xp;
-	char *name;
+xx_getattr(xxobject *xp, char *name)
 {
 	if (xp->x_attr != NULL) {
 		object *v = dictlookup(xp->x_attr, name);
@@ -75,33 +70,33 @@ xx_getattr(xp, name)
 }
 
 static int
-xx_setattr(xp, name, v)
-	xxobject *xp;
-	char *name;
-	object *v;
+xx_setattr(xxobject *xp, char *name, object *v)
 {
 	if (xp->x_attr == NULL) {
 		xp->x_attr = newdictobject();
-		if (xp->x_attr == NULL)
+		if (xp->x_attr == NULL) {
 			return -1;
+        }
 	}
-	if (v == NULL)
+	if (v == NULL) {
 		return dictremove(xp->x_attr, name);
-	else
+    }
+	else {
 		return dictinsert(xp->x_attr, name, v);
+    }
 }
 
 static typeobject Xxtype = {
 	OB_HEAD_INIT(&Typetype)
-	0,			/*ob_size*/
-	"xx",			/*tp_name*/
-	sizeof(xxobject),	/*tp_size*/
-	0,			/*tp_itemsize*/
+	0,							/*ob_size*/
+	"xx",						/*tp_name*/
+	sizeof(xxobject),			/*tp_size*/
+	0,							/*tp_itemsize*/
 	/* methods */
-	xx_dealloc,	/*tp_dealloc*/
-	0,		/*tp_print*/
-	xx_getattr,	/*tp_getattr*/
-	xx_setattr,	/*tp_setattr*/
-	0,		/*tp_compare*/
-	0,		/*tp_repr*/
+	(destructor)xx_dealloc,		/*tp_dealloc*/
+	0,							/*tp_print*/
+	(getattrfunc)xx_getattr,	/*tp_getattr*/
+	(setattrfunc)xx_setattr,	/*tp_setattr*/
+	0,							/*tp_compare*/
+	0,							/*tp_repr*/
 };
