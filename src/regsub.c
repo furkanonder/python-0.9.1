@@ -1,6 +1,4 @@
-/*
- * regsub
- *
+/* regsub
  *	Copyright (c) 1986 by University of Toronto.
  *	Written by Henry Spencer.  Not derived from licensed software.
 #ifdef MULTILINE
@@ -29,23 +27,15 @@
 #ifndef CHARBITS
 #define	UCHARAT(p)	((int)*(unsigned char *)(p))
 #else
-#define	UCHARAT(p)	((int)*(p)&CHARBITS)
+#define	UCHARAT(p)	((int)*(p) & CHARBITS)
 #endif
 
-/*
- - regsub - perform substitutions after a regexp match
- */
+/* regsub - perform substitutions after a regexp match */
 void
-regsub(prog, source, dest)
-regexp *prog;
-char *source;
-char *dest;
+regsub(regexp *prog, char *source, char *dest)
 {
-	register char *src;
-	register char *dst;
-	register char c;
-	register int no;
-	register int len;
+	register char *src, *dst, c;
+	register int no, len;
 	extern char *strncpy();
 
 	if (prog == NULL || source == NULL || dest == NULL) {
@@ -60,16 +50,20 @@ char *dest;
 	src = source;
 	dst = dest;
 	while ((c = *src++) != '\0') {
-		if (c == '&')
+		if (c == '&') {
 			no = 0;
-		else if (c == '\\' && '0' <= *src && *src <= '9')
+        }
+		else if (c == '\\' && '0' <= *src && *src <= '9') {
 			no = *src++ - '0';
-		else
+        }
+		else {
 			no = -1;
+        }
 
 		if (no < 0) {	/* Ordinary character. */
-			if (c == '\\' && (*src == '\\' || *src == '&'))
+			if (c == '\\' && (*src == '\\' || *src == '&')) {
 				c = *src++;
+            }
 #ifdef MULTILINE
 			else if (c == '\\' && *src == 'n') {
 				c = '\n';
@@ -77,11 +71,12 @@ char *dest;
 			}
 #endif
 			*dst++ = c;
-		} else if (prog->startp[no] != NULL && prog->endp[no] != NULL) {
+		}
+        else if (prog->startp[no] != NULL && prog->endp[no] != NULL) {
 			len = prog->endp[no] - prog->startp[no];
-			(void) strncpy(dst, prog->startp[no], len);
+			(void)strncpy(dst, prog->startp[no], len);
 			dst += len;
-			if (len != 0 && *(dst-1) == '\0') {	/* strncpy hit NUL. */
+			if (len != 0 && *(dst - 1) == '\0') {	/* strncpy hit NUL. */
 				regerror("damaged match string");
 				return;
 			}
