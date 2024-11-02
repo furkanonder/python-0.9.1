@@ -3,7 +3,6 @@
 
 #include "allobjects.h"
 #include "modsupport.h"
-
 #include "regexp.h"
 
 static object *RegexpError;	/* Exception */
@@ -17,12 +16,10 @@ typedef struct {
 static typeobject Regexptype;
 
 static regexpobject *
-newregexpobject(string, prog)
-	object *string;
-	regexp *prog;
+newregexpobject(object *string, regexp *prog)
 {
-	regexpobject *re;
-	re = NEWOBJ(regexpobject, &Regexptype);
+	regexpobject *re = NEWOBJ(regexpobject, &Regexptype);
+
 	if (re != NULL) {
 		XINCREF(string);
 		re->re_string = string;
@@ -34,8 +31,7 @@ newregexpobject(string, prog)
 /* Regexp methods */
 
 static void
-regexp_dealloc(re)
-	regexpobject *re;
+regexp_dealloc(regexpobject *re)
 {
 	XDECREF(re->re_string);
 	XDEL(re->re_prog);
@@ -43,28 +39,27 @@ regexp_dealloc(re)
 }
 
 static object *
-makeresult(prog, buffer)
-	regexp *prog;
-	char *buffer;
+makeresult(regexp *prog, char *buffer)
 {
 	int n;
 	object *v;
+
 	/* Count substrings found, including \0, the main one */
-	for (n = 0; n < 10 && prog->startp[n] != NULL; n++)
+	for (n = 0; n < 10 && prog->startp[n] != NULL; n++) {
 		;
+    }
 	v = newtupleobject(n);
 	if (v != NULL) {
-		int i;
-		for (i = 0; i < n; i++) {
+		for (int i = 0; i < n; i++) {
 			object *w, *u;
-			long start, end;
-			start = prog->startp[i] - buffer;
-			end = prog->endp[i] - buffer;
-			if (	(w = newtupleobject(2)) == NULL ||
-				(u = newintobject(start)) == NULL ||
-				settupleitem(w, 0, u) != 0 ||
-				(u = newintobject(end)) == NULL ||
-				settupleitem(w, 1, u) != 0) {
+			long start = prog->startp[i] - buffer;
+            long end = prog->endp[i] - buffer;
+			if ((w = newtupleobject(2)) == NULL
+                || (u = newintobject(start)) == NULL
+                || settupleitem(w, 0, u) != 0
+                || (u = newintobject(end)) == NULL
+                || settupleitem(w, 1, u) != 0)
+            {
 				XDECREF(w);
 				DECREF(v);
 				return NULL;
@@ -76,75 +71,74 @@ makeresult(prog, buffer)
 }
 
 static object *
-regexp_exec(re, args)
-	regexpobject *re;
-	object *args;
+regexp_exec(regexpobject *re, object *args)
 {
 	object *v;
 	char *buffer;
 	int offset;
+
 	if (args != NULL && is_stringobject(args)) {
 		v = args;
 		offset = 0;
 	}
-	else if (!getstrintarg(args, &v, &offset))
+	else if (!getstrintarg(args, &v, &offset)) {
 		return NULL;
+    }
 	buffer = getstringvalue(v);
 #ifndef MULTILINE
 #define reglexec(prog, str, offset) regexec((prog), (str)+(offset))
 #endif
-	if (!reglexec(re->re_prog, buffer, offset))
+	if (!reglexec(re->re_prog, buffer, offset)) {
 		return newtupleobject(0);
+    }
 	return makeresult(re->re_prog, buffer);
 }
 
 static struct methodlist regexp_methods[] = {
-	"exec",		regexp_exec,
-	{NULL,		NULL}		/* sentinel */
+	"exec",		(method)regexp_exec,
+	{NULL,		NULL}	/* sentinel */
 };
 
 static object *
-regexp_getattr(re, name)
-	regexpobject *re;
-	char *name;
+regexp_getattr(regexpobject *re, char *name)
 {
 	return findmethod(regexp_methods, (object *)re, name);
 }
 
 static typeobject Regexptype = {
 	OB_HEAD_INIT(&Typetype)
-	0,			/*ob_size*/
-	"regexp",		/*tp_name*/
-	sizeof(regexpobject),	/*tp_size*/
-	0,			/*tp_itemsize*/
+	0,								/*ob_size*/
+	"regexp",						/*tp_name*/
+	sizeof(regexpobject),			/*tp_size*/
+	0,								/*tp_itemsize*/
 	/* methods */
-	regexp_dealloc,		/*tp_dealloc*/
-	0,			/*tp_print*/
-	regexp_getattr,		/*tp_getattr*/
-	0,			/*tp_setattr*/
-	0,			/*tp_compare*/
-	0,			/*tp_repr*/
+	(destructor)regexp_dealloc,		/*tp_dealloc*/
+	0,								/*tp_print*/
+	(getattrfunc)regexp_getattr,	/*tp_getattr*/
+	0,								/*tp_setattr*/
+	0,								/*tp_compare*/
+	0,								/*tp_repr*/
 };
 
 void
-regerror(str)
-	char *str;
+regerror(char *str)
 {
 	err_setstr(RegexpError, str);
 }
 
 static object *
-regexp_compile(self, args)
-	object *self;
-	object *args;
+regexp_compile(object *self, object *args)
 {
 	object *string;
 	regexp *prog;
-	if (!getstrarg(args, &string))
+
+	if (!getstrarg(args, &string)) {
 		return NULL;
+    }
 	prog = regcomp(getstringvalue(string));
-	if (prog == NULL)
+	if (prog == NULL) {
 		return NULL;	/* regerror() has called err_seterr() */
+    }
 	return (object *)newregexpobject(string, prog);
 }
 
@@ -156,13 +150,12 @@ static struct methodlist regexp_global_methods[] = {
 void
 initregexp()
 {
-	object *m, *d;
-
-	m = initmodule("regexp", regexp_global_methods);
-	d = getmoduledict(m);
-
+	object *m = initmodule("regexp", regexp_global_methods);
+    object *d = getmoduledict(m);
 	/* Initialize regexp.error exception */
 	RegexpError = newstringobject("regexp.error");
-	if (RegexpError == NULL || dictinsert(d, "error", RegexpError) != 0)
+
+	if (RegexpError == NULL || dictinsert(d, "error", RegexpError) != 0) {
 		fatal("can't define regexp.error");
+    }
 }
