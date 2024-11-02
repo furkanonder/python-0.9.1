@@ -24,9 +24,7 @@ char *askfile PROTO((void));
 #endif
 
 int
-main(argc, argv)
-	int argc;
-	char **argv;
+main(int argc, char **argv)
 {
 	grammar *g;
 	node *n;
@@ -63,8 +61,7 @@ main(argc, argv)
 }
 
 grammar *
-getgrammar(filename)
-	char *filename;
+getgrammar(char *filename)
 {
 	FILE *fp;
 	node *n;
@@ -97,6 +94,7 @@ askfile()
 {
 	char buf[256];
 	static char name[256];
+
 	printf("Input file name: ");
 	if (fgets(buf, sizeof buf, stdin) == NULL) {
 		printf("EOF\n");
@@ -112,8 +110,7 @@ askfile()
 #endif
 
 void
-fatal(msg)
-	char *msg;
+fatal(char *msg)
 {
 	fprintf(stderr, "pgen: FATAL ERROR: %s\n", msg);
 	exit(1);
