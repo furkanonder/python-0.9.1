@@ -12,7 +12,6 @@
 #include "parser.h"
 #include "errcode.h"
 
-
 #ifdef DEBUG
 extern int debugging;
 #define D(x) if (!debugging); else x
@@ -20,14 +19,12 @@ extern int debugging;
 #define D(x)
 #endif
 
-
 /* STACK DATA TYPE */
 
 static void s_reset PROTO((stack *));
 
 static void
-s_reset(s)
-	stack *s;
+s_reset(stack *s)
 {
 	s->s_top = &s->s_base[MAXSTACK];
 }
@@ -37,12 +34,10 @@ s_reset(s)
 static int s_push PROTO((stack *, dfa *, node *));
 
 static int
-s_push(s, d, parent)
-	register stack *s;
-	dfa *d;
-	node *parent;
+s_push(register stack *s, dfa *d, node *parent)
 {
 	register stackentry *top;
+
 	if (s->s_top == s->s_base) {
 		fprintf(stderr, "s_push: parser stack overflow\n");
 		return -1;
@@ -55,12 +50,9 @@ s_push(s, d, parent)
 }
 
 #ifdef DEBUG
-
 static void s_pop PROTO((stack *));
-
 static void
-s_pop(s)
-	register stack *s;
+s_pop(register stack *s)
 {
 	if (s_empty(s)) {
 		fprintf(stderr, "s_pop: parser stack underflow -- FATAL\n");
@@ -68,28 +60,24 @@ s_pop(s)
 	}
 	s->s_top++;
 }
-
 #else /* !DEBUG */
-
 #define s_pop(s) (s)->s_top++
-
 #endif
-
 
 /* PARSER CREATION */
 
 parser_state *
-newparser(g, start)
-	grammar *g;
-	int start;
+newparser(grammar *g, int start)
 {
 	parser_state *ps;
 	
-	if (!g->g_accel)
+	if (!g->g_accel) {
 		addaccelerators(g);
+    }
 	ps = NEW(parser_state, 1);
-	if (ps == NULL)
+	if (ps == NULL) {
 		return NULL;
+    }
 	ps->p_grammar = g;
 	ps->p_tree = newtree(start);
 	if (ps->p_tree == NULL) {
@@ -102,8 +90,7 @@ newparser(g, start)
 }
 
 void
-delparser(ps)
-	parser_state *ps;
+delparser(parser_state *ps)
 {
 	/* NB If you want to save the parse tree,
 	   you must set p_tree to NULL before calling delparser! */
@@ -111,18 +98,12 @@ delparser(ps)
 	DEL(ps);
 }
 
-
 /* PARSER STACK OPERATIONS */
 
 static int shift PROTO((stack *, int, char *, int, int));
 
 static int
-shift(s, type, str, newstate, lineno)
-	register stack *s;
-	int type;
-	char *str;
-	int newstate;
-	int lineno;
+shift(register stack *s, int type, char *str, int newstate, int lineno)
 {
 	assert(!s_empty(s));
 	if (addchild(s->s_top->s_parent, type, str, lineno) == NULL) {
@@ -136,34 +117,25 @@ shift(s, type, str, newstate, lineno)
 static int push PROTO((stack *, int, dfa *, int, int));
 
 static int
-push(s, type, d, newstate, lineno)
-	register stack *s;
-	int type;
-	dfa *d;
-	int newstate;
-	int lineno;
+push(register stack *s, int type, dfa *d, int newstate, int lineno)
 {
-	register node *n;
-	n = s->s_top->s_parent;
+	register node *n = s->s_top->s_parent;
+
 	assert(!s_empty(s));
 	if (addchild(n, type, (char *)NULL, lineno) == NULL) {
 		fprintf(stderr, "push: no mem in addchild\n");
 		return -1;
 	}
 	s->s_top->s_state = newstate;
-	return s_push(s, d, CHILD(n, NCH(n)-1));
+	return s_push(s, d, CHILD(n, NCH(n) - 1));
 }
-
 
 /* PARSER PROPER */
 
 static int classify PROTO((grammar *, int, char *));
 
 static int
-classify(g, type, str)
-	grammar *g;
-	register int type;
-	char *str;
+classify(grammar *g, register int type, char *str)
 {
 	register int n = g->g_ll.ll_nlabels;
 	
@@ -172,9 +144,9 @@ classify(g, type, str)
 		register label *l = g->g_ll.ll_label;
 		register int i;
 		for (i = n; i > 0; i--, l++) {
-			if (l->lb_type == NAME && l->lb_str != NULL &&
-					l->lb_str[0] == s[0] &&
-					strcmp(l->lb_str, s) == 0) {
+			if (l->lb_type == NAME && l->lb_str != NULL && l->lb_str[0] == s[0]
+                && strcmp(l->lb_str, s) == 0)
+            {
 				D(printf("It's a keyword\n"));
 				return n - i;
 			}
@@ -197,11 +169,7 @@ classify(g, type, str)
 }
 
 int
-addtoken(ps, type, str, lineno)
-	register parser_state *ps;
-	register int type;
-	char *str;
-	int lineno;
+addtoken(register parser_state *ps, register int type, char *str, int lineno)
 {
 	register int ilabel;
 	
@@ -209,8 +177,9 @@ addtoken(ps, type, str, lineno)
 	
 	/* Find out which label this token is */
 	ilabel = classify(ps->p_grammar, type, str);
-	if (ilabel < 0)
+	if (ilabel < 0) {
 		return E_SYNTAX;
+    }
 	
 	/* Loop until the token is shifted or an error occurred */
 	for (;;) {
@@ -218,38 +187,35 @@ addtoken(ps, type, str, lineno)
 		register dfa *d = ps->p_stack.s_top->s_dfa;
 		register state *s = &d->d_state[ps->p_stack.s_top->s_state];
 		
-		D(printf(" DFA '%s', state %d:",
-			d->d_name, ps->p_stack.s_top->s_state));
+		D(printf(" DFA '%s', state %d:", d->d_name,
+                 ps->p_stack.s_top->s_state));
 		
 		/* Check accelerator */
 		if (s->s_lower <= ilabel && ilabel < s->s_upper) {
 			register int x = s->s_accel[ilabel - s->s_lower];
 			if (x != -1) {
-				if (x & (1<<7)) {
+				if (x & (1 << 7)) {
 					/* Push non-terminal */
 					int nt = (x >> 8) + NT_OFFSET;
-					int arrow = x & ((1<<7)-1);
+					int arrow = x & ((1 << 7) - 1);
 					dfa *d1 = finddfa(ps->p_grammar, nt);
-					if (push(&ps->p_stack, nt, d1,
-						arrow, lineno) < 0) {
+					if (push(&ps->p_stack, nt, d1, arrow, lineno) < 0) {
 						D(printf(" MemError: push.\n"));
 						return E_NOMEM;
 					}
 					D(printf(" Push ...\n"));
 					continue;
 				}
-				
 				/* Shift the token */
-				if (shift(&ps->p_stack, type, str,
-						x, lineno) < 0) {
+				if (shift(&ps->p_stack, type, str, x, lineno) < 0) {
 					D(printf(" MemError: shift.\n"));
 					return E_NOMEM;
 				}
 				D(printf(" Shift.\n"));
 				/* Pop while we are in an accept-only state */
-				while (s = &d->d_state
-						[ps->p_stack.s_top->s_state],
-					s->s_accept && s->s_narcs == 1) {
+				while (s = &d->d_state [ps->p_stack.s_top->s_state],
+					   s->s_accept && s->s_narcs == 1)
+                {
 					D(printf("  Direct pop.\n"));
 					s_pop(&ps->p_stack);
 					if (s_empty(&ps->p_stack)) {
@@ -279,20 +245,14 @@ addtoken(ps, type, str, lineno)
 	}
 }
 
-
 #ifdef DEBUG
-
 /* DEBUG OUTPUT */
-
 void
-dumptree(g, n)
-	grammar *g;
-	node *n;
+dumptree(grammar *g, node *n)
 {
-	int i;
-	
-	if (n == NULL)
+	if (n == NULL) {
 		printf("NIL");
+    }
 	else {
 		label l;
 		l.lb_type = TYPE(n);
@@ -300,9 +260,10 @@ dumptree(g, n)
 		printf("%s", labelrepr(&l));
 		if (ISNONTERMINAL(TYPE(n))) {
 			printf("(");
-			for (i = 0; i < NCH(n); i++) {
-				if (i > 0)
+			for (int i = 0; i < NCH(n); i++) {
+				if (i > 0) {
 					printf(",");
+                }
 				dumptree(g, CHILD(n, i));
 			}
 			printf(")");
@@ -311,31 +272,29 @@ dumptree(g, n)
 }
 
 void
-showtree(g, n)
-	grammar *g;
-	node *n;
+showtree(grammar *g, node *n)
 {
-	int i;
-	
 	if (n == NULL)
 		return;
 	if (ISNONTERMINAL(TYPE(n))) {
-		for (i = 0; i < NCH(n); i++)
+		for (int i = 0; i < NCH(n); i++) {
 			showtree(g, CHILD(n, i));
+        }
 	}
 	else if (ISTERMINAL(TYPE(n))) {
 		printf("%s", tok_name[TYPE(n)]);
-		if (TYPE(n) == NUMBER || TYPE(n) == NAME)
+		if (TYPE(n) == NUMBER || TYPE(n) == NAME) {
 			printf("(%s)", STR(n));
+        }
 		printf(" ");
 	}
-	else
+	else {
 		printf("? ");
+    }
 }
 
 void
-printtree(ps)
-	parser_state *ps;
+printtree(parser_state *ps)
 {
 	if (debugging) {
 		printf("Parse tree:\n");
@@ -349,11 +308,9 @@ printtree(ps)
 	listtree(ps->p_tree);
 	printf("\n");
 }
-
 #endif /* DEBUG */
 
 /*
-
 Description
 -----------
 
