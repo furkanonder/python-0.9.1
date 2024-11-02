@@ -23,7 +23,6 @@ extern char *strerror PROTO((int));
 #define NO_LSTAT
 #endif
 
-
 /* Return a dictionary corresponding to the POSIX environment table */
 
 extern char **environ;
@@ -31,103 +30,108 @@ extern char **environ;
 static object *
 convertenviron()
 {
-	object *d;
+	object *d = newdictobject();
 	char **e;
-	d = newdictobject();
-	if (d == NULL)
+
+	if (d == NULL) {
 		return NULL;
-	if (environ == NULL)
+    }
+	if (environ == NULL) {
 		return d;
+    }
 	/* XXX This part ignores errors */
 	for (e = environ; *e != NULL; e++) {
 		object *v;
 		char *p = strchr(*e, '=');
-		if (p == NULL)
+		if (p == NULL) {
 			continue;
-		v = newstringobject(p+1);
-		if (v == NULL)
+        }
+		v = newstringobject(p + 1);
+		if (v == NULL) {
 			continue;
+        }
 		*p = '\0';
-		(void) dictinsert(d, *e, v);
+		(void)dictinsert(d, *e, v);
 		*p = '=';
 		DECREF(v);
 	}
 	return d;
 }
 
-
 static object *PosixError; /* Exception posix.error */
 
 /* Set a POSIX-specific error from errno, and return NULL */
-
 static object *
 posix_error()
 {
 	return err_errno(PosixError);
 }
 
-
 /* POSIX generic methods */
 
 static object *
-posix_1str(args, func)
-	object *args;
-	int (*func) FPROTO((const char *));
+posix_1str(object *args, int (*func)FPROTO((const char *)))
 {
 	object *path1;
-	if (!getstrarg(args, &path1))
+
+	if (!getstrarg(args, &path1)) {
 		return NULL;
-	if ((*func)(getstringvalue(path1)) < 0)
+    }
+	if ((*func)(getstringvalue(path1)) < 0) {
 		return posix_error();
+    }
 	INCREF(None);
 	return None;
 }
 
 static object *
-posix_2str(args, func)
-	object *args;
-	int (*func) FPROTO((const char *, const char *));
+posix_2str(object *args, int (*func)FPROTO((const char *, const char *)))
 {
 	object *path1, *path2;
-	if (!getstrstrarg(args, &path1, &path2))
+
+	if (!getstrstrarg(args, &path1, &path2)) {
 		return NULL;
-	if ((*func)(getstringvalue(path1), getstringvalue(path2)) < 0)
+    }
+	if ((*func)(getstringvalue(path1), getstringvalue(path2)) < 0) {
 		return posix_error();
+    }
 	INCREF(None);
 	return None;
 }
 
 static object *
-posix_strint(args, func)
-	object *args;
-	int (*func) FPROTO((const char *, int));
+posix_strint(object *args, int (*func)FPROTO((const char *, int)))
 {
 	object *path1;
 	int i;
-	if (!getstrintarg(args, &path1, &i))
+
+	if (!getstrintarg(args, &path1, &i)) {
 		return NULL;
-	if ((*func)(getstringvalue(path1), i) < 0)
+    }
+	if ((*func)(getstringvalue(path1), i) < 0) {
 		return posix_error();
+    }
 	INCREF(None);
 	return None;
 }
 
 static object *
-posix_do_stat(self, args, statfunc)
-	object *self;
-	object *args;
-	int (*statfunc) FPROTO((const char *, struct stat *));
+posix_do_stat(object *self, object *args,
+              int (*statfunc)FPROTO((const char *, struct stat *)))
 {
 	struct stat st;
-	object *path;
-	object *v;
-	if (!getstrarg(args, &path))
+	object *path, *v;
+
+	if (!getstrarg(args, &path)) {
 		return NULL;
-	if ((*statfunc)(getstringvalue(path), &st) != 0)
+    }
+	if ((*statfunc)(getstringvalue(path), &st) != 0) {
 		return posix_error();
+    }
 	v = newtupleobject(10);
-	if (v == NULL)
+	if (v == NULL) {
 		return NULL;
+    }
 #define SET(i, st_member) settupleitem(v, i, newintobject((long)st.st_member))
 	SET(0, st_mode);
 	SET(1, st_ino);
@@ -147,61 +151,62 @@ posix_do_stat(self, args, statfunc)
 	return v;
 }
 
-
 /* POSIX methods */
 
 static object *
-posix_chdir(self, args)
-	object *self;
-	object *args;
+posix_chdir(object *self, object *args)
 {
 	extern int chdir PROTO((const char *));
 	return posix_1str(args, chdir);
 }
 
-static object *
-posix_chmod(self, args)
-	object *self;
-	object *args;
+static int
+chmod_wrapper(const char *path, int mode)
 {
-	extern int chmod PROTO((const char *, mode_t));
-	return posix_strint(args, chmod);
+	return chmod(path, (mode_t)mode);
 }
 
 static object *
-posix_getcwd(self, args)
-	object *self;
-	object *args;
+posix_chmod(object *self, object *args)
+{
+	extern int chmod PROTO((const char *, mode_t));
+	return posix_strint(args, chmod_wrapper);
+}
+
+static object *
+posix_getcwd(object *self, object *args)
 {
 	char buf[1026];
-	if (!getnoarg(args))
+
+	if (!getnoarg(args)) {
 		return NULL;
-	if (getcwd(buf, sizeof buf) == NULL)
+    }
+	if (getcwd(buf, sizeof buf) == NULL) {
 		return posix_error();
+    }
 	return newstringobject(buf);
 }
 
 static object *
-posix_link(self, args)
-	object *self;
-	object *args;
+posix_link(object *self, object *args)
 {
 	extern int link PROTO((const char *, const char *));
 	return posix_2str(args, link);
 }
 
 static object *
-posix_listdir(self, args)
-	object *self;
-	object *args;
+posix_listdir(object *self, object *args)
 {
 	object *name, *d, *v;
 	DIR *dirp;
 	struct direct *ep;
-	if (!getstrarg(args, &name))
+
+	if (!getstrarg(args, &name)) {
 		return NULL;
-	if ((dirp = opendir(getstringvalue(name))) == NULL)
+    }
+	if ((dirp = opendir(getstringvalue(name))) == NULL) {
 		return posix_error();
+    }
 	if ((d = newlistobject(0)) == NULL) {
 		closedir(dirp);
 		return NULL;
@@ -225,132 +230,126 @@ posix_listdir(self, args)
 	return d;
 }
 
-static object *
-posix_mkdir(self, args)
-	object *self;
-	object *args;
+static int
+mkdir_wrapper(const char *path, int mode)
 {
-	extern int mkdir PROTO((const char *, mode_t));
-	return posix_strint(args, mkdir);
+	return mkdir(path, (mode_t)mode);
 }
 
 static object *
-posix_rename(self, args)
-	object *self;
-	object *args;
+posix_mkdir(object *self, object *args)
+{
+	return posix_strint(args, mkdir_wrapper);
+}
+
+static object *
+posix_rename(object *self, object *args)
 {
 	extern int rename PROTO((const char *, const char *));
 	return posix_2str(args, rename);
 }
 
 static object *
-posix_rmdir(self, args)
-	object *self;
-	object *args;
+posix_rmdir(object *self, object *args)
 {
 	extern int rmdir PROTO((const char *));
 	return posix_1str(args, rmdir);
 }
 
 static object *
-posix_stat(self, args)
-	object *self;
-	object *args;
+posix_stat(object *self, object *args)
 {
 	extern int stat PROTO((const char *, struct stat *));
 	return posix_do_stat(self, args, stat);
 }
 
 static object *
-posix_system(self, args)
-	object *self;
-	object *args;
+posix_system(object *self, object *args)
 {
 	object *command;
 	int sts;
-	if (!getstrarg(args, &command))
+
+	if (!getstrarg(args, &command)) {
 		return NULL;
+    }
 	sts = system(getstringvalue(command));
 	return newintobject((long)sts);
 }
 
 static object *
-posix_umask(self, args)
-	object *self;
-	object *args;
+posix_umask(object *self, object *args)
 {
 	int i;
-	if (!getintarg(args, &i))
+
+	if (!getintarg(args, &i)) {
 		return NULL;
+    }
 	i = umask(i);
-	if (i < 0)
+	if (i < 0) {
 		return posix_error();
+    }
 	return newintobject((long)i);
 }
 
 static object *
-posix_unlink(self, args)
-	object *self;
-	object *args;
+posix_unlink(object *self, object *args)
 {
 	extern int unlink PROTO((const char *));
 	return posix_1str(args, unlink);
 }
 
 static object *
-posix_utimes(self, args)
-	object *self;
-	object *args;
+posix_utimes(object *self, object *args)
 {
 	object *path;
 	struct timeval tv[2];
+
 	if (args == NULL || !is_tupleobject(args) || gettuplesize(args) != 2) {
 		err_badarg();
 		return NULL;
 	}
-	if (!getstrarg(gettupleitem(args, 0), &path) ||
-				!getlonglongargs(gettupleitem(args, 1),
-					&tv[0].tv_sec, &tv[1].tv_sec))
+	if (!getstrarg(gettupleitem(args, 0), &path)
+        || !getlonglongargs(gettupleitem(args, 1), &tv[0].tv_sec,
+        &tv[1].tv_sec))
+    {
 		return NULL;
+    }
 	tv[0].tv_usec = tv[1].tv_usec = 0;
-	if (utimes(getstringvalue(path), tv) < 0)
+	if (utimes(getstringvalue(path), tv) < 0) {
 		return posix_error();
+    }
 	INCREF(None);
 	return None;
 }
 
-
 #ifndef NO_LSTAT
 
 static object *
-posix_lstat(self, args)
-	object *self;
-	object *args;
+posix_lstat(object *self, object *args)
 {
 	extern int lstat PROTO((const char *, struct stat *));
 	return posix_do_stat(self, args, lstat);
 }
 
 static object *
-posix_readlink(self, args)
-	object *self;
-	object *args;
+posix_readlink(object *self, object *args)
 {
 	char buf[1024]; /* XXX Should use MAXPATHLEN */
 	object *path;
 	int n;
-	if (!getstrarg(args, &path))
+    
+	if (!getstrarg(args, &path)) {
 		return NULL;
+    }
 	n = readlink(getstringvalue(path), buf, sizeof buf);
-	if (n < 0)
+	if (n < 0) {
 		return posix_error();
+    }
 	return newsizedstringobject(buf, n);
 }
 
 static object *
-posix_symlink(self, args)
-	object *self;
-	object *args;
+posix_symlink(object *self, object *args)
 {
 	extern int symlink PROTO((const char *, const char *));
 	return posix_2str(args, symlink);
@@ -358,46 +357,43 @@ posix_symlink(self, args)
 
 #endif /* NO_LSTAT */
 
-
 static struct methodlist posix_methods[] = {
-	{"chdir",	posix_chdir},
-	{"chmod",	posix_chmod},
-	{"getcwd",	posix_getcwd},
-	{"link",	posix_link},
-	{"listdir",	posix_listdir},
-	{"mkdir",	posix_mkdir},
-	{"rename",	posix_rename},
-	{"rmdir",	posix_rmdir},
-	{"stat",	posix_stat},
-	{"system",	posix_system},
-	{"umask",	posix_umask},
-	{"unlink",	posix_unlink},
-	{"utimes",	posix_utimes},
+	{"chdir",		(method)posix_chdir},
+	{"chmod",		(method)posix_chmod},
+	{"getcwd",		(method)posix_getcwd},
+	{"link",		(method)posix_link},
+	{"listdir",		(method)posix_listdir},
+	{"mkdir",		(method)posix_mkdir},
+	{"rename",		(method)posix_rename},
+	{"rmdir",		(method)posix_rmdir},
+	{"stat",		(method)posix_stat},
+	{"system",		(method)posix_system},
+	{"umask",		(method)posix_umask},
+	{"unlink",		(method)posix_unlink},
+	{"utimes",		(method)posix_utimes},
 #ifndef NO_LSTAT
-	{"lstat",	posix_lstat},
-	{"readlink",	posix_readlink},
-	{"symlink",	posix_symlink},
+	{"lstat",		(method)posix_lstat},
+	{"readlink",	(method)posix_readlink},
+	{"symlink",		(method)posix_symlink},
 #endif
-	{NULL,		NULL}		 /* Sentinel */
+	{NULL,			NULL}		 /* Sentinel */
 };
-
 
 void
 initposix()
 {
-	object *m, *d, *v;
-	
-	m = initmodule("posix", posix_methods);
-	d = getmoduledict(m);
-	
+	object *m = initmodule("posix", posix_methods), *d = getmoduledict(m), *v;
 	/* Initialize posix.environ dictionary */
 	v = convertenviron();
-	if (v == NULL || dictinsert(d, "environ", v) != 0)
+
+	if (v == NULL || dictinsert(d, "environ", v) != 0) {
 		fatal("can't define posix.environ");
+    }
 	DECREF(v);
 	
 	/* Initialize posix.error exception */
 	PosixError = newstringobject("posix.error");
-	if (PosixError == NULL || dictinsert(d, "error", PosixError) != 0)
+	if (PosixError == NULL || dictinsert(d, "error", PosixError) != 0) {
 		fatal("can't define posix.error");
+    }
 }
