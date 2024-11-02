@@ -4,39 +4,36 @@
 
 #include "import.h"
 #include "modsupport.h"
-
 #include "sigtype.h"
-
 #include "::unixemu:dir.h"
 #include "::unixemu:stat.h"
 
 static object *MacError; /* Exception */
 
-
 static object *
-mac_chdir(self, args)
-	object *self;
-	object *args;
+mac_chdir(object *self, object *args)
 {
 	object *path;
-	if (!getstrarg(args, &path))
+
+	if (!getstrarg(args, &path)) {
 		return NULL;
-	if (chdir(getstringvalue(path)) != 0)
+    }
+	if (chdir(getstringvalue(path)) != 0) {
 		return err_errno(MacError);
+    }
 	INCREF(None);
 	return None;
 }
 
-
 static object *
-mac_getcwd(self, args)
-	object *self;
-	object *args;
+mac_getcwd(object *self, object *args)
 {
 	extern char *getwd();
 	char buf[1025];
-	if (!getnoarg(args))
+
+	if (!getnoarg(args)) {
 		return NULL;
+    }
 	strcpy(buf, "mac.getcwd() failed"); /* In case getwd() doesn't set a msg */
 	if (getwd(buf) == NULL) {
 		err_setstr(MacError, buf);
@@ -45,19 +42,19 @@ mac_getcwd(self, args)
 	return newstringobject(buf);
 }
 
-
 static object *
-mac_listdir(self, args)
-	object *self;
-	object *args;
+mac_listdir(object *self, object *args)
 {
 	object *name, *d, *v;
 	DIR *dirp;
 	struct direct *ep;
-	if (!getstrarg(args, &name))
+
+	if (!getstrarg(args, &name)) {
 		return NULL;
-	if ((dirp = opendir(getstringvalue(name))) == NULL)
+    }
+	if ((dirp = opendir(getstringvalue(name))) == NULL) {
 		return err_errno(MacError);
+    }
 	if ((d = newlistobject(0)) == NULL) {
 		closedir(dirp);
 		return NULL;
@@ -81,68 +78,68 @@ mac_listdir(self, args)
 	return d;
 }
 
-
 static object *
-mac_mkdir(self, args)
-	object *self;
-	object *args;
+mac_mkdir(object *self, object *args)
 {
 	object *path;
 	int mode;
-	if (!getstrintarg(args, &path, &mode))
+
+	if (!getstrintarg(args, &path, &mode)) {
 		return NULL;
-	if (mkdir(getstringvalue(path), mode) != 0)
+    }
+	if (mkdir(getstringvalue(path), mode) != 0) {
 		return err_errno(MacError);
+    }
 	INCREF(None);
 	return None;
 }
 
-
 static object *
-mac_rename(self, args)
-	object *self;
-	object *args;
+mac_rename(object *self, object *args)
 {
 	object *src, *dst;
-	if (!getstrstrarg(args, &src, &dst))
+
+	if (!getstrstrarg(args, &src, &dst)) {
 		return NULL;
-	if (rename(getstringvalue(src), getstringvalue(dst)) != 0)
+    }
+	if (rename(getstringvalue(src), getstringvalue(dst)) != 0) {
 		return err_errno(MacError);
+    }
 	INCREF(None);
 	return None;
 }
 
-
 static object *
-mac_rmdir(self, args)
-	object *self;
-	object *args;
+mac_rmdir(object *self, object *args)
 {
 	object *path;
-	if (!getstrarg(args, &path))
+
+	if (!getstrarg(args, &path)) {
 		return NULL;
-	if (rmdir(getstringvalue(path)) != 0)
+    }
+	if (rmdir(getstringvalue(path)) != 0) {
 		return err_errno(MacError);
+    }
 	INCREF(None);
 	return None;
 }
 
-
 static object *
-mac_stat(self, args)
-	object *self;
-	object *args;
+mac_stat(object *self, object *args)
 {
 	struct stat st;
-	object *path;
-	object *v;
-	if (!getstrarg(args, &path))
+	object *path, *v;
+
+	if (!getstrarg(args, &path)) {
 		return NULL;
-	if (stat(getstringvalue(path), &st) != 0)
+    }
+	if (stat(getstringvalue(path), &st) != 0) {
 		return err_errno(MacError);
+    }
 	v = newtupleobject(11);
-	if (v == NULL)
+	if (v == NULL) {
 		return NULL;
+    }
 #define SET(i, val) settupleitem(v, i, newintobject((long)(val)))
 #define XXX(i, val) SET(i, 0) /* For values my Mac stat doesn't support */
 	SET(0, st.st_mode);
@@ -164,59 +161,55 @@ mac_stat(self, args)
 	return v;
 }
 
-
 static object *
-mac_sync(self, args)
-	object *self;
-	object *args;
+mac_sync(object *self, object *args)
 {
-	if (!getnoarg(args))
+	if (!getnoarg(args)) {
 		return NULL;
+    }
 	sync();
 	INCREF(None);
 	return None;
 }
 
-
 static object *
-mac_unlink(self, args)
-	object *self;
-	object *args;
+mac_unlink(object *self, object *args)
 {
 	object *path;
-	if (!getstrarg(args, &path))
+
+	if (!getstrarg(args, &path)) {
 		return NULL;
-	if (unlink(getstringvalue(path)) != 0)
+    }
+	if (unlink(getstringvalue(path)) != 0) {
 		return err_errno(MacError);
+    }
 	INCREF(None);
 	return None;
 }
 
-
 static struct methodlist mac_methods[] = {
-	{"chdir",	mac_chdir},
-	{"getcwd",	mac_getcwd},
-	{"listdir",	mac_listdir},
-	{"mkdir",	mac_mkdir},
-	{"rename",	mac_rename},
-	{"rmdir",	mac_rmdir},
-	{"stat",	mac_stat},
-	{"sync",	mac_sync},
-	{"unlink",	mac_unlink},
-	{NULL,		NULL}		 /* Sentinel */
+	{"chdir",	(method)mac_chdir},
+	{"getcwd",	(method)mac_getcwd},
+	{"listdir", (method)mac_listdir},
+	{"mkdir",	(method)mac_mkdir},
+	{"rename",	(method)mac_rename},
+	{"rmdir",	(method)mac_rmdir},
+	{"stat",	(method)mac_stat},
+	{"sync",	(method)mac_sync},
+	{"unlink",	(method)mac_unlink},
+	{NULL,		NULL}	/* Sentinel */
 };
-
 
 void
 initmac()
 {
 	object *m, *d;
-	
 	m = initmodule("mac", mac_methods);
 	d = getmoduledict(m);
-	
 	/* Initialize mac.error exception */
 	MacError = newstringobject("mac.error");
-	if (MacError == NULL || dictinsert(d, "error", MacError) != 0)
+
+	if (MacError == NULL || dictinsert(d, "error", MacError) != 0) {
 		fatal("can't define mac.error");
+    }
 }
