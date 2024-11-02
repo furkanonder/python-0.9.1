@@ -21,6 +21,7 @@ FILE *getopenfile()
 	char buf[256];
 	char *p;
 	FILE *fp;
+
 	for (;;) {
 		fprintf(stderr, "File name: ");
 		if (fgets(buf, sizeof buf, stdin) == NULL) {
@@ -28,10 +29,12 @@ FILE *getopenfile()
 			exit(1);
 		}
 		p = strchr(buf, '\n');
-		if (p != NULL)
+		if (p != NULL) {
 			*p = '\0';
-		if ((fp = fopen(buf, "r")) != NULL)
+        }
+		if ((fp = fopen(buf, "r")) != NULL) {
 			break;
+        }
 		fprintf(stderr, "Sorry, try again.\n");
 	}
 	return fp;
@@ -42,13 +45,15 @@ main()
 	FILE *fp;
 	_profile = 0;
 	fp = getopenfile();
+
 #if 0
 	askgo("Start tokenizing");
 	runtokenizer(fp);
 	fseek(fp, 0L, 0);
 #endif
-	if (!gram.g_accel)
+	if (!gram.g_accel) {
 		addaccelerators(&gram);
+    }
 	askgo("Start parsing");
 	_profile = 1;
 	runparser(fp);
@@ -60,18 +65,18 @@ main()
 }
 
 static int
-runtokenizer(fp)
-	FILE *fp;
+runtokenizer(FILE *fp)
 {
-	struct tok_state *tok;
-	tok = tok_setupf(fp, "Tokenizing", ".");
+	struct tok_state *tok = tok_setupf(fp, "Tokenizing", ".");
+
 	for (;;) {
 		char *a, *b;
 		register char *str;
 		register int len;
-		(void) tok_get(tok, &a, &b);
-		if (tok->done != E_OK)
+		(void)tok_get(tok, &a, &b);
+		if (tok->done != E_OK) {
 			break;
+        }
 		len = b - a;
 		str = NEW(char, len + 1);
 		if (str == NULL) {
@@ -85,8 +90,7 @@ runtokenizer(fp)
 }
 
 static
-runparser(fp, start)
-	FILE *fp;
+runparser(FILE *fp, start)
 {
 	node *n;
 	int ret;
@@ -94,16 +98,17 @@ runparser(fp, start)
 	fprintf(stderr, "done (%d)\n", ret);
 #if 0
 	_profile = 0;
-	if (ret == E_DONE)
+	if (ret == E_DONE) {
 		listtree(n);
+	}
 #endif
 }
 
 static int
-askgo(prompt)
-	char *prompt;
+askgo(char *prompt)
 {
 	char buf[256];
+
 	fprintf(stderr, "%s: hit return when ready: ", prompt);
 	fgets(buf, sizeof buf, stdin);
 }
