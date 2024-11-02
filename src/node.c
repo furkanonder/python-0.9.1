@@ -4,12 +4,12 @@
 #include "node.h"
 
 node *
-newtree(type)
-	int type;
+newtree(int type)
 {
 	node *n = NEW(node, 1);
-	if (n == NULL)
+	if (n == NULL) {
 		return NULL;
+    }
 	n->n_type = type;
 	n->n_str = NULL;
 	n->n_lineno = 0;
@@ -22,21 +22,19 @@ newtree(type)
 #define XXXROUNDUP(n) ((n) == 1 ? 1 : ((n) + XXX - 1) / XXX * XXX)
 
 node *
-addchild(n1, type, str, lineno)
-	register node *n1;
-	int type;
-	char *str;
-	int lineno;
+addchild(register node *n1, int type, char *str, int lineno)
 {
 	register int nch = n1->n_nchildren;
-	register int nch1 = nch+1;
+	register int nch1 = nch + 1;
 	register node *n;
+
 	if (XXXROUNDUP(nch) < nch1) {
 		n = n1->n_child;
 		nch1 = XXXROUNDUP(nch1);
 		RESIZE(n, node, nch1);
-		if (n == NULL)
+		if (n == NULL) {
 			return NULL;
+        }
 		n1->n_child = n;
 	}
 	n = &n1->n_child[n1->n_nchildren++];
@@ -51,10 +49,8 @@ addchild(n1, type, str, lineno)
 /* Forward */
 static void freechildren PROTO((node *));
 
-
 void
-freetree(n)
-	node *n;
+freetree(node *n)
 {
 	if (n != NULL) {
 		freechildren(n);
@@ -63,14 +59,15 @@ freetree(n)
 }
 
 static void
-freechildren(n)
-	node *n;
+freechildren(node *n)
 {
-	int i;
-	for (i = NCH(n); --i >= 0; )
+	for (int i = NCH(n); --i >= 0;) {
 		freechildren(CHILD(n, i));
-	if (n->n_child != NULL)
+    }
+	if (n->n_child != NULL) {
 		DEL(n->n_child);
-	if (STR(n) != NULL)
+    }
+	if (STR(n) != NULL) {
 		DEL(STR(n));
+    }
 }
