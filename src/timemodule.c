@@ -1,9 +1,7 @@
 /* Time module */
 
 #include "allobjects.h"
-
 #include "modsupport.h"
-
 #include "sigtype.h"
 
 #include <signal.h>
@@ -17,17 +15,16 @@ typedef unsigned long time_t;
 extern time_t time();
 #endif /* !__STDC__ */
 
-
 /* Time methods */
 
 static object *
-time_time(self, args)
-	object *self;
-	object *args;
+time_time(object *self, object *args)
 {
 	long secs;
-	if (!getnoarg(args))
+
+	if (!getnoarg(args)) {
 		return NULL;
+    }
 	secs = time((time_t *)NULL);
 	return newintobject(secs);
 }
@@ -35,29 +32,29 @@ time_time(self, args)
 static jmp_buf sleep_intr;
 
 static void
-sleep_catcher(sig)
-	int sig;
+sleep_catcher(int sig)
 {
 	longjmp(sleep_intr, 1);
 }
 
 static object *
-time_sleep(self, args)
-	object *self;
-	object *args;
+time_sleep(object *self, object *args)
 {
 	int secs;
+
 	SIGTYPE (*sigsave)();
-	if (!getintarg(args, &secs))
+	if (!getintarg(args, &secs)) {
 		return NULL;
+    }
 	if (setjmp(sleep_intr)) {
 		signal(SIGINT, sigsave);
 		err_set(KeyboardInterrupt);
 		return NULL;
 	}
 	sigsave = signal(SIGINT, SIG_IGN);
-	if (sigsave != (SIGTYPE (*)()) SIG_IGN)
+	if (sigsave != (SIGTYPE (*)()) SIG_IGN) {
 		signal(SIGINT, sleep_catcher);
+    }
 	sleep(secs);
 	signal(SIGINT, sigsave);
 	INCREF(None);
@@ -79,24 +76,24 @@ extern long sys_milli();
 #endif /* BSD_TIME */
 
 #ifdef DO_MILLI
-
 static object *
-time_millisleep(self, args)
-	object *self;
-	object *args;
+time_millisleep(object *self, object *args)
 {
 	long msecs;
+
 	SIGTYPE (*sigsave)();
-	if (!getlongarg(args, &msecs))
+	if (!getlongarg(args, &msecs)) {
 		return NULL;
+    }
 	if (setjmp(sleep_intr)) {
 		signal(SIGINT, sigsave);
 		err_set(KeyboardInterrupt);
 		return NULL;
 	}
 	sigsave = signal(SIGINT, SIG_IGN);
-	if (sigsave != (SIGTYPE (*)()) SIG_IGN)
+	if (sigsave != (SIGTYPE (*)()) SIG_IGN) {
 		signal(SIGINT, sleep_catcher);
+    }
 	millisleep(msecs);
 	signal(SIGINT, sigsave);
 	INCREF(None);
@@ -104,31 +101,28 @@ time_millisleep(self, args)
 }
 
 static object *
-time_millitimer(self, args)
-	object *self;
-	object *args;
+time_millitimer(object *self, object *args)
 {
 	long msecs;
 	extern long millitimer();
-	if (!getnoarg(args))
+
+	if (!getnoarg(args)) {
 		return NULL;
+    }
 	msecs = millitimer();
 	return newintobject(msecs);
 }
-
 #endif /* DO_MILLI */
-
 
 static struct methodlist time_methods[] = {
 #ifdef DO_MILLI
-	{"millisleep",	time_millisleep},
-	{"millitimer",	time_millitimer},
+	{"millisleep",	(method)time_millisleep},
+	{"millitimer",	(method)time_millitimer},
 #endif /* DO_MILLI */
-	{"sleep",	time_sleep},
-	{"time",	time_time},
-	{NULL,		NULL}		/* sentinel */
+	{"sleep",		(method)time_sleep},
+	{"time",		(method)time_time},
+	{NULL,		NULL}	/* sentinel */
 };
-
 
 void
 inittime()
@@ -136,34 +130,29 @@ inittime()
 	initmodule("time", time_methods);
 }
 
-
 #ifdef THINK_C
-
-#define MacTicks	(* (long *)0x16A)
+#define MacTicks	(*(long *)0x16A)
 
 static
-sleep(msecs)
-	int msecs;
+sleep(int msecs)
 {
-	register long deadline;
-	
-	deadline = MacTicks + msecs * 60;
+	register long deadline =MacTicks + msecs * 60;
+
 	while (MacTicks < deadline) {
-		if (intrcheck())
+		if (intrcheck()) {
 			sleep_catcher(SIGINT);
+    	}
 	}
 }
 
 static
-millisleep(msecs)
-	long msecs;
+millisleep(long msecs)
 {
-	register long deadline;
-	
-	deadline = MacTicks + msecs * 3 / 50; /* msecs * 60 / 1000 */
+	register long deadline = MacTicks + msecs * 3 / 50; /* msecs * 60 / 1000 */
 	while (MacTicks < deadline) {
-		if (intrcheck())
+		if (intrcheck()) {
 			sleep_catcher(SIGINT);
+        }
 	}
 }
 
@@ -172,12 +161,9 @@ millitimer()
 {
 	return MacTicks * 50 / 3; /* MacTicks * 1000 / 60 */
 }
-
 #endif /* THINK_C */
 
-
 #ifdef BSD_TIME
-
 #include <sys/types.h>
 #include <sys/time.h>
 
@@ -186,21 +172,21 @@ millitimer()
 {
 	struct timeval t;
 	struct timezone tz;
-	if (gettimeofday(&t, &tz) != 0)
+
+	if (gettimeofday(&t, &tz) != 0) {
 		return -1;
-	return t.tv_sec*1000 + t.tv_usec/1000;
+    }
+	return t.tv_sec * 1000 + t.tv_usec / 1000;
 	
 }
 
 static
-millisleep(msecs)
-	long msecs;
+millisleep(long msecs)
 {
 	struct timeval t;
-	t.tv_sec = msecs/1000;
-	t.tv_usec = (msecs%1000)*1000;
-	(void) select(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &t);
+	t.tv_sec = msecs / 1000;
+	t.tv_usec = (msecs % 1000) * 1000;
+
+	(void)select(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &t);
 }
-
 #endif /* BSD_TIME */
-
