@@ -12,12 +12,11 @@ extern int errno;
 #include <math.h>
 
 static int
-getdoublearg(args, px)
-	register object *args;
-	double *px;
+getdoublearg(register object *args, double *px)
 {
-	if (args == NULL)
+	if (args == NULL) {
 		return err_badarg();
+    }
 	if (is_floatobject(args)) {
 		*px = getfloatvalue(args);
 		return 1;
@@ -30,46 +29,49 @@ getdoublearg(args, px)
 }
 
 static int
-get2doublearg(args, px, py)
-	register object *args;
-	double *px, *py;
+get2doublearg(register object *args, double *px, double *py)
 {
-	if (args == NULL || !is_tupleobject(args) || gettuplesize(args) != 2)
+	if (args == NULL || !is_tupleobject(args) || gettuplesize(args) != 2) {
 		return err_badarg();
-	return getdoublearg(gettupleitem(args, 0), px) &&
-		getdoublearg(gettupleitem(args, 1), py);
+    }
+	return getdoublearg(gettupleitem(args, 0), px)
+           && getdoublearg(gettupleitem(args, 1), py);
 }
 
 static object *
-math_1(args, func)
-	object *args;
-	double (*func) FPROTO((double));
+math_1(object *args, double (*func) FPROTO((double)))
 {
 	double x;
-	if (!getdoublearg(args, &x))
+
+	if (!getdoublearg(args, &x)) {
 		return NULL;
+    }
 	errno = 0;
 	x = (*func)(x);
-	if (errno != 0)
+	if (errno != 0) {
 		return NULL;
-	else
+    }
+	else {
 		return newfloatobject(x);
+    }
 }
 
 static object *
-math_2(args, func)
-	object *args;
-	double (*func) FPROTO((double, double));
+math_2(object *args, double (*func) FPROTO((double, double)))
 {
 	double x, y;
-	if (!get2doublearg(args, &x, &y))
+
+	if (!get2doublearg(args, &x, &y)) {
 		return NULL;
+    }
 	errno = 0;
 	x = (*func)(x, y);
-	if (errno != 0)
+	if (errno != 0) {
 		return NULL;
-	else
+    }
+	else {
 		return newfloatobject(x);
+    }
 }
 
 #define FUNC1(stubname, func) \
@@ -113,42 +115,40 @@ double	modf(double x, double *i);
 #endif
 
 static struct methodlist math_methods[] = {
-	{"acos", math_acos},
-	{"asin", math_asin},
-	{"atan", math_atan},
-	{"atan2", math_atan2},
-	{"ceil", math_ceil},
-	{"cos", math_cos},
-	{"cosh", math_cosh},
-	{"exp", math_exp},
-	{"fabs", math_fabs},
-	{"floor", math_floor},
+	{"acos", 	math_acos},
+	{"asin", 	math_asin},
+	{"atan", 	math_atan},
+	{"atan2", 	math_atan2},
+	{"ceil", 	math_ceil},
+	{"cos", 	math_cos},
+	{"cosh",	math_cosh},
+	{"exp", 	math_exp},
+	{"fabs",	math_fabs},
+	{"floor", 	math_floor},
 #if 0
-	{"fmod", math_fmod},
-	{"frexp", math_freqp},
-	{"ldexp", math_ldexp},
+	{"fmod", 	math_fmod},
+	{"frexp",	math_freqp},
+	{"ldexp", 	math_ldexp},
 #endif
-	{"log", math_log},
-	{"log10", math_log10},
+	{"log", 	math_log},
+	{"log10", 	math_log10},
 #if 0
-	{"modf", math_modf},
+	{"modf", 	math_modf},
 #endif
-	{"pow", math_pow},
-	{"sin", math_sin},
-	{"sinh", math_sinh},
-	{"sqrt", math_sqrt},
-	{"tan", math_tan},
-	{"tanh", math_tanh},
-	{NULL,		NULL}		/* sentinel */
+	{"pow", 	math_pow},
+	{"sin", 	math_sin},
+	{"sinh",	math_sinh},
+	{"sqrt", 	math_sqrt},
+	{"tan", 	math_tan},
+	{"tanh",	math_tanh},
+	{NULL,		NULL}	/* sentinel */
 };
 
 void
 initmath()
 {
-	object *m, *d, *v;
-	
-	m = initmodule("math", math_methods);
-	d = getmoduledict(m);
+	object *m = initmodule("math", math_methods), *d = getmoduledict(m), *v;
+
 	dictinsert(d, "pi", v = newfloatobject(atan(1.0) * 4.0));
 	DECREF(v);
 	dictinsert(d, "e", v = newfloatobject(exp(1.0)));
