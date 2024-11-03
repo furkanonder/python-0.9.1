@@ -42,6 +42,7 @@ make
 - Removed `__STD_C__`, `__STDC__` and `HAVE_STDLIB` preprocessor directives.
 - Removed `strdup.c` as its functionality is now provided by the standard library `<string.h>`.
 - Removed `strtol.c` as its functionality is now provided by the standard library `<stdlib.h>`.
+- Removed `sc_errors.c`, `scdbg.c`, `sc_interpr.c`, `sc_global.h` and `sc_errors.h`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

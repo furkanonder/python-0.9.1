@@ -126,7 +126,7 @@ RL_LIBDEPS	= $(LIBREADLINE)
 # Major Definitions
 # =================
 
-STANDARD_OBJ = acceler.o bltinmodule.o ceval.o classobject.o \
+STANDARD_OBJ=acceler.o bltinmodule.o ceval.o classobject.o \
 		compile.o dictobject.o errors.o fgetsintr.o \
 		fileobject.o floatobject.o $(FMOD_OBJ) frameobject.o \
 		funcobject.o $(GETCWD_OBJ) \
@@ -140,7 +140,7 @@ STANDARD_OBJ = acceler.o bltinmodule.o ceval.o classobject.o \
 		sysmodule.o timemodule.o tokenizer.o traceback.o \
 		tupleobject.o typeobject.o
 
-STANDARD_SRC = acceler.c bltinmodule.c ceval.c classobject.c \
+STANDARD_SRC=acceler.c bltinmodule.c ceval.c classobject.c \
 		compile.c dictobject.c errors.c fgetsintr.c \
 		fileobject.c floatobject.c $(FMOD_SRC) frameobject.c \
 		funcobject.c $(GETCWD_SRC) \
@@ -154,35 +154,30 @@ STANDARD_SRC = acceler.c bltinmodule.c ceval.c classobject.c \
 		sysmodule.c timemodule.c tokenizer.c traceback.c \
 		tupleobject.c typeobject.c
 
-CONFIGDEFS=	$(STDW_USE) $(AM_USE) $(AUDIO_USE) $(GL_USE) $(PANEL_USE) \
-		'-DPYTHONPATH="$(DEFPYTHONPATH)"'
+CONFIGDEFS='-DPYTHONPATH="$(DEFPYTHONPATH)"'
 
-CONFIGINCLS=	$(STDW_INCL)
+CONFIGINCLS=$(STDW_INCL)
 
-LIBDEPS=	libpython.a $(STDW_LIBDEPS) $(AM_LIBDEPS) \
-		$(GL_LIBDEPS) $(PANEL_LIBSDEP) $(RL_LIBDEPS)
+LIBDEPS=libpython.a $(RL_LIBDEPS)
 
 # NB: the ordering of items in LIBS is significant!
-LIBS=		libpython.a $(STDW_LIBS) $(AM_LIBS) \
-		$(PANEL_LIBS) $(GL_LIBS) $(RL_LIBS) -lm
+LIBS = libpython.a $(RL_LIBS) -lm
 
-LIBOBJECTS=	$(STANDARD_OBJ) $(STDW_OBJ) $(AM_OBJ) $(AUDIO_OBJ) \
-		$(GL_OBJ) $(PANEL_OBJ)
+LIBOBJECTS=$(STANDARD_OBJ)
 
-LIBSOURCES=	$(STANDARD_SRC) $(STDW_SRC) $(AM_SRC) $(AUDIO_SRC) \
-		$(GL_SRC) $(PANEL_SRC)
+LIBSOURCES=$(STANDARD_SRC)
 
-OBJECTS=	pythonmain.o config.o
+OBJECTS=pythonmain.o config.o
 
-SOURCES=	$(LIBSOURCES) pythonmain.c config.c
+SOURCES=$(LIBSOURCES) pythonmain.c config.c
 
-GENOBJECTS=	acceler.o fgetsintr.o grammar1.o \
+GENOBJECTS=acceler.o fgetsintr.o grammar1.o \
 		intrcheck.o listnode.o node.o parser.o \
 		parsetok.o tokenizer.o bitset.o \
 		firstsets.o grammar.o metagrammar.o pgen.o \
 		pgenmain.o printgrammar.o
 
-GENSOURCES=	acceler.c fgetsintr.c grammar1.c \
+GENSOURCES=acceler.c fgetsintr.c grammar1.c \
 		intrcheck.c listnode.c node.c parser.c \
 		parsetok.c tokenizer.c bitset.c \
 		firstsets.c grammar.c metagrammar.c pgen.c \
@@ -192,10 +187,10 @@ GENSOURCES=	acceler.c fgetsintr.c grammar1.c \
 # Main Targets
 # ============
 
-python:		libpython.a $(OBJECTS) $(LIBDEPS) Makefile
+python:	libpython.a $(OBJECTS) $(LIBDEPS) Makefile
 		$(CC) $(CFLAGS) $(OBJECTS) $(LIBS) -o python
 
-libpython.a:	$(LIBOBJECTS)
+libpython.a:$(LIBOBJECTS)
 		-rm -f @lib
 		ar cr @lib $(LIBOBJECTS)
 		$(RANLIB) @lib
@@ -211,35 +206,34 @@ python_gen:	$(GENOBJECTS) $(RL_LIBDEPS)
 # Don't take the output from lint too seriously.  I have not attempted
 # to make Python lint-free.  But I use function prototypes.
 
-LINTFLAGS=	-h
+LINTFLAGS=-h
 
-LINTCPPFLAGS=	$(CONFIGDEFS) $(CONFIGINCLS) $(SYSVDEF) \
-		$(AM_INCL) $(PANEL_INCL)
+LINTCPPFLAGS=$(CONFIGDEFS) $(CONFIGINCLS) $(SYSVDEF)
 
-LINT=		lint
+LINT=lint
 
-lint::		$(SOURCES)
+lint::	$(SOURCES)
 		$(LINT) $(LINTFLAGS) $(LINTCPPFLAGS) $(SOURCES)
 
-lint::		$(GENSOURCES)
+lint::	$(GENSOURCES)
 		$(LINT) $(LINTFLAGS) $(GENSOURCES)
 
 # Generating dependencies is only necessary if you intend to hack Python.
 # You may change $(MKDEP) to your favorite dependency generator (it should
 # edit the Makefile in place).
 
-MKDEP=		mkdep
+MKDEP=mkdep
 
 depend::
 		$(MKDEP) $(LINTCPPFLAGS) $(SOURCES) $(GENSOURCES)
 
 # You may change $(CTAGS) to suit your taste...
 
-CTAGS=		ctags -t -w
+CTAGS=ctags -t -w
 
-HEADERS=	*.h
+HEADERS=*.h
 
-tags:		$(SOURCES) $(GENSOURCES) $(HEADERS)
+tags:	$(SOURCES) $(GENSOURCES) $(HEADERS)
 		$(CTAGS) $(SOURCES) $(GENSOURCES) $(HEADERS)
 
 clean::
@@ -265,25 +259,16 @@ fgetsintr.o:	fgetsintr.c
 intrcheck.o:	intrcheck.c
 		$(COMPILE) $(SIGTYPEDEF) $*.c
 
-panelmodule.o:	panelmodule.c
-		$(COMPILE) $(PANEL_INCL) $*.c
-
 posixmodule.o:	posixmodule.c
 		$(COMPILE) $(SYSVDEF) $(NOSYMLINKDEF) $*.c
 
-sc_interpr.o:	sc_interpr.c
-		$(COMPILE) $(AM_INCL) $*.c
-
-sc_error.o:	sc_error.c
-		$(COMPILE) $(AM_INCL) $*.c
-
 timemodule.o:	timemodule.c
-		$(COMPILE) $(SIGTYPEDEF) $(BSDTIMEDEF) $*.c
+		$(COMPILE) $(SIGTYPEDEF) $*.c
 
 tokenizer.o:	tokenizer.c
 		$(COMPILE) $(RL_USE) $*.c
 
-.PRECIOUS:	python libpython.a glmodule.c graminit.c graminit.h
+.PRECIOUS:	python libpython.a graminit.c graminit.h
 
 # Generated Sources
 # =================
