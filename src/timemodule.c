@@ -9,13 +9,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
-
-#ifdef __STDC__
 #include <time.h>
-#else /* !__STDC__ */
-typedef unsigned long time_t;
-extern time_t time();
-#endif /* !__STDC__ */
 
 /* Time methods */
 

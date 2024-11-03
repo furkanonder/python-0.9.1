@@ -39,6 +39,7 @@ make
 - Removed the `StdWin` module(`stdwinmodule.c`), along with specific code and preprocessor directives.
 - Removed `configmac.c`
 - Removed `BSD_TIME` and `DO_MILLI` preprocessor directives.
+- Removed `__STD_C__`, `__STDC__` and `HAVE_STDLIB` preprocessor directives.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

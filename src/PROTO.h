@@ -13,10 +13,6 @@ HAVE_PROTOTYPES to force prototypes on.
 
 #ifndef PROTO
 
-#ifdef __STDC__
-#define HAVE_PROTOTYPES
-#endif
-
 #ifdef sgi
 #ifdef mips
 #define HAVE_PROTOTYPES
