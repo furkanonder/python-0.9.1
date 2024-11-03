@@ -68,14 +68,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 #FMOD_SRC=  fmod.c
 #FMOD_OBJ=  fmod.o
 
-# If your BSD system does not have a getcwd() function in the library,
-# but it does have a getwd() function, uncomment the following two lines
-# to use one I wrote.  (If you don't have getwd() either, turn on the
-# NO_GETWD #define in getcwd.c.)
-
-#GETCWD_SRC=  getcwd.c
-#GETCWD_OBJ=  getcwd.o
-
 # If your signal() function believes signal handlers return int,
 # uncomment the following line.
 

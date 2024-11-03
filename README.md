@@ -46,6 +46,7 @@ make
 - Removed `stubcode.h`.
 - Removed `rltokenizer.c`.
 - Removed `macmodule.c`.
+- Removed `getcwd.c`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
