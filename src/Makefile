@@ -120,21 +120,14 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 # The GNU Readline library is distributed with the BASH shell
 # (I only know of version 1.05).  You must build the GNU Readline
 # library and the alloca routine it needs in their own source
-# directories (which are subdirectories of the basg source directory),
+# directories (which are subdirectories of the bash source directory),
 # and plant a pointer to the BASH source directory in this Makefile.
 #
 # Uncomment and edit the following block to use the GNU Readline option.
-# - Edit the definition of BASHDIR to point to the bash source tree.
-# You may have to fix the definition of LIBTERMCAP; leave the LIBALLOCA
-# definition commented if alloca() is in your C library.
-
-#BASHDIR=	../../bash-1.05
-#LIBREADLINE=	$(BASHDIR)/readline/libreadline.a
-#LIBALLOCA=	$(BASHDIR)/alloc-files/alloca.o
-#LIBTERMCAP=	-ltermcap
-#RL_USE =	-DUSE_READLINE
-#RL_LIBS=	$(LIBREADLINE) $(LIBALLOCA) $(LIBTERMCAP)
-#RL_LIBDEPS=	$(LIBREADLINE) $(LIBALLOCA)
+LIBREADLINE = -lreadline
+RL_USE 		= -DUSE_READLINE
+RL_LIBS		= $(LIBREADLINE)
+RL_LIBDEPS	= $(LIBREADLINE)
 
 # Major Definitions
 # =================

@@ -19,6 +19,8 @@ make
 - Converted K&R style function declarations to ANSI C style
 - Improved function pointer declarations in `object.h` for better readability.
 - Cast function pointers in module methods and type objects for type safety.
+- Integrated `GNU Readline` support in the `Makefile`.
+- Added `GNU Readline` headers in `tokenizer.c`.
 
 ### Fixed
 - Modified ticker variable in `ceval.c` after including `intrcheck.h`

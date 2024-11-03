@@ -7,11 +7,16 @@
 #include "pgenheaders.h"
 
 #include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #include "string.h"
 #include "fgetsintr.h"
 #include "tokenizer.h"
 #include "errcode.h"
+#include "intrcheck.h"
 
 #ifndef TABSIZE
 #define TABSIZE 8
@@ -159,11 +164,9 @@ tok_nextc(register struct tok_state *tok)
 		}
 #ifdef USE_READLINE
 		if (tok->prompt != NULL) {
-			extern char *readline PROTO((char *prompt));
 			static int been_here;
 			if (!been_here) {
 				/* Force rebind of TAB to insert-tab */
-				extern int rl_insert();
 				rl_bind_key('\t', rl_insert);
 				been_here++;
 			}
