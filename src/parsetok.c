@@ -1,6 +1,9 @@
 /* Parser-tokenizer link implementation */
 
-#include "pgenheaders.h"
+#include <stdio.h>
+#include <string.h>
+
+#include "malloc.h"
 #include "tokenizer.h"
 #include "node.h"
 #include "grammar.h"
@@ -8,8 +11,50 @@
 #include "parsetok.h"
 #include "errcode.h"
 
-/* Forward */
-static int parsetok(struct tok_state *, grammar *, int, node **);
+/* Parse input coming from the given tokenizer structure. Return error code. */
+static int
+parsetok(struct tok_state *tok, grammar *g, int start, node **n_ret)
+{
+	parser_state *ps;
+	int ret;
+
+	if ((ps = newparser(g, start)) == NULL) {
+		fprintf(stderr, "no mem for new parser\n");
+		return E_NOMEM;
+	}
+
+	for (;;) {
+		char *a, *b, *str;
+		int type = tok_get(tok, &a, &b), len;
+		if (type == ERRORTOKEN) {
+			ret = tok->done;
+			break;
+		}
+		len = b - a;
+		str = NEW(char, len + 1);
+		if (str == NULL) {
+			fprintf(stderr, "no mem for next token\n");
+			ret = E_NOMEM;
+			break;
+		}
+		strncpy(str, a, len);
+		str[len] = '\0';
+		ret = addtoken(ps, (int)type, str, tok->lineno);
+		if (ret != E_OK) {
+			if (ret == E_DONE) {
+				*n_ret = ps->p_tree;
+				ps->p_tree = NULL;
+			}
+			else if (tok->lineno <= 1 && tok->done == E_EOF) {
+				ret = E_EOF;
+			}
+			break;
+		}
+	}
+
+	delparser(ps);
+	return ret;
+}
 
 /* Parse input coming from a string.  Return error code, print some errors. */
 int
@@ -30,8 +75,7 @@ parsestring(char *s, grammar *g, int start, node **n_ret)
 	return ret;
 }
 
-
-/* Parse input coming from a file.  Return error code, print some errors. */
+/* Parse input coming from a file. Return error code, print some errors. */
 int
 parsefile(FILE *fp, char *filename, grammar *g, int start, char *ps1,
           char *ps2, node **n_ret)
@@ -64,55 +108,5 @@ parsefile(FILE *fp, char *filename, grammar *g, int start, char *ps1,
 		fprintf(stderr, "^\n");
 	}
 	tok_free(tok);
-	return ret;
-}
-
-/* Parse input coming from the given tokenizer structure.
-   Return error code. */
-static int
-parsetok(struct tok_state *tok, grammar *g, int start, node **n_ret)
-{
-	parser_state *ps;
-	int ret;
-	
-	if ((ps = newparser(g, start)) == NULL) {
-		fprintf(stderr, "no mem for new parser\n");
-		return E_NOMEM;
-	}
-	
-	for (;;) {
-		char *a, *b;
-		int type;
-		int len;
-		char *str;
-		type = tok_get(tok, &a, &b);
-
-		if (type == ERRORTOKEN) {
-			ret = tok->done;
-			break;
-		}
-		len = b - a;
-		str = NEW(char, len + 1);
-		if (str == NULL) {
-			fprintf(stderr, "no mem for next token\n");
-			ret = E_NOMEM;
-			break;
-		}
-		strncpy(str, a, len);
-		str[len] = '\0';
-		ret = addtoken(ps, (int)type, str, tok->lineno);
-		if (ret != E_OK) {
-			if (ret == E_DONE) {
-				*n_ret = ps->p_tree;
-				ps->p_tree = NULL;
-			}
-			else if (tok->lineno <= 1 && tok->done == E_EOF) {
-				ret = E_EOF;
-            }
-			break;
-		}
-	}
-	
-	delparser(ps);
 	return ret;
 }
