@@ -49,6 +49,7 @@ make
 - Removed `getcwd.c`.
 - Removed `fmod.c`.
 - Removed `HAVE_PROTOTYPES`, `PROTO`, `FPROTO` preprocessor directives and `PROTO.h`.
+- Removed `cstubs`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
