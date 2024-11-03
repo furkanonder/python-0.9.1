@@ -5,7 +5,7 @@
 #include "node.h"
 
 /* Forward */
-static void list1node PROTO((FILE *, node *));
+static void list1node(FILE *, node *);
 
 void
 listtree(node *n)

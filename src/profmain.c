@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "string.h"
 
-#include "PROTO.h"
 #include "grammar.h"
 #include "node.h"
 #include "parsetok.h"

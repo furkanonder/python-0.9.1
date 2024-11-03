@@ -47,7 +47,7 @@ addchild(register node *n1, int type, char *str, int lineno)
 }
 
 /* Forward */
-static void freechildren PROTO((node *));
+static void freechildren(node *);
 
 void
 freetree(node *n)

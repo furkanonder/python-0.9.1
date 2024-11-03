@@ -16,7 +16,7 @@
 int debugging;
 
 /* Forward */
-grammar *getgrammar PROTO((char *filename));
+grammar *getgrammar(char *filename);
 
 int
 main(int argc, char **argv)

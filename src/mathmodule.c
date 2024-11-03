@@ -39,7 +39,7 @@ get2doublearg(register object *args, double *px, double *py)
 }
 
 static object *
-math_1(object *args, double (*func) FPROTO((double)))
+math_1(object *args, double (*func)(double))
 {
 	double x;
 
@@ -57,7 +57,7 @@ math_1(object *args, double (*func) FPROTO((double)))
 }
 
 static object *
-math_2(object *args, double (*func) FPROTO((double, double)))
+math_2(object *args, double (*func)(double, double))
 {
 	double x, y;
 

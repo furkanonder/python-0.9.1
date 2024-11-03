@@ -59,7 +59,7 @@ typeobject Codetype = {
 	0,							/*tp_as_mapping*/
 };
 
-static codeobject *newcodeobject PROTO((object *, object *, object *, char *));
+static codeobject *newcodeobject(object *, object *, object *, char *);
 
 static codeobject *
 newcodeobject(object *code, object *consts, object *names, char *filename)
@@ -110,19 +110,19 @@ struct compiling {
 };
 
 /* Prototypes */
-static int com_init PROTO((struct compiling *, char *));
-static void com_free PROTO((struct compiling *));
-static void com_done PROTO((struct compiling *));
-static void com_node PROTO((struct compiling *, struct _node *));
-static void com_addbyte PROTO((struct compiling *, int));
-static void com_addint PROTO((struct compiling *, int));
-static void com_addoparg PROTO((struct compiling *, int, int));
-static void com_addfwref PROTO((struct compiling *, int, int *));
-static void com_backpatch PROTO((struct compiling *, int));
-static int com_add PROTO((struct compiling *, object *, object *));
-static int com_addconst PROTO((struct compiling *, object *));
-static int com_addname PROTO((struct compiling *, object *));
-static void com_addopname PROTO((struct compiling *, int, node *));
+static int com_init(struct compiling *, char *);
+static void com_free(struct compiling *);
+static void com_done(struct compiling *);
+static void com_node(struct compiling *, struct _node *);
+static void com_addbyte(struct compiling *, int);
+static void com_addint(struct compiling *, int);
+static void com_addoparg(struct compiling *, int, int);
+static void com_addfwref(struct compiling *, int, int *);
+static void com_backpatch(struct compiling *, int);
+static int com_add(struct compiling *, object *, object *);
+static int com_addconst(struct compiling *, object *);
+static int com_addname(struct compiling *, object *);
+static void com_addopname(struct compiling *, int, node *);
 
 static int
 com_init(struct compiling *c, char *filename)
@@ -842,8 +842,8 @@ com_list(struct compiling *c, node *n)
 
 /* Begin of assignment compilation */
 
-static void com_assign_name PROTO((struct compiling *, node *, int));
-static void com_assign PROTO((struct compiling *, node *, int));
+static void com_assign_name(struct compiling *, node *, int);
+static void com_assign(struct compiling *, node *, int);
 
 static void
 com_assign_attr(struct compiling *c, node *n, int assigning)
@@ -1552,7 +1552,7 @@ com_node(struct compiling *c, node *n)
 	}
 }
 
-static void com_fplist PROTO((struct compiling *, node *));
+static void com_fplist(struct compiling *, node *);
 
 static void
 com_fpdef(struct compiling *c, node *n)

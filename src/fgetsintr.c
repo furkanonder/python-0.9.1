@@ -18,7 +18,7 @@
 #define sig_unblock()	/*empty*/
 
 static jmp_buf jback;
-static void catcher PROTO((int));
+static void catcher(int);
 
 static void
 catcher(int sig)

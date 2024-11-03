@@ -26,7 +26,6 @@
  * regular-expression syntax might require a total rethink.
  */
 #include <stdio.h>
-#include "PROTO.h"
 #include "malloc.h"
 #undef ANY /* Conflicting identifier defined in malloc.h */
 #include <string.h>		/* XXX Remove if not found */

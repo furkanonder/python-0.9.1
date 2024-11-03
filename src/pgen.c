@@ -1,5 +1,4 @@
 /* Parser generator */
-/* XXX This file is not yet fully PROTOized */
 
 /* For a description, see the comments at end of this file */
 

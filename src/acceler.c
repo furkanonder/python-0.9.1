@@ -15,8 +15,8 @@
 #include "parser.h"
 
 /* Forward references */
-static void fixdfa PROTO((grammar *, dfa *));
-static void fixstate PROTO((grammar *, dfa *, state *));
+static void fixdfa(grammar *, dfa *);
+static void fixstate(grammar *, dfa *, state *);
 
 void
 addaccelerators(grammar *g)

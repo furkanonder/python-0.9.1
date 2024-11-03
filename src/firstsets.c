@@ -7,7 +7,7 @@
 extern int debugging;
 
 /* Forward */
-static void calcfirstset PROTO((grammar *, dfa *));
+static void calcfirstset(grammar *, dfa *);
 
 void
 addfirstsets(grammar *g)

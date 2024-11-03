@@ -104,7 +104,7 @@ is also derived from sum, with the additional requirement that it is
 relative prime to the table size (i.e., 1 <= incr < size, since the size
 is a prime number).  My choice for incr is somewhat arbitrary.
 */
-static dictentry *lookdict PROTO((dictobject *, char *));
+static dictentry *lookdict(dictobject *, char *);
 static dictentry *
 lookdict(register dictobject *dp, char *key)
 {
@@ -150,7 +150,7 @@ Internal routine to insert a new item into the table.
 Used both by the internal resize routine and by the public insert routine.
 Eats a reference to key and one to value.
 */
-static void insertdict PROTO((dictobject *, stringobject *, object *));
+static void insertdict(dictobject *, stringobject *, object *);
 static void
 insertdict(register dictobject *dp, stringobject *key, object *value)
 {
@@ -179,7 +179,7 @@ Restructure the table by allocating a new table and reinserting all
 items again.  When entries have been deleted, the new table may
 actually be smaller than the old one.
 */
-static int dictresize PROTO((dictobject *));
+static int dictresize(dictobject *);
 static int
 dictresize(dictobject *dp)
 {

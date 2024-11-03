@@ -23,9 +23,9 @@
 #endif
 
 /* Forward */
-static struct tok_state *tok_new PROTO((void));
-static int tok_nextc PROTO((struct tok_state *tok));
-static void tok_backup PROTO((struct tok_state *tok, int c));
+static struct tok_state *tok_new(void);
+static int tok_nextc(struct tok_state *tok);
+static void tok_backup(struct tok_state *tok, int c);
 
 /* Token names */
 char *tok_name[] = {

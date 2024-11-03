@@ -40,7 +40,7 @@ extern int errno;
 
 #include "errcode.h"
 
-extern char *strerror PROTO((int));
+extern char *strerror(int);
 
 /* Last exception stored by err_setval() */
 

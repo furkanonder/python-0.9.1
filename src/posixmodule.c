@@ -17,7 +17,7 @@
 #include "allobjects.h"
 #include "modsupport.h"
 
-extern char *strerror PROTO((int));
+extern char *strerror(int);
 
 /* Return a dictionary corresponding to the POSIX environment table */
 extern char **environ;
@@ -65,7 +65,7 @@ posix_error()
 /* POSIX generic methods */
 
 static object *
-posix_1str(object *args, int (*func)FPROTO((const char *)))
+posix_1str(object *args, int (*func)(const char *))
 {
 	object *path1;
 
@@ -80,7 +80,7 @@ posix_1str(object *args, int (*func)FPROTO((const char *)))
 }
 
 static object *
-posix_2str(object *args, int (*func)FPROTO((const char *, const char *)))
+posix_2str(object *args, int (*func)(const char *, const char *))
 {
 	object *path1, *path2;
 
@@ -95,7 +95,7 @@ posix_2str(object *args, int (*func)FPROTO((const char *, const char *)))
 }
 
 static object *
-posix_strint(object *args, int (*func)FPROTO((const char *, int)))
+posix_strint(object *args, int (*func)(const char *, int))
 {
 	object *path1;
 	int i;
@@ -112,7 +112,7 @@ posix_strint(object *args, int (*func)FPROTO((const char *, int)))
 
 static object *
 posix_do_stat(object *self, object *args,
-              int (*statfunc)FPROTO((const char *, struct stat *)))
+              int (*statfunc)(const char *, struct stat *))
 {
 	struct stat st;
 	object *path, *v;
@@ -151,7 +151,7 @@ posix_do_stat(object *self, object *args,
 static object *
 posix_chdir(object *self, object *args)
 {
-	extern int chdir PROTO((const char *));
+	extern int chdir(const char *);
 	return posix_1str(args, chdir);
 }
 
@@ -164,7 +164,7 @@ chmod_wrapper(const char *path, int mode)
 static object *
 posix_chmod(object *self, object *args)
 {
-	extern int chmod PROTO((const char *, mode_t));
+	extern int chmod(const char *, mode_t);
 	return posix_strint(args, chmod_wrapper);
 }
 
@@ -185,7 +185,7 @@ posix_getcwd(object *self, object *args)
 static object *
 posix_link(object *self, object *args)
 {
-	extern int link PROTO((const char *, const char *));
+	extern int link(const char *, const char *);
 	return posix_2str(args, link);
 }
 
@@ -240,21 +240,21 @@ posix_mkdir(object *self, object *args)
 static object *
 posix_rename(object *self, object *args)
 {
-	extern int rename PROTO((const char *, const char *));
+	extern int rename(const char *, const char *);
 	return posix_2str(args, rename);
 }
 
 static object *
 posix_rmdir(object *self, object *args)
 {
-	extern int rmdir PROTO((const char *));
+	extern int rmdir(const char *);
 	return posix_1str(args, rmdir);
 }
 
 static object *
 posix_stat(object *self, object *args)
 {
-	extern int stat PROTO((const char *, struct stat *));
+	extern int stat(const char *, struct stat *);
 	return posix_do_stat(self, args, stat);
 }
 
@@ -289,7 +289,7 @@ posix_umask(object *self, object *args)
 static object *
 posix_unlink(object *self, object *args)
 {
-	extern int unlink PROTO((const char *));
+	extern int unlink(const char *);
 	return posix_1str(args, unlink);
 }
 
@@ -322,7 +322,7 @@ posix_utimes(object *self, object *args)
 static object *
 posix_lstat(object *self, object *args)
 {
-	extern int lstat PROTO((const char *, struct stat *));
+	extern int lstat(const char *, struct stat *);
 	return posix_do_stat(self, args, lstat);
 }
 
@@ -346,7 +346,7 @@ posix_readlink(object *self, object *args)
 static object *
 posix_symlink(object *self, object *args)
 {
-	extern int symlink PROTO((const char *, const char *));
+	extern int symlink(const char *, const char *);
 	return posix_2str(args, symlink);
 }
 

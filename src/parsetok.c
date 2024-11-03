@@ -9,7 +9,7 @@
 #include "errcode.h"
 
 /* Forward */
-static int parsetok PROTO((struct tok_state *, grammar *, int, node **));
+static int parsetok(struct tok_state *, grammar *, int, node **);
 
 /* Parse input coming from a string.  Return error code, print some errors. */
 int

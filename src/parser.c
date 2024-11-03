@@ -21,7 +21,7 @@ extern int debugging;
 
 /* STACK DATA TYPE */
 
-static void s_reset PROTO((stack *));
+static void s_reset(stack *);
 
 static void
 s_reset(stack *s)
@@ -31,7 +31,7 @@ s_reset(stack *s)
 
 #define s_empty(s) ((s)->s_top == &(s)->s_base[MAXSTACK])
 
-static int s_push PROTO((stack *, dfa *, node *));
+static int s_push(stack *, dfa *, node *);
 
 static int
 s_push(register stack *s, dfa *d, node *parent)
@@ -50,7 +50,7 @@ s_push(register stack *s, dfa *d, node *parent)
 }
 
 #ifdef DEBUG
-static void s_pop PROTO((stack *));
+static void s_pop(stack *);
 static void
 s_pop(register stack *s)
 {
@@ -100,7 +100,7 @@ delparser(parser_state *ps)
 
 /* PARSER STACK OPERATIONS */
 
-static int shift PROTO((stack *, int, char *, int, int));
+static int shift(stack *, int, char *, int, int);
 
 static int
 shift(register stack *s, int type, char *str, int newstate, int lineno)
@@ -114,7 +114,7 @@ shift(register stack *s, int type, char *str, int newstate, int lineno)
 	return 0;
 }
 
-static int push PROTO((stack *, int, dfa *, int, int));
+static int push(stack *, int, dfa *, int, int);
 
 static int
 push(register stack *s, int type, dfa *d, int newstate, int lineno)
@@ -132,7 +132,7 @@ push(register stack *s, int type, dfa *d, int newstate, int lineno)
 
 /* PARSER PROPER */
 
-static int classify PROTO((grammar *, int, char *));
+static int classify(grammar *, int, char *);
 
 static int
 classify(grammar *g, register int type, char *str)
