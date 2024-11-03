@@ -29,8 +29,7 @@ make
 - Deleted the `shar` directory from the project structure.
 - Removed MS-DOS specific codes and preprocessor directives
 - Removed THINK C specific codes and preprocessor directives
-- Removed AMOEBA specific codes and preprocessor directives
-- Removed `amoebamodule.c`
+- Removed the Amoeba module(`amoebamodule.c`), along with specific code and preprocessor directives.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
