@@ -1,3 +1,10 @@
+#ifndef Py_STRINGOBJECT_H
+#define Py_STRINGOBJECT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* String object interface */
 
 /* 123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
@@ -35,3 +42,9 @@ extern int resizestring(object **, int);
 
 /* Macro, trading safety for speed */
 #define GETSTRINGVALUE(op) ((op)->ob_sval)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_STRINGOBJECT_H */

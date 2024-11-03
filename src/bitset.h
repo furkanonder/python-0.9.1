@@ -1,4 +1,9 @@
-/* Bitset interface */
+#ifndef Py_BITSET_H
+#define Py_BITSET_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define BYTE    char
 typedef BYTE    *bitset;
@@ -19,3 +24,9 @@ void mergebitset(bitset bs1, bitset bs2, int nbits);
 #define BYTE2BIT(ibyte)	((ibyte) * BITSPERBYTE)
 
 #define testbit(ss, ibit) (((ss)[BIT2BYTE(ibit)] & BIT2MASK(ibit)) != 0)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_BITSET_H */

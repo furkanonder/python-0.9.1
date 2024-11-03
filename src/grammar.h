@@ -1,3 +1,10 @@
+#ifndef Py_GRAMMAR_H
+#define Py_GRAMMAR_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Grammar interface */
 
 #include "bitset.h" /* Sigh... */
@@ -35,7 +42,7 @@ typedef struct _state {
 
 /* A DFA */
 typedef struct _dfa {
-	int			d_type;	/* Non-terminal this represents */
+	int			d_type;		/* Non-terminal this represents */
 	char		*d_name;	/* For printing */
 	int			d_initial;	/* Initial state */
 	int			d_nstates;
@@ -66,4 +73,10 @@ void translatelabels(grammar *g);
 void addfirstsets(grammar *g);
 void addaccellerators(grammar *g);
 void printgrammar(grammar *g, FILE *fp);
-void printnonterminals (grammar *g, FILE *fp);
+void printnonterminals(grammar *g, FILE *fp);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_GRAMMAR_H */

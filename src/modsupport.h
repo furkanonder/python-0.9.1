@@ -1,3 +1,10 @@
+#ifndef Py_MODSUPPORT_H
+#define Py_MODSUPPORT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Module support interface */
 
 extern object *initmodule(char *, struct methodlist *);
@@ -9,3 +16,9 @@ extern int getstrintarg(object *v, object **a, int *b);
 extern int getlongarg(object *v, long *a);
 extern int getlonglongargs(object *v, long *a, long *b);
 extern void fatal(char *msg);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_MODSUPPORT_H */

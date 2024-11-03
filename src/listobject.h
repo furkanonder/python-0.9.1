@@ -1,7 +1,13 @@
+#ifndef Py_LISTOBJECT_H
+#define Py_LISTOBJECT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* List object interface */
 
-/*
-123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
+/* 123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
 
 Another generally useful object type is an list of object pointers.
 This is a mutable type: the list items can be changed, and items can be
@@ -33,3 +39,9 @@ extern int sortlist(object *);
 
 /* Macro, trading safety for speed */
 #define GETLISTITEM(op, i) ((op)->ob_item[i])
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_LISTOBJECT_H */

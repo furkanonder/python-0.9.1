@@ -1,3 +1,10 @@
+#ifndef Py_MYMALLOC_H
+#define Py_MYMALLOC_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Lowest-level memory allocation interface */
 #include <stdlib.h>
 
@@ -17,3 +24,9 @@
 		(p) = (type *) realloc((char *)(p), (n) * sizeof(type))
 #define DEL(p) free((char *)p)
 #define XDEL(p) if ((p) == NULL) ; else DEL(p)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_MYMALLOC_H */

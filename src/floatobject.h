@@ -1,3 +1,10 @@
+#ifndef Py_FLOATOBJECT_H
+#define Py_FLOATOBJECT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Float object interface */
 
 /* floatobject represents a (double precision) floating point number. */
@@ -15,3 +22,9 @@ extern double getfloatvalue(object *);
 
 /* Macro, trading safety for speed */
 #define GETFLOATVALUE(op) ((op)->ob_fval)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_FLOATOBJECT_H */

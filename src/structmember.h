@@ -1,3 +1,10 @@
+#ifndef Py_STRUCTMEMBER_H
+#define Py_STRUCTMEMBER_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Interface to map C struct members to Python object attributes */
 
 /* The offsetof() macro calculates the offset of a structure member
@@ -5,7 +12,6 @@
    portably, hence it is provided by a Standard C header file.
    For pre-Standard C compilers, here is a version that usually works
    (but watch out!): */
-
 #ifndef offsetof
 #define offsetof(type, member) ((int) & ((type*)0)->member)
 #endif
@@ -15,7 +21,6 @@
    getmember() and set by setmember() (except if their READONLY flag
    is set).  The array must be terminated with an entry whose name
    pointer is NULL. */
-
 struct memberlist {
 	char *name;
 	int type;
@@ -34,7 +39,13 @@ struct memberlist {
 
 /* Readonly flag */
 #define READONLY	1
-#define RO			READONLY		/* Shorthand */
+#define RO			READONLY	/* Shorthand */
 
 object *getmember(char *, struct memberlist *, char *);
 int setmember(char *, struct memberlist *, char *, object *);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_STRUCTMEMBER_H */

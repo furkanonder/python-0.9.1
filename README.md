@@ -21,6 +21,7 @@ make
 - Cast function pointers in module methods and type objects for type safety.
 - Integrated `GNU Readline` support in the `Makefile`.
 - Added `GNU Readline` headers in `tokenizer.c`.
+- Added header guards and C linkage.
 
 ### Fixed
 - Modified ticker variable in `ceval.c` after including `intrcheck.h`.

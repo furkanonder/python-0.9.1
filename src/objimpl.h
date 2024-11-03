@@ -1,5 +1,11 @@
-/*
-123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
+#ifndef Py_OBJIMPL_H
+#define Py_OBJIMPL_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* 123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
 
 Additional macros for modules that implement new object types.
 You must first include "object.h".
@@ -14,13 +20,18 @@ of the type object.
 
 NEWVAROBJ(type, typeobj, n) is similar but allocates a variable-size
 object with n extra items.  The size is computer as tp_basicsize plus
-n * tp_itemsize.  This fills in the ob_size field as well.
-*/
+n * tp_itemsize.  This fills in the ob_size field as well. */
 
-extern object *newobject(typeobject *);
+extern object    *newobject(typeobject *);
 extern varobject *newvarobject(typeobject *, unsigned int);
 
 #define NEWOBJ(type, typeobj) ((type *)newobject(typeobj))
 #define NEWVAROBJ(type, typeobj, n) ((type *)newvarobject(typeobj, n))
 
 extern int StopPrint; /* Set when printing is interrupted */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_OBJIMPL_H */

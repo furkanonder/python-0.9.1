@@ -1,5 +1,11 @@
-/* Token types */
+#ifndef Py_TOKEN_H
+#define Py_TOKEN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Token types */
 #define ENDMARKER	0
 #define NAME		1
 #define NUMBER		2
@@ -40,6 +46,11 @@
 #define ISNONTERMINAL(x)	((x) >= NT_OFFSET)
 #define ISEOF(x)		    ((x) == ENDMARKER)
 
-
 extern char *tok_name[]; /* Token names */
 extern int tok_1char(int);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_TOKEN_H */

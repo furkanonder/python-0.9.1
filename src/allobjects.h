@@ -1,3 +1,10 @@
+#ifndef Py_ALLOBJECTS_H
+#define Py_ALLOBJECTS_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* "allobjects.c" -- Source for precompiled header "allobjects.h" */
 
 #include <stdio.h>
@@ -19,3 +26,9 @@
 #include "fileobject.h"
 #include "errors.h"
 #include "malloc.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_ALLOBJECTS_H */

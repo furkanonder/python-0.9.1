@@ -1,3 +1,10 @@
+#ifndef Py_INTOBJECT_H
+#define Py_INTOBJECT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Integer object interface */
 
 /* 123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
@@ -41,3 +48,9 @@ extern intobject FalseObject, TrueObject; /* Don't use these directly */
 
 /* Macro, trading safety for speed */
 #define GETINTVALUE(op) ((op)->ob_ival)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_INTOBJECT_H */

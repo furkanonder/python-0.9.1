@@ -1,7 +1,13 @@
+#ifndef Py_TUPLEOBJECT_H
+#define Py_TUPLEOBJECT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Tuple object interface */
 
-/*
-123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
+/* 123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
 
 Another generally useful object type is an tuple of object pointers.
 This is a mutable type: the tuple items can be changed (but not their
@@ -29,3 +35,9 @@ extern int settupleitem(object *, int, object *);
 
 /* Macro, trading safety for speed */
 #define GETTUPLEITEM(op, i) ((op)->ob_item[i])
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_TUPLEOBJECT_H */

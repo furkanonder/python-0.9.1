@@ -1,10 +1,16 @@
-/* Parse tree node interface */
+#ifndef Py_NODE_H
+#define Py_NODE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Parse tree node interface */
 typedef struct _node {
-	int		n_type;
-	char		*n_str;
-	int		n_lineno;
-	int		n_nchildren;
+	int				n_type;
+	char			*n_str;
+	int				n_lineno;
+	int				n_nchildren;
 	struct _node	*n_child;
 } node;
 
@@ -31,3 +37,9 @@ extern void freetree(node *n);
 
 extern void listtree(node *);
 extern void listnode(FILE *, node *);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_NODE_H */

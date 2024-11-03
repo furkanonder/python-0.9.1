@@ -1,3 +1,10 @@
+#ifndef Py_DICTOBJECT_H
+#define Py_DICTOBJECT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Dictionary object type -- mapping from char * to object.
 NB: the key is given as a char *, not as a stringobject.
 These functions set errno for errors.  Functions dictremove() and
@@ -16,3 +23,9 @@ extern int dictremove(object *dp, char *key);
 extern int getdictsize(object *dp);
 extern char *getdictkey(object *dp, int i);
 extern object *getdictkeys(object *dp);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_DICTOBJECT_H */

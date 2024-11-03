@@ -1,3 +1,10 @@
+#ifndef Py_ERRORS_H
+#define Py_ERRORS_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Error handling definitions */
 void err_set(object *);
 void err_setval(object *, object *);
@@ -27,3 +34,9 @@ extern object *err_nomem(void);
 extern object *err_errno(object *);
 extern void err_input(int);
 extern void err_badcall(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_ERRORS_H */

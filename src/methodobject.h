@@ -1,3 +1,10 @@
+#ifndef Py_METHODOBJECT_H
+#define Py_METHODOBJECT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Method object interface */
 
 extern typeobject Methodtype;
@@ -16,3 +23,9 @@ struct methodlist {
 };
 
 extern object *findmethod(struct methodlist *, object *, char *);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_METHODOBJECT_H */

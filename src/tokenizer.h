@@ -1,3 +1,10 @@
+#ifndef Py_TOKENIZER_H
+#define Py_TOKENIZER_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Tokenizer interface */
 
 #include "token.h"	/* For token types */
@@ -29,3 +36,9 @@ extern struct tok_state *tok_setups(char *);
 extern struct tok_state *tok_setupf(FILE *, char *ps1, char *ps2);
 extern void tok_free(struct tok_state *);
 extern int tok_get(struct tok_state *, char **, char **);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_TOKENIZER_H */

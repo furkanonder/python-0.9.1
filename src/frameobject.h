@@ -1,3 +1,10 @@
+#ifndef Py_FRAMEOBJECT_H
+#define Py_FRAMEOBJECT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Frame object interface */
 
 typedef struct {
@@ -47,3 +54,9 @@ frameobject * newframeobject(frameobject *, codeobject *, object *, object *,
 /* Block management functions */
 void setup_block(frameobject *, int, int, int);
 block *pop_block(frameobject *);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_FRAMEOBJECT_H */

@@ -1,3 +1,10 @@
+#ifndef Py_PARSER_H
+#define Py_PARSER_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Parser interface */
 
 #define MAXSTACK 100
@@ -24,3 +31,9 @@ parser_state *newparser(struct _grammar *g, int start);
 void delparser(parser_state *ps);
 int addtoken(parser_state *ps, int type, char *str, int lineno);
 void addaccelerators(grammar *g);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_PARSER_H */

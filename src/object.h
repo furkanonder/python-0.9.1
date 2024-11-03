@@ -1,8 +1,15 @@
+#ifndef Py_OBJECT_H
+#define Py_OBJECT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define NDEBUG
+
 /* Object and type object interface */
 
-/*
-123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
+/* 123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
 
 Objects are structures allocated on the heap.  Special rules apply to
 the use of objects to ensure they are properly garbage-collected.
@@ -44,18 +51,13 @@ type and back.
 
 A standard interface exists for objects that contain an array of items
 whose size is determined when the object is allocated.
-
-123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
-*/
+123456789-123456789-123456789-123456789-123456789-123456789-123456789-12 */
 
 #ifndef NDEBUG
-
 /* Turn on heavy reference debugging */
 #define TRACE_REFS
-
 /* Turn on reference counting */
 #define REF_DEBUG
-
 #endif /* NDEBUG */
 
 #ifdef TRACE_REFS
@@ -83,9 +85,7 @@ typedef struct {
 	OB_VARHEAD
 } varobject;
 
-
-/*
-123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
+/* 123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
 
 Type objects contain a string containing the type name (to help somewhat
 in debugging), the allocation parameters (see newobj() and newvarobj()),
@@ -97,70 +97,67 @@ the implementation can guarantee that the reference count will never
 reach zero (e.g., for type objects).
 
 NB: the methods for certain type groups are now contained in separate
-method blocks.
-*/
+method blocks.*/
 
 typedef object *(*unaryfunc)(object *);
 typedef object *(*binaryfunc)(object *, object *);
 typedef object *(*ternaryfunc)(object *, object *, object *);
-typedef int (*inquiry)(object *);
+typedef int 	(*inquiry)(object *);
 typedef object *(*intargfunc)(object *, int);
-typedef object *(*intintargfunc)(object *, int, int);
-typedef int	(*intobjargproc)(object *, int, object *);
-typedef int	(*intintobjargproc)(object *, int, int, object *);
-typedef int	(*objobjargproc)(object *, object *, object *);
+typedef object	*(*intintargfunc)(object *, int, int);
+typedef int		(*intobjargproc)(object *, int, object *);
+typedef int		(*intintobjargproc)(object *, int, int, object *);
+typedef int		(*objobjargproc)(object *, object *, object *);
 
 typedef struct {
-	binaryfunc nb_add;
-	binaryfunc nb_subtract;
-	binaryfunc nb_multiply;
-	binaryfunc nb_divide;
-	binaryfunc nb_remainder;
+	binaryfunc 	nb_add;
+	binaryfunc 	nb_subtract;
+	binaryfunc 	nb_multiply;
+	binaryfunc 	nb_divide;
+	binaryfunc 	nb_remainder;
 	ternaryfunc nb_power;
-	unaryfunc nb_negative;
-	unaryfunc nb_positive;
+	unaryfunc 	nb_negative;
+	unaryfunc 	nb_positive;
 } number_methods;
 
 typedef struct {
-	inquiry sq_length;
-	binaryfunc sq_concat;
-	intargfunc sq_repeat;
-	intargfunc sq_item;
-	intintargfunc sq_slice;
-	intobjargproc sq_ass_item;
-	intintobjargproc sq_ass_slice;
+	inquiry 			sq_length;
+	binaryfunc 			sq_concat;
+	intargfunc 			sq_repeat;
+	intargfunc 			sq_item;
+	intintargfunc 		sq_slice;
+	intobjargproc 		sq_ass_item;
+	intintobjargproc 	sq_ass_slice;
 } sequence_methods;
 
 typedef struct {
-	inquiry mp_length;
-	binaryfunc mp_subscript;
-	objobjargproc mp_ass_subscript;
+	inquiry 		mp_length;
+	binaryfunc 		mp_subscript;
+	objobjargproc 	mp_ass_subscript;
 } mapping_methods;
 
-typedef void (*destructor)(object *);
-typedef void (*printfunc)(object *, FILE *, int);
+typedef void 	(*destructor)(object *);
+typedef void 	(*printfunc)(object *, FILE *, int);
 typedef object *(*getattrfunc)(object *, char *);
-typedef int (*setattrfunc)(object *, char *, object *);
-typedef int (*cmpfunc)(object *, object *);
-typedef object *(*reprfunc)(object *);
+typedef int 	(*setattrfunc)(object *, char *, object *);
+typedef int 	(*cmpfunc)(object *, object *);
+typedef 		object *(*reprfunc)(object *);
 
 typedef struct _typeobject {
 	OB_VARHEAD
-	char *tp_name; /* For printing */
-	unsigned int tp_basicsize, tp_itemsize; /* For allocation */
-	
+	char 				*tp_name; /* For printing */
+	unsigned int 		tp_basicsize, tp_itemsize; /* For allocation */
 	/* Methods to implement standard operations */
-	destructor tp_dealloc;
-	printfunc tp_print;
-	getattrfunc tp_getattr;
-	setattrfunc tp_setattr;
-	cmpfunc tp_compare;
-	reprfunc tp_repr;
-	
+	destructor 			tp_dealloc;
+	printfunc 			tp_print;
+	getattrfunc 		tp_getattr;
+	setattrfunc 		tp_setattr;
+	cmpfunc 			tp_compare;
+	reprfunc 			tp_repr;
 	/* Method suites for standard classes */
-	number_methods *tp_as_number;
-	sequence_methods *tp_as_sequence;
-	mapping_methods *tp_as_mapping;
+	number_methods 		*tp_as_number;
+	sequence_methods 	*tp_as_sequence;
+	mapping_methods 	*tp_as_mapping;
 } typeobject;
 
 extern typeobject Typetype; /* The type of type objects */
@@ -177,8 +174,7 @@ extern int setattr(object *, char *, object *);
 /* Flag bits for printing: */
 #define PRINT_RAW	1	/* No string quotes etc. */
 
-/*
-123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
+/* 123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
 
 The macros INCREF(op) and DECREF(op) are used to increment or decrement
 reference counts.  DECREF calls the object's deallocator function; for
@@ -203,8 +199,7 @@ you can count such references to the type object.)
 since it may evaluate its argument multiple times.  (The alternative
 would be to mace it a proper function or assign it to a global temporary
 variable first, both of which are slower; and in a multi-threaded
-environment the global variable trick is not safe.)
-*/
+environment the global variable trick is not safe.) */
 
 #ifdef TRACE_REFS
 #ifndef REF_DEBUG
@@ -239,31 +234,23 @@ extern long ref_total;
 #endif
 
 /* Macros to use in case the object pointer may be NULL: */
-
 #define XINCREF(op) if ((op) == NULL) ; else INCREF(op)
 #define XDECREF(op) if ((op) == NULL) ; else DECREF(op)
 
 /* Definition of NULL, so you don't have to include <stdio.h> */
-
 #ifndef NULL
 #define NULL 0
 #endif
 
-
-/*
-NoObject is an object of undefined type which can be used in contexts
+/* NoObject is an object of undefined type which can be used in contexts
 where NULL (nil) is not suitable (since NULL often means 'error').
-
-Don't forget to apply INCREF() when returning this value!!!
-*/
+Don't forget to apply INCREF() when returning this value!!! */
 
 extern object NoObject; /* Don't use this directly */
 
 #define None (&NoObject)
 
-
-/*
-123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
+/* 123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
 
 More conventions
 ================
@@ -311,5 +298,10 @@ confusing (even the current practice is already confusing).  Consider
 it carefully, it may safe lots of calls to INCREF() and DECREF() at
 times.
 
-123456789-123456789-123456789-123456789-123456789-123456789-123456789-12
-*/
+123456789-123456789-123456789-123456789-123456789-123456789-123456789-12 */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !Py_OBJECT_H */
