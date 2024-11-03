@@ -112,19 +112,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 # always leave all options off and build a minimal portable version of
 # Python.)
 
-# BSD Time Option
-# ===============
-#
-# This option does not add a new module but adds two functions to
-# an existing module.
-#
-# It implements time.millisleep() and time.millitimer()
-# using the BSD system calls select() and gettimeofday().
-#
-# Uncomment the following line to select this option.
-
-#BSDTIMEDEF=	-DBSD_TIME
-
 # GNU Readline Option
 # ===================
 #

@@ -27,15 +27,16 @@ make
 
 ### Removed
 - Deleted the `shar` directory from the project structure.
-- Removed MS-DOS specific codes and preprocessor directives.
-- Removed THINK C specific codes and preprocessor directives.
-- Removed the Amoeba module(`amoebamodule.c`), along with specific code and preprocessor directives.
-- Removed the Audio module(`audiomodule.c`), along with specific code and preprocessor directives.
-- Removed the Asynchronous Audio module(`asa.c`), along with specific code and preprocessor directives.
-- Removed the Panel module(`panelmodule.c`), along with specific code and preprocessor directives.
-- Removed the GL specific codes and preprocessor directives.
-- Removed the StdWin module(`stdwinmodule.c`), along with specific code and preprocessor directives.
+- Removed `MS-DOS` specific codes and preprocessor directives.
+- Removed `THINK C` specific codes and preprocessor directives.
+- Removed the `Amoeba` module(`amoebamodule.c`), along with specific code and preprocessor directives.
+- Removed the `Audio` module(`audiomodule.c`), along with specific code and preprocessor directives.
+- Removed the `Asynchronous Audio` module(`asa.c`), along with specific code and preprocessor directives.
+- Removed the `Panel` module(`panelmodule.c`), along with specific code and preprocessor directives.
+- Removed the `GL` specific codes and preprocessor directives.
+- Removed the `StdWin` module(`stdwinmodule.c`), along with specific code and preprocessor directives.
 - Removed `configmac.c`
+- Removed `BSD_TIME` and `DO_MILLI` preprocessor directives.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
