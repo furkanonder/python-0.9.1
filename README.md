@@ -47,6 +47,7 @@ make
 - Removed `rltokenizer.c`.
 - Removed `macmodule.c`.
 - Removed `getcwd.c`.
+- Removed `fmod.c`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

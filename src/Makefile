@@ -62,12 +62,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 # STRERROR_SRC=  strerror.c
 # STRERROR_OBJ=  strerror.o
 
-# If your BSD system does not have a fmod() function in the library,
-# uncomment the following two lines to use one I wrote.
-
-#FMOD_SRC=  fmod.c
-#FMOD_OBJ=  fmod.o
-
 # If your signal() function believes signal handlers return int,
 # uncomment the following line.
 
