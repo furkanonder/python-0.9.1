@@ -13,10 +13,6 @@
 
 /* Define pathname separator used in file names */
 
-#ifdef THINK_C
-#define SEP ':'
-#endif
-
 #ifndef SEP
 #define SEP '/'
 #endif

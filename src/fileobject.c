@@ -60,13 +60,6 @@ newfileobject(char *name, char *mode)
 	if (f == NULL) {
 		return NULL;
     }
-#ifdef THINK_C
-	if (*mode == '*') {
-		FILE *fopenRF();
-		f->f_fp = fopenRF(name, mode + 1);
-	}
-	else
-#endif
 	f->f_fp = fopen(name, mode);
 	if (f->f_fp == NULL) {
 		err_errno(RuntimeError);
@@ -191,10 +184,7 @@ file_readline(fileobject *f, object *args)
 	if (v == NULL) {
 		return NULL;
     }
-#ifndef THINK_C_3_0
-	/* XXX Think C 3.0 wrongly reads up to n characters... */
 	n = n + 1;
-#endif
 	if (fgets(getstringvalue(v), n, f->f_fp) == NULL) {
 		/* EOF is reported as an empty string */
 		/* XXX should detect real I/O errors? */

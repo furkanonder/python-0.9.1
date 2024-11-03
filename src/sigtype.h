@@ -6,22 +6,10 @@
 
 #ifndef SIGTYPE
 
-#ifdef THINK_C
-
-#ifdef THINK_C_3_0
-#define SIGTYPE int
-#else
-#define SIGTYPE void
-#endif
-
-#else /* !THINK_C */
-
 #if defined(vax) && !defined(AMOEBA)
 #define SIGTYPE int
 #else
 #define SIGTYPE void
 #endif
-
-#endif /* !THINK_C */
 
 #endif /* !SIGTYPE */

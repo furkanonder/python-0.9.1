@@ -61,10 +61,6 @@ time_sleep(object *self, object *args)
 	return None;
 }
 
-#ifdef THINK_C
-#define DO_MILLI
-#endif /* THINK_C */
-
 #ifdef AMOEBA
 #define DO_MILLI
 extern long sys_milli();
@@ -129,39 +125,6 @@ inittime()
 {
 	initmodule("time", time_methods);
 }
-
-#ifdef THINK_C
-#define MacTicks	(*(long *)0x16A)
-
-static
-sleep(int msecs)
-{
-	register long deadline =MacTicks + msecs * 60;
-
-	while (MacTicks < deadline) {
-		if (intrcheck()) {
-			sleep_catcher(SIGINT);
-    	}
-	}
-}
-
-static
-millisleep(long msecs)
-{
-	register long deadline = MacTicks + msecs * 3 / 50; /* msecs * 60 / 1000 */
-	while (MacTicks < deadline) {
-		if (intrcheck()) {
-			sleep_catcher(SIGINT);
-        }
-	}
-}
-
-static long
-millitimer()
-{
-	return MacTicks * 50 / 3; /* MacTicks * 1000 / 60 */
-}
-#endif /* THINK_C */
 
 #ifdef BSD_TIME
 #include <sys/types.h>

@@ -13,11 +13,6 @@ extern int errno;
 #include <ctype.h>
 #include <math.h>
 
-#ifndef THINK_C
-extern double fmod PROTO((double, double));
-extern double pow PROTO((double, double));
-#endif
-
 object *
 newfloatobject(double fval)
 {

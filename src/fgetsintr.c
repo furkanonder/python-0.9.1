@@ -38,32 +38,24 @@ fgets_intr(char *buf, int size, FILE *fp)
 	if (setjmp(jback)) {
 		clearerr(fp);
 		signal(SIGINT, sigsave);
-#ifdef THINK_C_3_0
-		Set_Echo(1);
-#endif
 		return E_INTR;
 	}
 	
-	/* The casts to (SIGTYPE(*)()) are needed by THINK_C only */
-	
-	sigsave = signal(SIGINT, (SIGTYPE(*)()) SIG_IGN);
-	if (sigsave != (SIGTYPE(*)()) SIG_IGN) {
-		signal(SIGINT, (SIGTYPE(*)()) catcher);
+	sigsave = signal(SIGINT, SIG_IGN);
+	if (sigsave != SIG_IGN) {
+		signal(SIGINT, catcher);
 	}
-#ifndef THINK_C
 	if (intrcheck()) {
 		ret = E_INTR;
     }
-	else
-#endif
-	{
+	else {
 		sig_block();
 		ret = (fgets(buf, size, fp) == NULL) ? E_EOF : E_OK;
 		sig_unblock();
 	}
 	
-	if (sigsave != (SIGTYPE(*)()) SIG_IGN) {
-		signal(SIGINT, (SIGTYPE(*)()) sigsave);
+	if (sigsave != SIG_IGN) {
+		signal(SIGINT, sigsave);
     }
 	return ret;
 }

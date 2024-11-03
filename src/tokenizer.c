@@ -13,10 +13,6 @@
 #include "tokenizer.h"
 #include "errcode.h"
 
-#ifdef THINK_C
-#define TABSIZE 4
-#endif
-
 #ifndef TABSIZE
 #define TABSIZE 8
 #endif
@@ -373,9 +369,9 @@ again:
 		   This is also recognized by vi, when it occurs near the
 		   beginning or end of the file.  (Will vi never die...?) */
 		int x;
-		/* XXX The case to (unsigned char *) is needed by THINK C 3.0 */
-		if (sscanf(/*(unsigned char *)*/tok->cur,
-				   " vi:set tabsize=%d:", &x) == 1 && x >= 1 && x <= 40) {
+		if (sscanf(tok->cur,
+				   " vi:set tabsize=%d:", &x) == 1 && x >= 1 && x <= 40)
+        {
 			fprintf(stderr, "# vi:set tabsize=%d:\n", x);
 			tok->tabsize = x;
 		}

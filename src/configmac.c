@@ -1,8 +1,4 @@
-/* Configuration using STDWIN on the Mac (THINK_C or MPW) */
-
-#ifdef THINK_C
-#define USE_STDWIN
-#endif
+/* Configuration using STDWIN on the Mac (MPW) */
 
 #ifdef USE_STDWIN
 #include "stdwin.h"
@@ -12,16 +8,6 @@ void
 initargs(int *p_argc, char ***p_argv)
 {
 #ifdef USE_STDWIN
-
-#ifdef THINK_C_3_0
-	wsetstdio(1);
-#else
-	/* This printf() statement is really needed only
-	   to initialize THINK C 4.0's stdio: */
-	printf(
-"Python 4.0, Copyright 1990 Stichting Mathematisch Centrum, Amsterdam\n");
-#endif
-
 	wargs(p_argc, p_argv);
 #endif
 }

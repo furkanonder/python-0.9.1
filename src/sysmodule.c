@@ -22,10 +22,6 @@ Data members:
 
 /* Define delimiter used in $PYTHONPATH */
 
-#ifdef THINK_C
-#define DELIM ' '
-#endif
-
 #ifndef DELIM
 #define DELIM ':'
 #endif

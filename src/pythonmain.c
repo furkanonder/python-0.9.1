@@ -35,7 +35,6 @@ main(int argc, char **argv)
 	FILE *fp = stdin;
 	
 	initargs(&argc, &argv);
-	
 	if (argc > 1 && strcmp(argv[1], "-") != 0) {
 		filename = argv[1];
     }
@@ -48,16 +47,13 @@ main(int argc, char **argv)
 	}
 	
 	initall();
-	
 	setpythonpath(getpythonpath());
 	setpythonargv(argc - 1, argv + 1);
-	
 	goaway(run(fp, filename == NULL ? "<stdin>" : filename));
 	/*NOTREACHED*/
 }
 
 /* Initialize all */
-
 void
 initall()
 {
@@ -67,7 +63,6 @@ initall()
 		return;
     }
 	inited = 1;
-	
 	initimport();
 	
 	/* Modules 'builtin' and 'sys' are initialized here,
@@ -77,14 +72,11 @@ initall()
 	
 	initbuiltin(); /* Also initializes builtin exceptions */
 	initsys();
-	
 	initcalls(); /* Configuration-dependent initializations */
-	
 	initintr(); /* For intrcheck() */
 }
 
 /* Parse input from a file and execute it */
-
 int
 run(FILE *fp, char *filename)
 {
@@ -102,9 +94,8 @@ run(FILE *fp, char *filename)
 int
 run_tty_loop(FILE *fp, char *filename)
 {
-	object *v;
+	object *v = sysget("ps1");
 	int ret;
-	v = sysget("ps1");
 
 	if (v == NULL) {
 		sysset("ps1", v = newstringobject(">>> "));
@@ -134,12 +125,10 @@ run_tty_loop(FILE *fp, char *filename)
 int
 run_tty_1(FILE *fp, char *filename)
 {
-	object *m, *d, *v, *w;
+	object *m, *d, *v = sysget("ps1"), *w = sysget("ps2");
 	node *n;
 	char *ps1, *ps2;
 	int err;
-	v = sysget("ps1");
-	w = sysget("ps2");
 
 	if (v != NULL && is_stringobject(v)) {
 		INCREF(v);
@@ -186,8 +175,7 @@ run_tty_1(FILE *fp, char *filename)
 int
 run_script(FILE *fp, char *filename)
 {
-	object *m, *d, *v;
-	m = add_module("__main__");
+	object *m = add_module("__main__"), *d, *v;
 
 	if (m == NULL) {
 		return -1;
@@ -225,8 +213,7 @@ object *
 run_string(char *str, int start, object *globals, object *locals)
 {
 	node *n;
-	int err;
-	err = parse_string(str, start, &n);
+	int err = parse_string(str, start, &n);
 
 	return run_err_node(err, n, "<string>", globals, locals);
 }
@@ -271,9 +258,8 @@ run_node(node *n, char *filename, object *globals, object *locals)
 object *
 eval_node(node *n, char *filename, object *globals, object *locals)
 {
-	codeobject *co;
+	codeobject *co = compile(n, filename);
 	object *v;
-	co = compile(n, filename);
 
 	freetree(n);
 	if (co == NULL) {
@@ -285,7 +271,6 @@ eval_node(node *n, char *filename, object *globals, object *locals)
 }
 
 /* Simplified interface to parsefile */
-
 int
 parse_file(FILE *fp, char *filename, int start, node **n_ret)
 {
@@ -293,7 +278,6 @@ parse_file(FILE *fp, char *filename, int start, node **n_ret)
 }
 
 /* Simplified interface to parsestring */
-
 int
 parse_string(char *str, int start, node **n_ret)
 {
@@ -306,7 +290,6 @@ parse_string(char *str, int start, node **n_ret)
 }
 
 /* Print fatal error message and abort */
-
 void
 fatal(char *msg)
 {
@@ -315,34 +298,22 @@ fatal(char *msg)
 }
 
 /* Clean up and exit */
-
 void
 goaway(int sts)
 {
 	flushline();
-	
 	/* XXX Call doneimport() before donecalls(), since donecalls()
 	   calls wdone(), and doneimport() may close windows */
 	doneimport();
 	donecalls();
-	
 	err_clear();
 
 #ifdef REF_DEBUG
 	fprintf(stderr, "[%ld refs]\n", ref_total);
 #endif
 
-#ifdef THINK_C_3_0
-	if (sts == 0) {
-		Click_On(0);
-    }
-#endif
-
 #ifdef TRACE_REFS
 	if (askyesno("Print left references?")) {
-#ifdef THINK_C_3_0
-		Click_On(1);
-#endif
 		printrefs(stderr);
 	}
 #endif /* TRACE_REFS */
@@ -358,15 +329,11 @@ void finaloutput()
 	if (!askyesno("Print left references?")) {
 		return;
     }
-#ifdef THINK_C_3_0
-	Click_On(1);
-#endif
 	printrefs(stderr);
 #endif /* TRACE_REFS */
 }
 
 /* Ask a yes/no question */
-
 static int
 askyesno(char *prompt)
 {
@@ -379,21 +346,7 @@ askyesno(char *prompt)
 	return buf[0] == 'y' || buf[0] == 'Y';
 }
 
-#ifdef THINK_C_3_0
-
-/* Check for file descriptor connected to interactive device.
-   Pretend that stdin is always interactive, other files never. */
-
-int
-isatty(int fd)
-{
-	return fd == fileno(stdin);
-}
-
-#endif
-
 /*	XXX WISH LIST
-
 	- possible new types:
 		- iterator (for range, keys, ...)
 	- improve interpreter error handling, e.g., true tracebacks

@@ -17,11 +17,6 @@ HAVE_PROTOTYPES to force prototypes on.
 #define HAVE_PROTOTYPES
 #endif
 
-#ifdef THINK_C
-#undef HAVE_PROTOTYPES
-#define HAVE_PROTOTYPES
-#endif
-
 #ifdef sgi
 #ifdef mips
 #define HAVE_PROTOTYPES
@@ -36,20 +31,6 @@ HAVE_PROTOTYPES to force prototypes on.
 
 #endif /* PROTO */
 
-
-/* FPROTO() is for cases where Think C doesn't like prototypes */
-
-#ifdef THINK_C
-#define FPROTO(arglist) ()
-#else /* !THINK_C */
-#define FPROTO(arglist) PROTO(arglist)
-#endif /* !THINK_C */
-
-#ifndef HAVE_PROTOTYPES
-#define const /*empty*/
-#else /* HAVE_PROTOTYPES */
-#ifdef THINK_C
-#undef const
-#define const /*empty*/
-#endif /* THINK_C */
-#endif /* HAVE_PROTOTYPES */
+#ifndef FPROTO
+#define FPROTO(x) PROTO(x)
+#endif

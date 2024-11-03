@@ -1,12 +1,5 @@
 /* Lowest-level memory allocation interface */
 
-#ifdef THINK_C
-#define ANY void
-#ifndef THINK_C_3_0
-#define HAVE_STDLIB
-#endif
-#endif
-
 #ifdef __STD_C__
 #define ANY void
 #define HAVE_STDLIB

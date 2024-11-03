@@ -14,8 +14,3 @@ strerror(int err)
 	sprintf(buf, "Unknown errno %d", err);
 	return buf;
 }
-
-#ifdef THINK_C
-int sys_nerr = 0;
-char *sys_errlist[1] = 0;
-#endif
