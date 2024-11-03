@@ -1,5 +1,7 @@
 /* Module support implementation */
 
+#include <string.h>
+
 #include "allobjects.h"
 #include "modsupport.h"
 #include "import.h"

@@ -5,10 +5,8 @@
 #include <stdlib.h>
 
 #include "PROTO.h"
-
 #include "object.h"
 #include "objimpl.h"
-
 #include "intobject.h"
 #include "floatobject.h"
 #include "stringobject.h"
@@ -20,8 +18,5 @@
 #include "funcobject.h"
 #include "classobject.h"
 #include "fileobject.h"
-
 #include "errors.h"
 #include "malloc.h"
-
-extern char *strdup PROTO((const char *));

@@ -14,21 +14,21 @@ make
 - `string_dealloc` function added for string objects.
 - `float_dealloc` function added for float objects.
 - Added void return type to `initregexp` function in `regexpmodule.c`
-- Added `intrcheck.h` file
-- Added `config.h` file
-- Converted K&R style function declarations to ANSI C style
+- Added `intrcheck.h` file.
+- Added `config.h` file.
+- Converted K&R style function declarations to ANSI C style.
 - Improved function pointer declarations in `object.h` for better readability.
 - Cast function pointers in module methods and type objects for type safety.
 - Integrated `GNU Readline` support in the `Makefile`.
 - Added `GNU Readline` headers in `tokenizer.c`.
 
 ### Fixed
-- Modified ticker variable in `ceval.c` after including `intrcheck.h`
-- Fixed argument passing in `getstrintintarg` function for `getstrarg`
-- Fixed parameter declaration in `reglexec` function in `regexp.c`
+- Modified ticker variable in `ceval.c` after including `intrcheck.h`.
+- Fixed argument passing in `getstrintintarg` function for `getstrarg`.
+- Fixed parameter declaration in `reglexec` function in `regexp.c`.
 
 ### Removed
-- Deleted the `shar` directory from the project structure.
+- Removed the `shar` directory from the project structure.
 - Removed `MS-DOS` specific codes and preprocessor directives.
 - Removed `THINK C` specific codes and preprocessor directives.
 - Removed the `Amoeba` module(`amoebamodule.c`), along with specific code and preprocessor directives.
@@ -37,9 +37,10 @@ make
 - Removed the `Panel` module(`panelmodule.c`), along with specific code and preprocessor directives.
 - Removed the `GL` specific codes and preprocessor directives.
 - Removed the `StdWin` module(`stdwinmodule.c`), along with specific code and preprocessor directives.
-- Removed `configmac.c`
+- Removed `configmac.c`.
 - Removed `BSD_TIME` and `DO_MILLI` preprocessor directives.
 - Removed `__STD_C__`, `__STDC__` and `HAVE_STDLIB` preprocessor directives.
+- Removed `strdup.c` as its functionality is now provided by the standard library `<string.h>`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

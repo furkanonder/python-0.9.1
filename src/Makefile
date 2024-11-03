@@ -141,7 +141,7 @@ STANDARD_OBJ = acceler.o bltinmodule.o ceval.o classobject.o \
 		mathmodule.o methodobject.o modsupport.o \
 		moduleobject.o node.o object.o parser.o \
 		parsetok.o posixmodule.o regexp.o regexpmodule.o \
-		strdup.o $(STRERROR_OBJ) \
+		$(STRERROR_OBJ) \
 		stringobject.o $(STRTOL_OBJ) structmember.o \
 		sysmodule.o timemodule.o tokenizer.o traceback.o \
 		tupleobject.o typeobject.o
@@ -155,7 +155,7 @@ STANDARD_SRC = acceler.c bltinmodule.c ceval.c classobject.c \
 		mathmodule.c methodobject.c modsupport.c \
 		moduleobject.c node.c object.c parser.c \
 		parsetok.c posixmodule.c regexp.c regexpmodule.c \
-		strdup.c $(STRERROR_SRC) \
+		$(STRERROR_SRC) \
 		stringobject.c $(STRTOL_SRC) structmember.c \
 		sysmodule.c timemodule.c tokenizer.c traceback.c \
 		tupleobject.c typeobject.c
@@ -184,13 +184,13 @@ SOURCES=	$(LIBSOURCES) pythonmain.c config.c
 
 GENOBJECTS=	acceler.o fgetsintr.o grammar1.o \
 		intrcheck.o listnode.o node.o parser.o \
-		parsetok.o strdup.o tokenizer.o bitset.o \
+		parsetok.o tokenizer.o bitset.o \
 		firstsets.o grammar.o metagrammar.o pgen.o \
 		pgenmain.o printgrammar.o
 
 GENSOURCES=	acceler.c fgetsintr.c grammar1.c \
 		intrcheck.c listnode.c node.c parser.c \
-		parsetok.c strdup.c tokenizer.c bitset.c \
+		parsetok.c tokenizer.c bitset.c \
 		firstsets.c grammar.c metagrammar.c pgen.c \
 		pgenmain.c printgrammar.c
 
