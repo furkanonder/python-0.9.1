@@ -27,7 +27,8 @@ make
 
 ### Removed
 - Deleted the `shar` directory from the project structure.
-- Removed MS-DOS preprocessor directives
+- Removed MS-DOS specific codes and preprocessor directives
+- Removed THINK C specific codes and preprocessor directives
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
