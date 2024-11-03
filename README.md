@@ -45,6 +45,7 @@ make
 - Removed `sc_errors.c`, `scdbg.c`, `sc_interpr.c`, `sc_global.h` and `sc_errors.h`.
 - Removed `stubcode.h`.
 - Removed `rltokenizer.c`.
+- Removed `macmodule.c`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
