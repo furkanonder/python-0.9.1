@@ -93,18 +93,13 @@ getpythonpath()
 	return path;
 }
 
-
-/* Table of built-in modules.
-   These are initialized when first imported. */
+/* Table of built-in modules. These are initialized when first imported. */
 
 /* Standard modules */
 extern void inittime();
 extern void initmath();
 extern void initregexp();
 extern void initposix();
-#ifdef USE_GL
-extern void initgl();
-#endif
 #ifdef USE_STDWIN
 extern void maybeinitstdwin();
 #endif
@@ -119,9 +114,6 @@ struct {
 	{"regexp",	initregexp},
 	{"posix",	initposix},
 	/* Optional modules */
-#ifdef USE_GL
-	{"gl",		initgl},
-#endif
 #ifdef USE_STDWIN
 	{"stdwin",	maybeinitstdwin},
 #endif

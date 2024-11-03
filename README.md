@@ -33,6 +33,7 @@ make
 - Removed the Audio module(`audiomodule.c`), along with specific code and preprocessor directives.
 - Removed the Asynchronous Audio module(`asa.c`), along with specific code and preprocessor directives.
 - Removed the Panel module(`panelmodule.c`), along with specific code and preprocessor directives.
+- Removed the GL specific codes and preprocessor directives.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

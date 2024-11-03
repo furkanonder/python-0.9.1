@@ -16,7 +16,6 @@
 # the Makefile changes.  (Except if you turn on the GNU Readline option
 # you may have to toss out the tokenizer.o object.)
 
-
 # Operating System Defines (ALWAYS READ THIS)
 # ===========================================
 
@@ -37,7 +36,6 @@ RANLIB =	ranlib	# For BSD
 
 #NOSYMLINKDEF=	-DNO_LSTAT
 
-
 # Installation Options
 # ====================
 
@@ -47,7 +45,6 @@ RANLIB =	ranlib	# For BSD
 # find the library (admittedly a hack).
 
 DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
-
 
 # For "Pure" BSD Systems
 # ======================
@@ -90,7 +87,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 
 #SIGTYPEDEF=	-DSIGTYPE=int
 
-
 # Further porting hints
 # =====================
 #
@@ -100,7 +96,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 # If you don't have the functions strchr and strrchr, add definitions
 # "-Dstrchr=index -Dstrrchr=rindex" to CFLAGS.  (NB: CFLAGS is not
 # defined in this Makefile.)
-
 
 # Configurable Options
 # ====================
@@ -117,7 +112,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 # always leave all options off and build a minimal portable version of
 # Python.)
 
-
 # BSD Time Option
 # ===============
 #
@@ -130,7 +124,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 # Uncomment the following line to select this option.
 
 #BSDTIMEDEF=	-DBSD_TIME
-
 
 # GNU Readline Option
 # ===================
@@ -155,7 +148,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 #RL_USE =	-DUSE_READLINE
 #RL_LIBS=	$(LIBREADLINE) $(LIBALLOCA) $(LIBTERMCAP)
 #RL_LIBDEPS=	$(LIBREADLINE) $(LIBALLOCA)
-
 
 # STDWIN Option
 # =============
@@ -183,69 +175,10 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 #STDW_SRC=	stdwinmodule.c
 #STDW_OBJ=	stdwinmodule.o
 
-
-# Amoeba Option
-# =============
-#
-# If you have the Amoeba 4.0 distribution (Beta or otherwise) you can
-# configure Python to incorporate the built-in module 'amoeba'.
-# (Python can also be built for native Amoeba, but it requires more
-# work and thought.  Contact the author.)
-#
-# Uncomment and edit the following block to use the Amoeba option.
-# - Edit the AMOEBADIR defition to reflect the top of the Amoeba source
-#   tree.
-# - Edit the AM_CONF definition to reflect the machine/operating system
-#   configuration needed by Amoeba (this is the name of a subdirectory
-#   of $(AMOEBADIR)/conf/unix, e.g., vax.ultrix).
-
-#AMOEBADIR=	/usr/amoeba
-#AM_CONF=	mipseb.irix
-#LIBAMUNIX=	$(AMOEBADIR)/conf/unix/$(AM_CONF)/lib/amunix/libamunix.a
-#AM_INCL=	-I$(AMOEBADIR)/src/h
-#AM_USE =	-DUSE_AMOEBA
-#AM_LIBDEPS=	$(LIBAMUNIX)
-#AM_LIBS=	$(LIBAMUNIX)
-
-# Silicon Graphics IRIS Options
-# =============================
-#
-# The following three options are only relevant if you are using a
-# Silicon Graphics IRIS machine.  These have been tested with IRIX 3.3.1
-# on a 4D/25.
-
-
-# GL Option
-# =========
-#
-# This option incorporates the built-in module 'gl', which provides a
-# complete interface to the Silicon Graphics GL library.  It adds
-# about 70K to the Python text size and about 260K to the unstripped
-# binary size.
-#
-# NOTE WHEN BUILDING FOR THE FIRST TIME:
-# There is a circular dependency in the build process: you need to have
-# a working Python interpreter before you can build a Python interpreter
-# that incorporates the 'gl' module -- the source file 'glmodule.c' is
-# not distributed (it's about 140K!) and a Python script is used to
-# create it. Thus, you first have to build python without the the GL
-# and Panel options, then edit the Makefile to turn them (or at least GL)
-# on and rebuild. You may also have to set PYTHONPATH to point to
-# the place where the module library is for the generation script to
-# work.
-#
-# Uncomment the following block to use the GL option.
-
-#GL_USE =	-DUSE_GL
-#GL_LIBDEPS=
-#GL_LIBS=	-lgl_s
-#GL_SRC =	glmodule.c cgensupport.c
-#GL_OBJ =	glmodule.o cgensupport.o
-
 # Major Definitions
 # =================
 
-STANDARD_OBJ=	acceler.o bltinmodule.o ceval.o classobject.o \
+STANDARD_OBJ = acceler.o bltinmodule.o ceval.o classobject.o \
 		compile.o dictobject.o errors.o fgetsintr.o \
 		fileobject.o floatobject.o $(FMOD_OBJ) frameobject.o \
 		funcobject.o $(GETCWD_OBJ) \
@@ -259,7 +192,7 @@ STANDARD_OBJ=	acceler.o bltinmodule.o ceval.o classobject.o \
 		sysmodule.o timemodule.o tokenizer.o traceback.o \
 		tupleobject.o typeobject.o
 
-STANDARD_SRC=	acceler.c bltinmodule.c ceval.c classobject.c \
+STANDARD_SRC = acceler.c bltinmodule.c ceval.c classobject.c \
 		compile.c dictobject.c errors.c fgetsintr.c \
 		fileobject.c floatobject.c $(FMOD_SRC) frameobject.c \
 		funcobject.c $(GETCWD_SRC) \
@@ -407,23 +340,11 @@ tokenizer.o:	tokenizer.c
 
 .PRECIOUS:	python libpython.a glmodule.c graminit.c graminit.h
 
-
 # Generated Sources
 # =================
 #
 # Some source files are (or may be) generated.
 # The rules for doing so are given here.
-
-# Build "glmodule.c", the GL interface.
-# See important note at "GL Option" above.
-# You may have to set and export PYTHONPATH for this to work.
-# Ignore the messages emitted by the cgen script as long as its exit
-# status is zero.
-# Also ignore the warnings emitted while compiling glmodule.c; it works.
-
-glmodule.c:	cstubs cgen
-		python cgen <cstubs >@glmodule.c
-		mv @glmodule.c glmodule.c
 
 # The dependencies for graminit.[ch] are not turned on in the
 # distributed Makefile because the files themselves are distributed.
