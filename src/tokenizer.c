@@ -5,27 +5,24 @@
 /* XXX Should use editor resource to fetch true tab size on Macintosh */
 
 #include "pgenheaders.h"
-
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-
-#include "string.h"
 #include "fgetsintr.h"
 #include "tokenizer.h"
 #include "errcode.h"
 #include "intrcheck.h"
 
-#ifndef TABSIZE
-#define TABSIZE 8
-#endif
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+
+#define TABSIZE 4
 
 /* Forward */
-static struct tok_state *tok_new(void);
-static int tok_nextc(struct tok_state *tok);
-static void tok_backup(struct tok_state *tok, int c);
+static struct   tok_state *tok_new();
+static int      tok_nextc(struct tok_state *tok);
+static void     tok_backup(struct tok_state *tok, int c);
 
 /* Token names */
 char *tok_name[] = {
@@ -368,16 +365,6 @@ again:
 	
 	/* Skip comment */
 	if (c == '#') {
-		/* Hack to allow overriding the tabsize in the file.
-		   This is also recognized by vi, when it occurs near the
-		   beginning or end of the file.  (Will vi never die...?) */
-		int x;
-		if (sscanf(tok->cur,
-				   " vi:set tabsize=%d:", &x) == 1 && x >= 1 && x <= 40)
-        {
-			fprintf(stderr, "# vi:set tabsize=%d:\n", x);
-			tok->tabsize = x;
-		}
 		do {
 			c = tok_nextc(tok);
 		} while (c != EOF && c != '\n');
