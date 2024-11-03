@@ -68,12 +68,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 #FMOD_SRC=  fmod.c
 #FMOD_OBJ=  fmod.o
 
-# If your BSD system does not have a strtol() function in the library,
-# uncomment the following two lines to use one I wrote.
-
-#STRTOL_SRC=  strtol.c
-#STRTOL_OBJ=  strtol.o
-
 # If your BSD system does not have a getcwd() function in the library,
 # but it does have a getwd() function, uncomment the following two lines
 # to use one I wrote.  (If you don't have getwd() either, turn on the
@@ -142,7 +136,7 @@ STANDARD_OBJ = acceler.o bltinmodule.o ceval.o classobject.o \
 		moduleobject.o node.o object.o parser.o \
 		parsetok.o posixmodule.o regexp.o regexpmodule.o \
 		$(STRERROR_OBJ) \
-		stringobject.o $(STRTOL_OBJ) structmember.o \
+		stringobject.o structmember.o \
 		sysmodule.o timemodule.o tokenizer.o traceback.o \
 		tupleobject.o typeobject.o
 
@@ -156,7 +150,7 @@ STANDARD_SRC = acceler.c bltinmodule.c ceval.c classobject.c \
 		moduleobject.c node.c object.c parser.c \
 		parsetok.c posixmodule.c regexp.c regexpmodule.c \
 		$(STRERROR_SRC) \
-		stringobject.c $(STRTOL_SRC) structmember.c \
+		stringobject.c structmember.c \
 		sysmodule.c timemodule.c tokenizer.c traceback.c \
 		tupleobject.c typeobject.c
 
