@@ -2,11 +2,8 @@
 # ===================
 #
 # If you are in a hurry, you can just edit this Makefile to choose the
-# correct settings for SYSV and RANLIB below, and type "make" in this
-# directory.  If you are using a recent version of SunOS (or Ultrix?)
-# you don't even have to edit: the Makefile comes pre-configured for
-# such systems with all configurable options turned off, building the
-# minimal portable version of the Python interpreter.
+# correct settings for RANLIB below, and type "make" in this
+# directory.
 #
 # If have more time, read the section on configurable options below.
 # It may still be wise to begin building the minimal portable Python,
@@ -19,21 +16,12 @@
 # Operating System Defines (ALWAYS READ THIS)
 # ===========================================
 
-# Uncomment the following line if you are using a System V derivative.
-# This must be used, for instance, on an SGI IRIS.  Don't use it for
-# SunOS.  (This is only needed by posixmodule.c...)
-
-#SYSVDEF=	-DSYSV
-
 # Choose one of the following two lines depending on whether your system
 # requires the use of 'ranlib' after creating a library, or not.
-
-#RANLIB =	true	# For System V
 RANLIB =	ranlib	# For BSD
 
 # If your system doesn't have symbolic links, uncomment the following
 # line.
-
 #NOSYMLINKDEF=	-DNO_LSTAT
 
 # Installation Options
@@ -194,7 +182,7 @@ python_gen:	$(GENOBJECTS) $(RL_LIBDEPS)
 
 LINTFLAGS=-h
 
-LINTCPPFLAGS=$(CONFIGDEFS) $(CONFIGINCLS) $(SYSVDEF)
+LINTCPPFLAGS=$(CONFIGDEFS) $(CONFIGINCLS)
 
 LINT=lint
 
@@ -246,7 +234,7 @@ intrcheck.o:	intrcheck.c
 		$(COMPILE) $(SIGTYPEDEF) $*.c
 
 posixmodule.o:	posixmodule.c
-		$(COMPILE) $(SYSVDEF) $(NOSYMLINKDEF) $*.c
+		$(COMPILE) $(NOSYMLINKDEF) $*.c
 
 timemodule.o:	timemodule.c
 		$(COMPILE) $(SIGTYPEDEF) $*.c

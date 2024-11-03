@@ -52,6 +52,7 @@ make
 - Removed `cstubs`.
 - Removed `profmain.c`.
 - Removed `patchlevel.h`.
+- Removed `SYSV` preprocessor directives.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

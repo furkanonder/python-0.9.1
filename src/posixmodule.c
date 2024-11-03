@@ -6,12 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#ifdef SYSV
-#include <dirent.h>
-#define direct dirent
-#else
 #include <sys/dir.h>
-#endif
 #include <unistd.h>
 
 #include "allobjects.h"
