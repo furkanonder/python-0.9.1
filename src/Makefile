@@ -206,9 +206,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 #AM_USE =	-DUSE_AMOEBA
 #AM_LIBDEPS=	$(LIBAMUNIX)
 #AM_LIBS=	$(LIBAMUNIX)
-#AM_SRC =	amoebamodule.c sc_interpr.c sc_errors.c
-#AM_OBJ =	amoebamodule.o sc_interpr.o sc_errors.o
-
 
 # Silicon Graphics IRIS Options
 # =============================
@@ -421,9 +418,6 @@ clobber::	clean
 # You may change $(COMPILE) to reflect the default .c.o rule...
 
 COMPILE=	$(CC) -c $(CFLAGS)
-
-amoebamodule.o:	amoebamodule.c
-		$(COMPILE) $(AM_INCL) $*.c
 
 config.o:	config.c Makefile
 		$(COMPILE) $(CONFIGDEFS) $(CONFIGINCLS) $*.c

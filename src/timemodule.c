@@ -61,12 +61,6 @@ time_sleep(object *self, object *args)
 	return None;
 }
 
-#ifdef AMOEBA
-#define DO_MILLI
-extern long sys_milli();
-#define millitimer sys_milli
-#endif /* AMOEBA */
-
 #ifdef BSD_TIME
 #define DO_MILLI
 #endif /* BSD_TIME */

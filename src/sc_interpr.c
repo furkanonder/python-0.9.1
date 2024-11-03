@@ -4,8 +4,6 @@
 #endif
 #include <stdio.h>
 
-#include <ailamoeba.h>
-
 #include "PROTO.h"
 #include "sc_global.h"
 #include "object.h"
@@ -267,7 +265,6 @@ xTrans(object *self, TscOperand cmd, struct sc_ProcessBlock *sc_pb)
 	printf("\n");
 #endif
 	if (ERR_STATUS(ret)) {
-		amoeba_error(ERR_CONVERT(ret));
 		return -1;
 	}
 	if (sc_pb->hdr.h_status != 0) {

@@ -19,12 +19,7 @@
 
 extern char *strerror PROTO((int));
 
-#ifdef AMOEBA
-#define NO_LSTAT
-#endif
-
 /* Return a dictionary corresponding to the POSIX environment table */
-
 extern char **environ;
 
 static object *

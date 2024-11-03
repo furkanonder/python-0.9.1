@@ -108,9 +108,6 @@ extern void initposix();
 #ifdef USE_AUDIO
 extern void initaudio();
 #endif
-#ifdef USE_AMOEBA
-extern void initamoeba();
-#endif
 #ifdef USE_GL
 extern void initgl();
 #ifdef USE_PANEL
@@ -133,9 +130,6 @@ struct {
 	/* Optional modules */
 #ifdef USE_AUDIO
 	{"audio",	initaudio},
-#endif
-#ifdef USE_AMOEBA
-	{"amoeba",	initamoeba},
 #endif
 #ifdef USE_GL
 	{"gl",		initgl},

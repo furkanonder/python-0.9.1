@@ -14,13 +14,10 @@
 #include "fgetsintr.h"
 #include "intrcheck.h"
 
-#ifndef AMOEBA
 #define sig_block()		/*empty*/
 #define sig_unblock()	/*empty*/
-#endif
 
 static jmp_buf jback;
-
 static void catcher PROTO((int));
 
 static void
