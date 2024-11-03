@@ -149,32 +149,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 #RL_LIBS=	$(LIBREADLINE) $(LIBALLOCA) $(LIBTERMCAP)
 #RL_LIBDEPS=	$(LIBREADLINE) $(LIBALLOCA)
 
-# STDWIN Option
-# =============
-#
-# If you have the sources of STDWIN (by the same author) you can
-# configure Python to incorporate the built-in module 'stdwin'.
-# This requires a fairly recent version of STDWIN (dated late 1990).
-#
-# Uncomment and edit the following block to use the STDWIN option.
-# - Edit the STDWINDIR defition to reflect the top of the STDWIN source
-#   tree.
-# - Edit the ARCH definition to reflect your system's architecture
-#   (usually the program 'arch' or 'machine' returns this).
-# You may have to edit the LIBX11 defition to reflect the location of
-# the X11 runtime library if it is non-standard.
-
-#STDWINDIR=	../../stdwin
-#ARCH=		sgi
-#LIBSTDWIN=	$(STDWINDIR)/Build/$(ARCH)/x11/lib/lib.a
-#LIBX11 =	-lX11
-#STDW_INCL=	-I$(STDWINDIR)/H
-#STDW_USE=	-DUSE_STDWIN
-#STDW_LIBS=	$(LIBSTDWIN) $(LIBX11)
-#STDW_LIBDEPS=	$(LIBSTDWIN)
-#STDW_SRC=	stdwinmodule.c
-#STDW_OBJ=	stdwinmodule.o
-
 # Major Definitions
 # =================
 
@@ -328,9 +302,6 @@ sc_interpr.o:	sc_interpr.c
 
 sc_error.o:	sc_error.c
 		$(COMPILE) $(AM_INCL) $*.c
-
-stdwinmodule.o:	stdwinmodule.c
-		$(COMPILE) $(STDW_INCL) $*.c
 
 timemodule.o:	timemodule.c
 		$(COMPILE) $(SIGTYPEDEF) $(BSDTIMEDEF) $*.c

@@ -34,6 +34,8 @@ make
 - Removed the Asynchronous Audio module(`asa.c`), along with specific code and preprocessor directives.
 - Removed the Panel module(`panelmodule.c`), along with specific code and preprocessor directives.
 - Removed the GL specific codes and preprocessor directives.
+- Removed the StdWin module(`stdwinmodule.c`), along with specific code and preprocessor directives.
+- Removed `configmac.c`
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
