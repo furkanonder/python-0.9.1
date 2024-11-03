@@ -242,33 +242,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 #GL_SRC =	glmodule.c cgensupport.c
 #GL_OBJ =	glmodule.o cgensupport.o
 
-
-# Panel Option
-# ============
-#
-# If you have source to the NASA Ames Panel Library, you can configure
-# Python to incorporate the built-in module 'pnl', which is used byu
-# the standard module 'panel' to provide an interface to most features
-# of the Panel Library.  This option requires that you also turn on the
-# GL option.  It adds about 100K to the Python text size and about 160K
-# to the unstripped binary size. This requires Panel Library version 9.7
-# (for lower versions you may have to remove some functionality -- send
-# me the patches if you bothered to do this).
-#
-# Uncomment and edit the following block to use the Panel option.
-# - Edit the PANELDIR definition to point to the top-level directory
-#   of the Panel distribution tree.
-
-#PANELDIR=	/usr/people/guido/src/pl
-#PANELLIBDIR=	$(PANELDIR)/library
-#LIBPANEL=	$(PANELLIBDIR)/lib/libpanel.a
-#PANEL_USE=	-DUSE_PANEL
-#PANEL_INCL=	-I$(PANELLIBDIR)/include
-#PANEL_LIBDEPS=	$(LIBPANEL)
-#PANEL_LIBS=	$(LIBPANEL)
-#PANEL_SRC=	panelmodule.c
-#PANEL_OBJ=	panelmodule.o
-
 # Major Definitions
 # =================
 

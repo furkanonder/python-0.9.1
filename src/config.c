@@ -104,9 +104,6 @@ extern void initregexp();
 extern void initposix();
 #ifdef USE_GL
 extern void initgl();
-#ifdef USE_PANEL
-extern void initpanel();
-#endif
 #endif
 #ifdef USE_STDWIN
 extern void maybeinitstdwin();
@@ -124,9 +121,6 @@ struct {
 	/* Optional modules */
 #ifdef USE_GL
 	{"gl",		initgl},
-#ifdef USE_PANEL
-	{"pnl",		initpanel},
-#endif
 #endif
 #ifdef USE_STDWIN
 	{"stdwin",	maybeinitstdwin},
