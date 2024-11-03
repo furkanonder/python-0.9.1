@@ -7,7 +7,7 @@
    (but watch out!): */
 
 #ifndef offsetof
-#define offsetof(type, member) ( (int) & ((type*)0) -> member )
+#define offsetof(type, member) ((int) & ((type*)0)->member)
 #endif
 
 /* An array of memberlist structures defines the name, type and offset
@@ -34,7 +34,7 @@ struct memberlist {
 
 /* Readonly flag */
 #define READONLY	1
-#define RO		READONLY		/* Shorthand */
+#define RO			READONLY		/* Shorthand */
 
-object *getmember PROTO((char *, struct memberlist *, char *));
-int setmember PROTO((char *, struct memberlist *, char *, object *));
+object *getmember(char *, struct memberlist *, char *);
+int setmember(char *, struct memberlist *, char *, object *);

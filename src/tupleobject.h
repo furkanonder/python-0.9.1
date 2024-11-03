@@ -11,8 +11,7 @@ number).  Out-of-range indices or non-tuple objects are ignored.
 count, but does decrement the reference count of the item it replaces,
 if not nil.  It does *decrement* the reference count if it is *not*
 inserted in the tuple.  Similarly, gettupleitem does not increment the
-returned item's reference count.
-*/
+returned item's reference count. */
 
 typedef struct {
 	OB_VARHEAD
@@ -23,10 +22,10 @@ extern typeobject Tupletype;
 
 #define is_tupleobject(op) ((op)->ob_type == &Tupletype)
 
-extern object *newtupleobject PROTO((int size));
-extern int gettuplesize PROTO((object *));
-extern object *gettupleitem PROTO((object *, int));
-extern int settupleitem PROTO((object *, int, object *));
+extern object *newtupleobject(int size);
+extern int gettuplesize(object *);
+extern object *gettupleitem(object *, int);
+extern int settupleitem(object *, int, object *);
 
 /* Macro, trading safety for speed */
 #define GETTUPLEITEM(op, i) ((op)->ob_item[i])

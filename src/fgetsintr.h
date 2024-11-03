@@ -1,1 +1,1 @@
-extern int fgets_intr PROTO((char *, int, FILE *));
+extern int fgets_intr(char *, int, FILE *);

@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "PROTO.h"
 #include "object.h"
 #include "objimpl.h"
 #include "intobject.h"

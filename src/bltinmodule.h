@@ -1,4 +1,4 @@
 /* Built-in module interface */
 
-extern object *getbuiltin PROTO((char *));
+extern object *getbuiltin(char *);
 extern void initbuiltin();

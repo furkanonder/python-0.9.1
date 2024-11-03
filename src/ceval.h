@@ -1,10 +1,9 @@
 /* Interface to execute compiled code */
 /* This header depends on "compile.h" */
 
-object *eval_code PROTO((codeobject *, object *, object *, object *));
+object *eval_code(codeobject *, object *, object *, object *);
+object *getglobals(void);
+object *getlocals(void);
 
-object *getglobals PROTO((void));
-object *getlocals PROTO((void));
-
-void printtraceback PROTO((FILE *));
+void printtraceback(FILE *);
 void flushline();

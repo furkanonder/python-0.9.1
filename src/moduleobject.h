@@ -4,6 +4,6 @@ extern typeobject Moduletype;
 
 #define is_moduleobject(op) ((op)->ob_type == &Moduletype)
 
-extern object *newmoduleobject PROTO((char *));
-extern object *getmoduledict PROTO((object *));
-extern char *getmodulename PROTO((object *));
+extern object *newmoduleobject(char *);
+extern object *getmoduledict(object *);
+extern char *getmodulename(object *);

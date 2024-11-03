@@ -23,23 +23,23 @@
 #define LESS		20
 #define GREATER		21
 #define EQUAL		22
-#define DOT		23
+#define DOT		    23
 #define PERCENT		24
 #define BACKQUOTE	25
 #define LBRACE		26
 #define RBRACE		27
-#define OP		28
+#define OP		    28
 #define ERRORTOKEN	29
 #define N_TOKENS	30
 
 /* Special definitions for cooperation with parser */
 
-#define NT_OFFSET		256
+#define NT_OFFSET    256
 
 #define ISTERMINAL(x)		((x) < NT_OFFSET)
 #define ISNONTERMINAL(x)	((x) >= NT_OFFSET)
-#define ISEOF(x)		((x) == ENDMARKER)
+#define ISEOF(x)		    ((x) == ENDMARKER)
 
 
 extern char *tok_name[]; /* Token names */
-extern int tok_1char PROTO((int));
+extern int tok_1char(int);

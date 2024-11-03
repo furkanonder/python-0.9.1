@@ -1,17 +1,16 @@
 /* Bitset interface */
 
-#define BYTE		char
+#define BYTE    char
+typedef BYTE    *bitset;
 
-typedef BYTE *bitset;
+bitset newbitset(int nbits);
+void delbitset(bitset bs);
+/* int testbit(bitset bs, int ibit); /* Now a macro, see below */
+int addbit(bitset bs, int ibit);     /* Returns 0 if already set */
+int samebitset(bitset bs1, bitset bs2, int nbits);
+void mergebitset(bitset bs1, bitset bs2, int nbits);
 
-bitset newbitset PROTO((int nbits));
-void delbitset PROTO((bitset bs));
-/* int testbit PROTO((bitset bs, int ibit)); /* Now a macro, see below */
-int addbit PROTO((bitset bs, int ibit)); /* Returns 0 if already set */
-int samebitset PROTO((bitset bs1, bitset bs2, int nbits));
-void mergebitset PROTO((bitset bs1, bitset bs2, int nbits));
-
-#define BITSPERBYTE	(8*sizeof(BYTE))
+#define BITSPERBYTE    	(8 * sizeof(BYTE))
 #define NBYTES(nbits)	(((nbits) + BITSPERBYTE - 1) / BITSPERBYTE)
 
 #define BIT2BYTE(ibit)	((ibit) / BITSPERBYTE)

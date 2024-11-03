@@ -1,23 +1,19 @@
 /* Interfaces to parse and execute pieces of python code */
 
-void initall PROTO((void));
+void initall(void);
 
-int run PROTO((FILE *, char *));
+int run(FILE *, char *);
+int run_script(FILE *, char *);
+int run_tty_1(FILE *, char *);
+int run_tty_loop(FILE *, char *);
+int parse_string(char *, int, struct _node **);
+int parse_file(FILE *, char *, int, struct _node **);
 
-int run_script PROTO((FILE *, char *));
-int run_tty_1 PROTO((FILE *, char *));
-int run_tty_loop PROTO((FILE *, char *));
+object *eval_node(struct _node *, char *, object *, object *);
+object *run_string(char *, int, object *, object *);
+object *run_file(FILE *, char *, int, object *, object *);
+object *run_err_node(int, struct _node *, char *, object *, object *);
+object *run_node(struct _node *, char *, object *, object *);
 
-int parse_string PROTO((char *, int, struct _node **));
-int parse_file PROTO((FILE *, char *, int, struct _node **));
-
-object *eval_node PROTO((struct _node *, char *, object *, object *));
-
-object *run_string PROTO((char *, int, object *, object *));
-object *run_file PROTO((FILE *, char *, int, object *, object *));
-object *run_err_node PROTO((int, struct _node *, char *, object *, object *));
-object *run_node PROTO((struct _node *, char *, object *, object *));
-
-void print_error PROTO((void));
-
-void goaway PROTO((int));
+void print_error(void);
+void goaway(int);

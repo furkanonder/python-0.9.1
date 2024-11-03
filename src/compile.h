@@ -20,4 +20,4 @@ extern typeobject Codetype;
 
 
 /* Public interface */
-codeobject *compile PROTO((struct _node *, char *));
+codeobject *compile(struct _node *, char *);

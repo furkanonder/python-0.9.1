@@ -1,6 +1,6 @@
 /* Module support interface */
 
-extern object *initmodule PROTO((char *, struct methodlist *));
+extern object *initmodule(char *, struct methodlist *);
 extern int getintarg(object *v, int *a);
 extern int getnoarg(object *v);
 extern int getstrarg(object *v, object **a);

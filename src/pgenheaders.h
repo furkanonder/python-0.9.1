@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "PROTO.h"
 #include "malloc.h"
 
-extern void fatal PROTO((char *));
+extern void fatal(char *);

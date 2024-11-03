@@ -100,15 +100,15 @@ NB: the methods for certain type groups are now contained in separate
 method blocks.
 */
 
-typedef object * (*unaryfunc) PROTO((object *));
-typedef object * (*binaryfunc) PROTO((object *, object *));
-typedef object * (*ternaryfunc) PROTO((object *, object *, object *));
-typedef int (*inquiry) PROTO((object *));
-typedef object *(*intargfunc) PROTO((object *, int));
-typedef object *(*intintargfunc) PROTO((object *, int, int));
-typedef int(*intobjargproc) PROTO((object *, int, object *));
-typedef int(*intintobjargproc) PROTO((object *, int, int, object *));
-typedef int(*objobjargproc) PROTO((object *, object *, object *));
+typedef object *(*unaryfunc)(object *);
+typedef object *(*binaryfunc)(object *, object *);
+typedef object *(*ternaryfunc)(object *, object *, object *);
+typedef int (*inquiry)(object *);
+typedef object *(*intargfunc)(object *, int);
+typedef object *(*intintargfunc)(object *, int, int);
+typedef int	(*intobjargproc)(object *, int, object *);
+typedef int	(*intintobjargproc)(object *, int, int, object *);
+typedef int	(*objobjargproc)(object *, object *, object *);
 
 typedef struct {
 	binaryfunc nb_add;
@@ -137,12 +137,12 @@ typedef struct {
 	objobjargproc mp_ass_subscript;
 } mapping_methods;
 
-typedef void (*destructor) PROTO((object *));
-typedef void (*printfunc) PROTO((object *, FILE *, int));
-typedef object *(*getattrfunc) PROTO((object *, char *));
-typedef int (*setattrfunc) PROTO((object *, char *, object *));
-typedef int (*cmpfunc) PROTO((object *, object *));
-typedef object *(*reprfunc) PROTO((object *));
+typedef void (*destructor)(object *);
+typedef void (*printfunc)(object *, FILE *, int);
+typedef object *(*getattrfunc)(object *, char *);
+typedef int (*setattrfunc)(object *, char *, object *);
+typedef int (*cmpfunc)(object *, object *);
+typedef object *(*reprfunc)(object *);
 
 typedef struct _typeobject {
 	OB_VARHEAD
@@ -168,11 +168,11 @@ extern typeobject Typetype; /* The type of type objects */
 #define is_typeobject(op) ((op)->ob_type == &Typetype)
 
 /* Generic operations on objects */
-extern void printobject PROTO((object *, FILE *, int));
-extern object * reprobject PROTO((object *));
-extern int cmpobject PROTO((object *, object *));
-extern object *getattr PROTO((object *, char *));
-extern int setattr PROTO((object *, char *, object *));
+extern void printobject(object *, FILE *, int);
+extern object *reprobject(object *);
+extern int cmpobject(object *, object *);
+extern object *getattr(object *, char *);
+extern int setattr(object *, char *, object *);
 
 /* Flag bits for printing: */
 #define PRINT_RAW	1	/* No string quotes etc. */
