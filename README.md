@@ -51,6 +51,7 @@ make
 - Removed `HAVE_PROTOTYPES`, `PROTO`, `FPROTO` preprocessor directives and `PROTO.h`.
 - Removed `cstubs`.
 - Removed `profmain.c`.
+- Removed `patchlevel.h`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

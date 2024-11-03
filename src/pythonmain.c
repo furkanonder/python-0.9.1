@@ -1,9 +1,6 @@
 /* Python interpreter main program */
 
-#include "patchlevel.h"
-
 #include "allobjects.h"
-
 #include "grammar.h"
 #include "node.h"
 #include "parsetok.h"
