@@ -27,6 +27,7 @@ make
 
 ### Removed
 - Deleted the `shar` directory from the project structure.
+- Removed MS-DOS preprocessor directives
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

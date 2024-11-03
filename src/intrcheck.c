@@ -1,32 +1,5 @@
 /* Check for interrupts */
 
-#ifdef MSDOS
-
-/* This might work for MS-DOS (untested though): */
-
-void
-initintr()
-{
-}
-
-int
-intrcheck()
-{
-	int interrupted = 0;
-
-	while (kbhit()) {
-		if (getch() == '\003') {
-			interrupted = 1;
-        }
-	}
-	return interrupted;
-}
-
-#define OK
-
-#endif
-
-
 #ifdef THINK_C
 
 /* This is for THINK C 4.0.
