@@ -11,19 +11,16 @@
 #include "ceval.h"
 #include "pythonrun.h"
 #include "import.h"
-#include "config.h"
 #include "bltinmodule.h"
 #include "intrcheck.h"
 
+int isatty(int fd);
 extern char *getpythonpath();
-
 extern grammar gram; /* From graminit.c */
 
 #ifdef DEBUG
 int debugging; /* Needed by parser.c */
 #endif
-
-int isatty(int fd);
 
 int
 main(int argc, char **argv)
@@ -31,7 +28,6 @@ main(int argc, char **argv)
 	char *filename = NULL;
 	FILE *fp = stdin;
 	
-	initargs(&argc, &argv);
 	if (argc > 1 && strcmp(argv[1], "-") != 0) {
 		filename = argv[1];
     }
@@ -63,14 +59,11 @@ initall()
 	initimport();
 	
 	/* Modules 'builtin' and 'sys' are initialized here,
-	   they are needed by random bits of the interpreter.
-	   All other modules are optional and should be initialized
-	   by the initcalls() of a specific configuration. */
+	   they are needed by random bits of the interpreter. */
 	
-	initbuiltin(); /* Also initializes builtin exceptions */
+	initbuiltin();	/* Also initializes builtin exceptions */
 	initsys();
-	initcalls(); /* Configuration-dependent initializations */
-	initintr(); /* For intrcheck() */
+	initintr();		/* For intrcheck() */
 }
 
 /* Parse input from a file and execute it */
@@ -299,10 +292,7 @@ void
 goaway(int sts)
 {
 	flushline();
-	/* XXX Call doneimport() before donecalls(), since donecalls()
-	   calls wdone(), and doneimport() may close windows */
 	doneimport();
-	donecalls();
 	err_clear();
 
 #ifdef REF_DEBUG

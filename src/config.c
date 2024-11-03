@@ -2,22 +2,6 @@
 
 #include <stdio.h>
 
-/*ARGSUSED*/
-void
-initargs(int *p_argc, char ***p_argv)
-{
-}
-
-void
-initcalls()
-{
-}
-
-void
-donecalls()
-{
-}
-
 #ifndef PYTHONPATH
 #define PYTHONPATH ".:/usr/local/lib/python"
 #endif

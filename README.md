@@ -15,7 +15,6 @@ make
 - `float_dealloc` function added for float objects.
 - Added void return type to `initregexp` function in `regexpmodule.c`
 - Added `intrcheck.h` file.
-- Added `config.h` file.
 - Converted K&R style function declarations to ANSI C style.
 - Improved function pointer declarations in `object.h` for better readability.
 - Cast function pointers in module methods and type objects for type safety.
@@ -54,6 +53,7 @@ make
 - Removed `profmain.c`.
 - Removed `patchlevel.h`.
 - Removed `SYSV` preprocessor directives.
+- Removed `initargs`, `initcalls` and `donecalls` functions.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
