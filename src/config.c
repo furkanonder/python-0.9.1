@@ -61,9 +61,6 @@ donecalls()
 		wdone();
     }
 #endif
-#ifdef USE_AUDIO
-	asa_done();
-#endif
 }
 
 #ifdef USE_STDWIN
@@ -105,9 +102,6 @@ extern void inittime();
 extern void initmath();
 extern void initregexp();
 extern void initposix();
-#ifdef USE_AUDIO
-extern void initaudio();
-#endif
 #ifdef USE_GL
 extern void initgl();
 #ifdef USE_PANEL
@@ -128,9 +122,6 @@ struct {
 	{"regexp",	initregexp},
 	{"posix",	initposix},
 	/* Optional modules */
-#ifdef USE_AUDIO
-	{"audio",	initaudio},
-#endif
 #ifdef USE_GL
 	{"gl",		initgl},
 #ifdef USE_PANEL

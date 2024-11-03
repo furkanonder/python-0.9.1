@@ -27,9 +27,11 @@ make
 
 ### Removed
 - Deleted the `shar` directory from the project structure.
-- Removed MS-DOS specific codes and preprocessor directives
-- Removed THINK C specific codes and preprocessor directives
+- Removed MS-DOS specific codes and preprocessor directives.
+- Removed THINK C specific codes and preprocessor directives.
 - Removed the Amoeba module(`amoebamodule.c`), along with specific code and preprocessor directives.
+- Removed the Audio module(`audiomodule.c`), along with specific code and preprocessor directives.
+- Removed the Asynchronous Audio module(`asa.c`), along with specific code and preprocessor directives.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

@@ -269,23 +269,6 @@ DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 #PANEL_SRC=	panelmodule.c
 #PANEL_OBJ=	panelmodule.o
 
-
-# Audio Option
-# ============
-#
-# This option lets you play with /dev/audio on the IRIS 4D/25.
-# It incorporates the built-in module 'audio'.
-# Warning: using the asynchronous I/O facilities of this module can
-# create a second 'thread', which looks in the listings of 'ps' like a
-# forked child.  However, it shares its address space with the parent.
-#
-# Uncomment the following block to use the Audio option.
-
-#AUDIO_USE=	-DUSE_AUDIO
-#AUDIO_SRC=	audiomodule.c asa.c
-#AUDIO_OBJ=	audiomodule.o asa.o
-
-
 # Major Definitions
 # =================
 
