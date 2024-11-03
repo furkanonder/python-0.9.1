@@ -50,6 +50,7 @@ make
 - Removed `fmod.c`.
 - Removed `HAVE_PROTOTYPES`, `PROTO`, `FPROTO` preprocessor directives and `PROTO.h`.
 - Removed `cstubs`.
+- Removed `profmain.c`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
