@@ -55,6 +55,7 @@ make
 - Removed `SYSV` preprocessor directives.
 - Removed `initargs`, `initcalls` and `donecalls` functions.
 - Removed `allobjects.h`.
+- Removed `config.h`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
