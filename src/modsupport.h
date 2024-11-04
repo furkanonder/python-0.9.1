@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include "methodobject.h"
+
 /* Module support interface */
 
 extern object *initmodule(char *, struct methodlist *);
