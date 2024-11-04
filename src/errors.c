@@ -29,6 +29,7 @@
   scheme to a multi-threaded environment, only the implementation of
   err_setval() has to be changed. */
 
+#include <stdlib.h>
 #include <errno.h>
 #ifndef errno
 extern int errno;
@@ -95,6 +96,14 @@ err_clear()
 	last_exception = NULL;
 	XDECREF(last_exc_val);
 	last_exc_val = NULL;
+}
+
+/* Print fatal error message and abort */
+void
+fatal(char *msg)
+{
+	fprintf(stderr, "Fatal error: %s\n", msg);
+	abort();
 }
 
 /* Convenience functions to set a type error exception and return 0 */

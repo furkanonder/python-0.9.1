@@ -12,6 +12,7 @@ void err_setstr(object *, char *);
 int err_occurred(void);
 void err_get(object **, object **);
 void err_clear(void);
+extern void fatal(char *);
 
 /* Predefined exceptions */
 extern object *RuntimeError;

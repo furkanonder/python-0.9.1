@@ -12,8 +12,6 @@ extern "C" {
 
 #include "malloc.h"
 
-extern void fatal(char *);
-
 #ifdef __cplusplus
 }
 #endif

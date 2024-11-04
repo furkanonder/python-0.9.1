@@ -60,3 +60,4 @@ make
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
+- Moved the `fatal` function from `pythonmain.c` to `errors.c`.

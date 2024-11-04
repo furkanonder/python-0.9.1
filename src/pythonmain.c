@@ -283,14 +283,6 @@ parse_string(char *str, int start, node **n_ret)
 	return err;
 }
 
-/* Print fatal error message and abort */
-void
-fatal(char *msg)
-{
-	fprintf(stderr, "Fatal error: %s\n", msg);
-	abort();
-}
-
 /* Clean up and exit */
 void
 goaway(int sts)
