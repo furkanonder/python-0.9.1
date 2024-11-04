@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include "stringobject.h"
+#include "node.h"
 
 /* Definitions for compiled intermediate code */
 
