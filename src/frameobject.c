@@ -1,6 +1,7 @@
 /* Frame object implementation */
 
 #include <stdio.h>
+#include <stddef.h>
 
 #include "object.h"
 #include "objimpl.h"

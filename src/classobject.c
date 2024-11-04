@@ -1,5 +1,7 @@
 /* Class object implementation */
 
+#include <stddef.h>
+
 #include "object.h"
 #include "objimpl.h"
 #include "tupleobject.h"

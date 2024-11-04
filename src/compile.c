@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include <stddef.h>
 
 #include "object.h"
 #include "objimpl.h"

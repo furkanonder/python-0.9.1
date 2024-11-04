@@ -1,5 +1,7 @@
 /* Function object implementation */
 
+#include <stddef.h>
+
 #include "object.h"
 #include "objimpl.h"
 #include "funcobject.h"
