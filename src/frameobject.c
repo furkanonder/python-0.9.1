@@ -1,9 +1,14 @@
 /* Frame object implementation */
 
-#include "allobjects.h"
+#include <stdio.h>
+
+#include "object.h"
+#include "objimpl.h"
+#include "dictobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "compile.h"
 #include "frameobject.h"
-#include "opcode.h"
 #include "structmember.h"
 
 #define OFF(x) offsetof(frameobject, x)

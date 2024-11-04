@@ -1,6 +1,12 @@
 /* Map C struct members to Python object attributes */
 
-#include "allobjects.h"
+#include <string.h>
+
+#include "object.h"
+#include "intobject.h"
+#include "floatobject.h"
+#include "stringobject.h"
+#include "errors.h"
 #include "structmember.h"
 
 object *
@@ -16,18 +22,23 @@ getmember(char *addr, struct memberlist *mlist, char *name)
 				case T_SHORT:
 					v = newintobject((long)*(short*)addr);
 					break;
+
 				case T_INT:
 					v = newintobject((long)*(int*)addr);
 					break;
+
 				case T_LONG:
 					v = newintobject(*(long*)addr);
 					break;
+
 				case T_FLOAT:
 					v = newfloatobject((double)*(float*)addr);
 					break;
+
 				case T_DOUBLE:
 					v = newfloatobject(*(double*)addr);
 					break;
+
 				case T_STRING:
 					if (*(char**)addr == NULL) {
 						INCREF(None);
@@ -37,6 +48,7 @@ getmember(char *addr, struct memberlist *mlist, char *name)
 						v = newstringobject(*(char**)addr);
                     }
 					break;
+
 				case T_OBJECT:
 					v = *(object **)addr;
 					if (v == NULL) {
@@ -44,6 +56,7 @@ getmember(char *addr, struct memberlist *mlist, char *name)
                     }
 					INCREF(v);
 					break;
+
 				default:
 					err_setstr(SystemError, "bad memberlist type");
 					v = NULL;
@@ -76,6 +89,7 @@ setmember(char *addr, struct memberlist *mlist, char *name, object *v)
 					}
 					*(short*)addr = getintvalue(v);
 					break;
+
 				case T_INT:
 					if (!is_intobject(v)) {
 						err_badarg();
@@ -83,6 +97,7 @@ setmember(char *addr, struct memberlist *mlist, char *name, object *v)
 					}
 					*(int*)addr = getintvalue(v);
 					break;
+
 				case T_LONG:
 					if (!is_intobject(v)) {
 						err_badarg();
@@ -90,6 +105,7 @@ setmember(char *addr, struct memberlist *mlist, char *name, object *v)
 					}
 					*(long*)addr = getintvalue(v);
 					break;
+
 				case T_FLOAT:
 					if (is_intobject(v)) {
 						*(float*)addr = getintvalue(v);
@@ -102,6 +118,7 @@ setmember(char *addr, struct memberlist *mlist, char *name, object *v)
 						return -1;
 					}
 					break;
+
 				case T_DOUBLE:
 					if (is_intobject(v)) {
 						*(double*)addr = getintvalue(v);
@@ -114,11 +131,13 @@ setmember(char *addr, struct memberlist *mlist, char *name, object *v)
 						return -1;
 					}
 					break;
+
 				case T_OBJECT:
 					XDECREF(*(object **)addr);
 					XINCREF(v);
 					*(object **)addr = v;
 					break;
+
 				default:
 					err_setstr(SystemError, "bad memberlist type");
 					return -1;

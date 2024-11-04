@@ -1,10 +1,13 @@
 /* Traceback implementation */
 
-#include "allobjects.h"
+#include <string.h>
 
+#include "object.h"
+#include "objimpl.h"
+#include "errors.h"
+#include "malloc.h"
 #include "compile.h"
 #include "frameobject.h"
-#include "traceback.h"
 #include "structmember.h"
 #include "intrcheck.h"
 #include "sysmodule.h"

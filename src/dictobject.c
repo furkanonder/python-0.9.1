@@ -1,29 +1,31 @@
 /* Dictionary object implementation; using a hash table */
 
-/*
-XXX Note -- although this may look professional, I didn't think very hard
-about the problem and it is possible that obvious improvements exist.
-A similar module that I saw by Chris Torek:
-- uses chaining instead of hashed linear probing
-- remembers the hash value with the entry to speed up table resizing
-- sets the table size to a power of 2
-- uses a different hash function:
-	h = 0; p = str; while (*p) h = (h << 5) - h + *p++;
-*/
+/* XXX Note -- although this may look professional, I didn't think very hard
+   about the problem and it is possible that obvious improvements exist.
+   A similar module that I saw by Chris Torek:
+	   - uses chaining instead of hashed linear probing
+	   - remembers the hash value with the entry to speed up table resizing
+	   - sets the table size to a power of 2
+	   - uses a different hash function:
+		 h = 0; p = str; while (*p) h = (h << 5) - h + *p++; */
 
-#include "allobjects.h"
+#include "object.h"
+#include "objimpl.h"
+#include "intobject.h"
+#include "stringobject.h"
+#include "listobject.h"
+#include "dictobject.h"
+#include "methodobject.h"
+#include "errors.h"
 #include "pgenheaders.h"
 #include "modsupport.h"
 
-/*
-Table of primes suitable as keys, in ascending order.
-The first line are the largest primes less than some powers of two,
-the second line is the largest prime less than 6000,
-and the third line is a selection from Knuth, Vol. 3, Sec. 6.1, Table 1.
-The final value is a sentinel and should cause the memory allocation
-of that many entries to fail (if none of the earlier values cause such
-failure already).
-*/
+/* Table of primes suitable as keys, in ascending order. The first line are the
+   largest primes less than some powers of two, the second line is the largest
+   prime less than 6000, and the third line is a selection from Knuth, Vol. 3,
+   Sec. 6.1, Table 1.  The final value is a sentinel and should cause the
+   memory allocation of that many entries to fail (if none of the earlier
+   values cause such failure already). */
 static unsigned int primes[] = {
 	3, 7, 13, 31, 61, 127, 251, 509, 1021, 2017, 4093,
 	5987,
@@ -34,31 +36,26 @@ static unsigned int primes[] = {
 /* String used as dummy key to fill deleted entries */
 static stringobject *dummy; /* Initialized by first call to newdictobject() */
 
-/*
-Invariant for entries: when in use, de_value is not NULL and de_key is
-not NULL and not dummy; when not in use, de_value is NULL and de_key
-is either NULL or dummy.  A dummy key value cannot be replaced by NULL,
-since otherwise other keys may be lost.
-*/
+/* Invariant for entries: when in use, de_value is not NULL and de_key is not
+   NULL and not dummy; when not in use, de_value is NULL and de_key is either
+   NULL or dummy.  A dummy key value cannot be replaced by NULL, since
+   otherwise other keys may be lost. */
 typedef struct {
 	stringobject 	*de_key;
 	object 			*de_value;
 } dictentry;
 
-/*
-To ensure the lookup algorithm terminates, the table size must be a
-prime number and there must be at least one NULL key in the table.
-The value di_fill is the number of non-NULL keys; di_used is the number
-of non-NULL, non-dummy keys.
-To avoid slowing down lookups on a near-full table, we resize the table
-when it is more than half filled.
-*/
+/* To ensure the lookup algorithm terminates, the table size must be a prime
+   number and there must be at least one NULL key in the table. The value
+   di_fill is the number of non-NULL keys; di_used is the number of non-NULL,
+   non-dummy keys.  To avoid slowing down lookups on a near-full table, we
+   resize the table when it is more than half filled. */
 typedef struct {
 	OB_HEAD
-	int di_fill;
-	int di_used;
-	int di_size;
-	dictentry *di_table;
+	int 		di_fill;
+	int 		di_used;
+	int 		di_size;
+	dictentry 	*di_table;
 } dictobject;
 
 object *
@@ -87,24 +84,21 @@ newdictobject()
 	return (object *)dp;
 }
 
-/*
-The basic lookup function used by all operations.
-This is essentially Algorithm D from Knuth Vol. 3, Sec. 6.4.
-Open addressing is preferred over chaining since the link overhead for
-chaining would be substantial (100% with typical malloc overhead).
+/* The basic lookup function used by all operations.  This is essentially
+   Algorithm D from Knuth Vol. 3, Sec. 6.4.  Open addressing is preferred over
+   chaining since the link overhead for chaining would be substantial (100%
+   with typical malloc overhead).
 
-First a 32-bit hash value, 'sum', is computed from the key string.
-The first character is added an extra time shifted by 8 to avoid hashing
-single-character keys (often heavily used variables) too close together.
-All arithmetic on sum should ignore overflow.
+   First a 32-bit hash value, 'sum', is computed from the key string.  The
+   first character is added an extra time shifted by 8 to avoid hashing single
+   -character keys (often heavily used variables) too close together.  All
+   arithmetic on sum should ignore overflow.
 
-The initial probe index is then computed as sum mod the table size.
-Subsequent probe indices are incr apart (mod table size), where incr
-is also derived from sum, with the additional requirement that it is
-relative prime to the table size (i.e., 1 <= incr < size, since the size
-is a prime number).  My choice for incr is somewhat arbitrary.
-*/
-static dictentry *lookdict(dictobject *, char *);
+   The initial probe index is then computed as sum mod the table size.
+   Subsequent probe indices are incr apart (mod table size), where incr is also
+   derived from sum, with the additional requirement that it is relative prime
+   to the table size (i.e., 1 <= incr < size, since the size is a prime
+   number).  My choice for incr is somewhat arbitrary. */
 static dictentry *
 lookdict(register dictobject *dp, char *key)
 {
@@ -145,17 +139,13 @@ lookdict(register dictobject *dp, char *key)
 	}
 }
 
-/*
-Internal routine to insert a new item into the table.
-Used both by the internal resize routine and by the public insert routine.
-Eats a reference to key and one to value.
-*/
-static void insertdict(dictobject *, stringobject *, object *);
+/* Internal routine to insert a new item into the table.  Used both by the
+   internal resize routine and by the public insert routine. Eats a reference
+   to key and one to value. */
 static void
 insertdict(register dictobject *dp, stringobject *key, object *value)
 {
-	register dictentry *ep;
-	ep = lookdict(dp, GETSTRINGVALUE(key));
+	register dictentry *ep = lookdict(dp, GETSTRINGVALUE(key));
 
 	if (ep->de_value != NULL) {
 		DECREF(ep->de_value);
@@ -174,22 +164,14 @@ insertdict(register dictobject *dp, stringobject *key, object *value)
 	ep->de_value = value;
 }
 
-/*
-Restructure the table by allocating a new table and reinserting all
-items again.  When entries have been deleted, the new table may
-actually be smaller than the old one.
-*/
-static int dictresize(dictobject *);
+/* Restructure the table by allocating a new table and reinserting all items
+   again.  When entries have been deleted, the new table may actually be
+   smaller than the old one. */
 static int
 dictresize(dictobject *dp)
 {
-	register int oldsize = dp->di_size;
-	register int newsize;
-	register dictentry *oldtable = dp->di_table;
-	register dictentry *newtable;
-	register dictentry *ep;
-	register int i;
-	newsize = dp->di_size;
+	register int oldsize = dp->di_size, newsize = dp->di_size, i;
+	register dictentry *oldtable = dp->di_table, *newtable, *ep;
 
 	for (i = 0; ; i++) {
 		if (primes[i] > dp->di_used * 2) {
@@ -282,9 +264,8 @@ dict2insert(register object *op, object *key, object *value)
 int
 dictinsert(object *op, char *key, object *value)
 {
-	register object *keyobj;
+	register object *keyobj = newstringobject(key);
 	register int err;
-	keyobj = newstringobject(key);
 
 	if (keyobj == NULL) {
 		err_nomem();
@@ -399,10 +380,8 @@ dict_dealloc(register dictobject *dp)
 static void
 dict_print(register dictobject *dp, register FILE *fp, register int flags)
 {
-	register int i;
-	register int any;
+	register int i, any = 0;
 	register dictentry *ep;
-	any = 0;
 
 	fprintf(fp, "{");
 	for (i = 0, ep = dp->di_table; i < dp->di_size && !StopPrint; i++, ep++) {
@@ -430,16 +409,11 @@ js(object **pv, object *w)
 static object *
 dict_repr(dictobject *dp)
 {
-	auto object *v;
+	auto object *v = newstringobject("{");
 	register object *w;
-	object *semi, *colon;
-	register int i;
-	register int any;
+	object *semi = newstringobject("; "), *colon = newstringobject(": ");
+	register int i, any = 0;
 	register dictentry *ep;
-	v = newstringobject("{");
-	semi = newstringobject("; ");
-	colon = newstringobject(": ");
-	any = 0;
 
 	for (i = 0, ep = dp->di_table; i < dp->di_size && !StopPrint; i++, ep++) {
 		if (ep->de_value != NULL) {

@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include "stringobject.h"
+
 /* Definitions for compiled intermediate code */
 
 /* An intermediate code fragment contains:
@@ -21,7 +23,6 @@ typedef struct {
 } codeobject;
 
 extern typeobject Codetype;
-
 #define is_codeobject(op) ((op)->ob_type == &Codetype)
 
 /* Public interface */

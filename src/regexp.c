@@ -3,56 +3,48 @@
  *	Copyright (c) 1986 by University of Toronto.
  *	Written by Henry Spencer.  Not derived from licensed software.
 #ifdef MULTILINE
- *	Changed by Guido van Rossum, CWI, Amsterdam
- *	for multi-line support.
+ *	Changed by Guido van Rossum, CWI, Amsterdam for multi-line support.
 #endif
  *
- *	Permission is granted to anyone to use this software for any
- *	purpose on any computer system, and to redistribute it freely,
- *	subject to the following restrictions:
+ *	Permission is granted to anyone to use this software for any purpose on any
+ *  computer system, and to redistribute it freely, subject to the following
+ *  restrictions:
  *
- *	1. The author is not responsible for the consequences of use of
- *		this software, no matter how awful, even if they arise
- *		from defects in it.
+ *	1. The author is not responsible for the consequences of use of this
+ *     software, no matter how awful, even if they arise from defects in it.
  *
- *	2. The origin of this software must not be misrepresented, either
- *		by explicit claim or by omission.
+ *	2. The origin of this software must not be misrepresented, either by
+ * 	   explicit claim or by omission.
  *
- *	3. Altered versions must be plainly marked as such, and must not
- *		be misrepresented as being the original software.
+ *	3. Altered versions must be plainly marked as such, and must not be
+ *     misrepresented as being the original software.
  *
- * Beware that some of this code is subtly aware of the way operator
- * precedence is structured in regular expressions.  Serious changes in
- * regular-expression syntax might require a total rethink.
- */
-#include <stdio.h>
+ * Beware that some of this code is subtly aware of the way operator precedence
+ * is structured in regular expressions.  Serious changes in regular-expression
+ * syntax might require a total rethink. */
+#include <string.h>		/* XXX Remove if not found */
+
 #include "malloc.h"
 #undef ANY /* Conflicting identifier defined in malloc.h */
-#include <string.h>		/* XXX Remove if not found */
 #include "regexp.h"
 #include "regmagic.h"
 
 #ifdef MULTILINE
-/*
- * Defining MULTILINE turns on the following changes in the semantics:
+/* Defining MULTILINE turns on the following changes in the semantics:
  * 1.	The '.' operator matches all characters except a newline.
- * 2.	The '^' operator matches at the beginning of the string or after
- *	a newline.  (Anchored matches are retried after each newline.)
- * 3.	The '$' operator matches at the end of the string or before
- *	a newline.
- * 4.	A '\' followed by an 'n' matches a newline.  (This is an
- *	unfortunate exception to the rule that '\' followed by a
- *	character matches that character...)
+ * 2.	The '^' operator matches at the beginning of the string or after a
+ * 		newline.  (Anchored matches are retried after each newline.)
+ * 3.	The '$' operator matches at the end of the string or before a newline.
+ * 4.	A '\' followed by an 'n' matches a newline.  (This is an unfortunate
+ * 	 	exception to the rule that '\' followed by a character matches that
+ * 		character...)
  *
- * Also, there is a new function reglexec(prog, string, offset)
- * which searches for a match starting at 'string+offset';
- * it differs from regexec(prog, string+offset) in assuming
- * that the line begins at 'string'.
- */
+ * Also, there is a new function reglexec(prog, string, offset) which searches
+ * for a match starting at 'string+offset'; it differs from regexec(prog,
+ * string+offset) in assuming that the line begins at 'string'. */
 #endif
 
-/*
- * The "internal use only" fields in regexp.h are present to pass info from
+/* The "internal use only" fields in regexp.h are present to pass info from
  * compile to execute that permits the execute phase to run lots faster on
  * simple cases.  They are:
  *
@@ -68,24 +60,21 @@
  * potentially expensive (at present, the only such thing detected is * or +
  * at the start of the r.e., which can involve a lot of backup).  Regmlen is
  * supplied because the test in regexec() needs it and regcomp() is computing
- * it anyway.
- */
+ * it anyway. */
 
-/*
- * Structure for regexp "program".  This is essentially a linear encoding
- * of a nondeterministic finite-state machine (aka syntax charts or
- * "railroad normal form" in parsing technology).  Each node is an opcode
- * plus a "next" pointer, possibly plus an operand.  "Next" pointers of
- * all nodes except BRANCH implement concatenation; a "next" pointer with
- * a BRANCH on both ends of it is connecting two alternatives.  (Here we
- * have one of the subtle syntax dependencies:  an individual BRANCH (as
- * opposed to a collection of them) is never concatenated with anything
- * because of operator precedence.)  The operand of some types of node is
- * a literal string; for others, it is a node leading into a sub-FSM.  In
- * particular, the operand of a BRANCH node is the first node of the branch.
- * (NB this is *not* a tree structure:  the tail of the branch connects
- * to the thing following the set of BRANCHes.)  The opcodes are:
- */
+/* Structure for regexp "program".  This is essentially a linear encoding of a
+ * nondeterministic finite-state machine (aka syntax charts or "railroad normal
+ * form" in parsing technology).  Each node is an opcode plus a "next" pointer,
+ * possibly plus an operand.  "Next" pointers of all nodes except BRANCH
+ * implement concatenation; a "next" pointer with a BRANCH on both ends of it
+ * is connecting two alternatives.  (Here we have one of the subtle syntax
+ * dependencies:  an individual BRANCH (as opposed to a collection of them) is
+ * never concatenated with anything because of operator precedence.)  The
+ * operand of some types of node is a literal string; for others, it is a node
+ * leading into a sub-FSM.  In  particular, the operand of a BRANCH node is the
+ * first node of the branch.  (NB this is *not* a tree structure:  the tail of
+ * the branch connects to the thing following the set of BRANCHes.)  The
+ * opcodes are: */
 
 /* definition	number	opnd?	meaning */
 #define	END		0		/* no	End of program. */
@@ -101,41 +90,37 @@
 #define	STAR	10		/* node	Match this (simple) thing 0 or more times. */
 #define	PLUS	11		/* node	Match this (simple) thing 1 or more times. */
 #define	OPEN	20		/* no	Mark this point in input as start of #n. */
-						/*	OPEN + 1 is number 1, etc. */
+							    /* OPEN + 1 is number 1, etc. */
 #define	CLOSE	30		/* no	Analogous to OPEN. */
 
-/*
- * Opcode notes:
+/* Opcode notes:
  *
  * BRANCH	The set of branches constituting a single choice are hooked
- *		together with their "next" pointers, since precedence prevents
- *		anything being concatenated to any individual branch.  The
- *		"next" pointer of the last BRANCH in a choice points to the
- *		thing following the whole choice.  This is also where the
- *		final "next" pointer of each individual branch points; each
- *		branch starts with the operand node of a BRANCH node.
+ *			together with their "next" pointers, since precedence prevents
+ *			anything being concatenated to any individual branch.  The "next"
+ * 			pointer of the last BRANCH in a choice points to the thing
+ * 			following the whole choice.  This is also where the final "next"
+ *   		pointer of each individual branch points; each branch starts with
+ * 			the operand node of a BRANCH node.
  *
- * BACK		Normal "next" pointers all implicitly point forward; BACK
- *		exists to make loop structures possible.
+ * BACK		Normal "next" pointers all implicitly point forward; BACK exists to
+ *  		make loop structures possible.
  *
  * STAR,PLUS	'?', and complex '*' and '+', are implemented as circular
- *		BRANCH structures using BACK.  Simple cases (one character
- *		per match) are implemented with STAR and PLUS for speed
- *		and to minimize recursive plunges.
+ *		BRANCH structures using BACK.  Simple cases (one character per match)
+ * 		are implemented with STAR and PLUS for speed and to minimize recursive
+ * 		plunges.
  *
- * OPEN,CLOSE	...are numbered at compile time.
- */
+ * OPEN,CLOSE	...are numbered at compile time. */
 
-/*
- * A node is one char of opcode followed by two chars of "next" pointer.
- * "Next" pointers are stored as two 8-bit pieces, high order first.  The
- * value is a positive offset from the opcode of the node containing it.
- * An operand, if any, simply follows the node.  (Note that much of the
- * code generation knows about this implicit relationship.)
+/* A node is one char of opcode followed by two chars of "next" pointer.
+ * "Next" pointers are stored as two 8-bit pieces, high order first.  The value
+ *  is a positive offset from the opcode of the node containing it.  An
+ * operand, if any, simply follows the node.  (Note that much of the code
+ * generation knows about this implicit relationship.)
  *
  * Using two bytes for the "next" pointer is vast overkill for most things,
- * but allows patterns to get big without disasters.
- */
+ * but allows patterns to get big without disasters. */
 #define	OP(p)		(*(p))
 #define	NEXT(p)		(((*((p) + 1) & 0377) << 8) + (*((p) + 2) & 0377))
 #define	OPERAND(p)	((p) + 3)
@@ -148,7 +133,6 @@
 #else
 #define	UCHARAT(p)	((int)*(p) & CHARBITS)
 #endif
-
 #define	FAIL(m)		{ regerror(m); return NULL; }
 #define	ISMULT(c)	((c) == '*' || (c) == '+' || (c) == '?')
 #define	META		"^$.[()|?+*\\"
@@ -193,13 +177,12 @@ STATIC int strcspn();
  * place to put the code.  So we cheat:  we compile it twice, once with code
  * generation turned off and size counting turned on, and once "for real".
  * This also means that we don't allocate space until we are sure that the
- * thing really will compile successfully, and we never have to move the
- * code and thus invalidate pointers into it.  (Note that it has to be in
- * one piece because free() must be able to free it all.)
+ * thing really will compile successfully, and we never have to move the code
+ * and thus invalidate pointers into it.  (Note that it has to be in one piece
+ * because free() must be able to free it all.)
  *
- * Beware that the optimization-preparation code in here knows about some
- * of the structure of the compiled regexp.
- */
+ * Beware that the optimization-preparation code in here knows about some of
+ * the structure of the compiled regexp. */
 regexp *
 regcomp(char *exp)
 {
@@ -261,13 +244,11 @@ regcomp(char *exp)
 			r->reganch++;
         }
 
-		/* If there's something expensive in the r.e., find the
-		 * longest literal string that must appear and make it the
-		 * regmust.  Resolve ties in favor of later strings, since
-		 * the regstart check works with the beginning of the r.e.
-		 * and avoiding duplication strengthens checking.  Not a
-		 * strong reason, but sufficient in the absence of others.
-		 */
+		/* If there's something expensive in the r.e., find the longest literal
+		 * string that must appear and make it the regmust.  Resolve ties in
+		 * favor of later strings, since the regstart check works with the
+		 * beginning of the r.e. and avoiding duplication strengthens checking.
+		 * Not a strong reason, but sufficient in the absence of others. */
 #ifdef MULTILINE
 		if ((flags&SPSTART) && !regnl) {
 #else
@@ -290,12 +271,10 @@ regcomp(char *exp)
 }
 
 /* reg - regular expression, i.e. main body or parenthesized thing
- * Caller must absorb opening parenthesis.
- * Combining parenthesis handling with the base level of regular expression
- * is a trifle forced, but the need to tie the tails of the branches to what
- * follows makes it hard to avoid.
- * int paren: Parenthesized?
- */
+ * Caller must absorb opening parenthesis.  Combining parenthesis handling with
+ * the base level of regular expression is a trifle forced, but the need to tie
+ * the tails of the branches to what follows makes it hard to avoid.
+ * int paren: Parenthesized? */
 static char *
 reg(int paren, int *flagp)
 {
@@ -402,18 +381,16 @@ regbranch(int *flagp)
 }
 
 /* regpiece - something followed by possible [*+?]
- * Note that the branching code sequences used for ? and the general cases
- * of * and + are somewhat optimized:  they use the same NOTHING node as
- * both the endmarker for their branch list and the body of the last branch.
- * It might seem that this node could be dispensed with entirely, but the
- * endmarker role is not redundant.
- */
+ * Note that the branching code sequences used for ? and the general cases of *
+ * and + are somewhat optimized:  they use the same NOTHING node as both the
+ * endmarker for their branch list and the body of the last branch.  It might
+ * seem that this node could be dispensed with entirely, but the endmarker role
+ * is not redundant. */
 static char *
 regpiece(int *flagp)
 {
-	register char *ret, op, *next;
 	int flags;
-	ret = regatom(&flags);
+	register char *ret = regatom(&flags), op, *next;
 
 	if (ret == NULL) {
 		return NULL;
@@ -469,11 +446,10 @@ regpiece(int *flagp)
 }
 
 /* regatom - the lowest level
- * Optimization:  gobbles an entire sequence of ordinary characters so that
- * it can turn them into a single node, which is smaller to store and
- * faster to run.  Backslashed characters are exceptions, each becoming a
- * separate node; the code is simpler that way and it's not worth fixing.
- */
+ * Optimization: gobbles an entire sequence of ordinary characters so that it
+ * can turn them into a single node, which is smaller to store and faster to
+ * run.  Backslashed characters are exceptions, each becoming a separate node;
+ * the code is simpler that way and it's not worth fixing. */
 static char *
 regatom(int *flagp)
 {
@@ -485,13 +461,16 @@ regatom(int *flagp)
 		case '^':
 			ret = regnode(BOL);
 			break;
+
 		case '$':
 			ret = regnode(EOL);
 			break;
+
 		case '.':
 			ret = regnode(ANY);
 			*flagp |= HASWIDTH|SIMPLE;
 			break;
+
 		case '[': {
 			register int class, classend;
 			if (*regparse == '^') {	/* Complement of range. */
@@ -534,6 +513,7 @@ regatom(int *flagp)
 			*flagp |= HASWIDTH | SIMPLE;
 		}
 			break;
+
 		case '(':
 			ret = reg(1, &flags);
 			if (ret == NULL) {
@@ -541,16 +521,19 @@ regatom(int *flagp)
             }
 			*flagp |= flags&(HASWIDTH|SPSTART);
 			break;
+
 		case '\0':
 		case '|':
 		case ')':
 			FAIL("internal urp");	/* Supposed to be caught earlier. */
 			break;
+
 		case '?':
 		case '+':
 		case '*':
 			FAIL("?+* follows nothing");
 			break;
+
 		case '\\':
 			if (*regparse == '\0') {
 				FAIL("trailing \\");
@@ -568,6 +551,7 @@ regatom(int *flagp)
 			regc('\0');
 			*flagp |= HASWIDTH | SIMPLE;
 			break;
+
 		default: {
 			register int len;
 			register char ender;
@@ -579,7 +563,7 @@ regatom(int *flagp)
             }
 			ender = *(regparse + len);
 			if (len > 1 && ISMULT(ender)) {
-				len--;		/* Back off clear of ?+* operand. */
+				len--;	/* Back off clear of ?+* operand. */
             }
 			*flagp |= HASWIDTH;
 			if (len == 1) {
@@ -881,19 +865,16 @@ regtry(regexp *prog, char *string)
 }
 
 /* regmatch - main matching routine
- * Conceptually the strategy is simple:  check to see whether the current
- * node matches, call self recursively to see whether the rest matches,
- * and then act accordingly.  In practice we make some effort to avoid
- * recursion, in particular by going through "ordinary" nodes (that don't
- * need to know whether the rest of the match failed) by a loop instead of
- * by recursion.
- */
+ * Conceptually the strategy is simple:  check to see whether the current node
+ * matches, call self recursively to see whether the rest matches, and then act
+ * accordingly.  In practice we make some effort to avoid recursion, in
+ * particular by going through "ordinary" nodes (that don't need to know
+ * whether the rest of the match failed) by a loop instead of by recursion. */
 static int	/* 0 failure, 1 success */
 regmatch(char *prog)
 {
 	register char *scan = prog;	/* Current node. */
 	char *next;					/* Next node. */
-	extern char *strchr();
 
 #ifdef DEBUG
 	if (scan != NULL && regnarrate) {
@@ -918,6 +899,7 @@ regmatch(char *prog)
 	#endif
 					return 0;
 				break;
+
 			case EOL:
 	#ifdef MULTILINE
 				if (*reginput != '\0' && *reginput != '\n')
@@ -926,6 +908,7 @@ regmatch(char *prog)
 	#endif
 					return 0;
 				break;
+
 			case ANY:
 	#ifdef MULTILINE
 				if (*reginput == '\0' || *reginput == '\n')
@@ -935,6 +918,7 @@ regmatch(char *prog)
 					return 0;
 				reginput++;
 				break;
+
 			case EXACTLY: {
 					register int len;
 					register char *opnd = OPERAND(scan);
@@ -950,6 +934,7 @@ regmatch(char *prog)
 					reginput += len;
 				}
 				break;
+
 			case ANYOF:
 				if (*reginput == '\0'
                     || strchr(OPERAND(scan), *reginput) == NULL)
@@ -958,6 +943,7 @@ regmatch(char *prog)
                 }
 				reginput++;
 				break;
+
 			case ANYBUT:
 	#ifdef MULTILINE
 				if (*reginput == '\0' || *reginput == '\n'
@@ -969,10 +955,13 @@ regmatch(char *prog)
 					return 0;
 				reginput++;
 				break;
+
 			case NOTHING:
 				break;
+
 			case BACK:
 				break;
+
 			case OPEN + 1:
 			case OPEN + 2:
 			case OPEN + 3:
@@ -998,6 +987,7 @@ regmatch(char *prog)
                 }
 			}
 				break;
+
 			case CLOSE + 1:
 			case CLOSE + 2:
 			case CLOSE + 3:
@@ -1023,6 +1013,7 @@ regmatch(char *prog)
                 }
 			}
 				break;
+
 			case BRANCH: {
 				register char *save;
 				if (OP(next) != BRANCH)	{	/* No choice. */
@@ -1042,13 +1033,14 @@ regmatch(char *prog)
 				}
 			}
 				break;
+
 			case STAR:
 			case PLUS: {
 				register char nextch, *save;
 				register int no, min;
 
-				/* Lookahead to avoid useless match attempts
-				 * when we know what character comes next. */
+				/* Lookahead to avoid useless match attempts when we know what
+                   character comes next. */
 				nextch = '\0';
 				if (OP(next) == EXACTLY) {
 					nextch = *OPERAND(next);
@@ -1070,9 +1062,11 @@ regmatch(char *prog)
 				return 0;
 			}
 				break;
+
 		case END:
 			return 1;	/* Success! */
 			break;
+
 		default:
 			regerror("memory corruption");
 			return 0;
@@ -1081,8 +1075,8 @@ regmatch(char *prog)
 		scan = next;
 	}
 
-	/* We get here only if there's trouble -- normally "case END" is
-	 * the terminating point. */
+	/* We get here only if there's trouble -- normally "case END" is the
+       terminating point. */
 	regerror("corrupted pointers");
 	return 0;
 }
@@ -1092,12 +1086,10 @@ static int
 regrepeat(char *p)
 {
 	register int count = 0;
-	register char *scan, *opnd;
+	register char *scan = reginput, *opnd = OPERAND(p);
 #ifdef MULTILINE
 	register char *eol;
 #endif
-	scan = reginput;
-	opnd = OPERAND(p);
 
 	switch (OP(p)) {
 		case ANY:
@@ -1111,18 +1103,21 @@ regrepeat(char *p)
 			count = strlen(scan);
 			scan += count;
 			break;
+
 		case EXACTLY:
 			while (*opnd == *scan) {
 				count++;
 				scan++;
 			}
 			break;
+
 		case ANYOF:
 			while (*scan != '\0' && strchr(opnd, *scan) != NULL) {
 				count++;
 				scan++;
 			}
 			break;
+
 		case ANYBUT:
 	#ifdef MULTILINE
 			while (*scan != '\0' && *scan != '\n'
@@ -1134,7 +1129,8 @@ regrepeat(char *p)
 				scan++;
 			}
 			break;
-		default:	/* Oh dear.  Called inappropriately. */
+
+		default:	/* Oh dear. Called inappropriately. */
 			regerror("internal foulup");
 			count = 0;	/* Best compromise. */
 			break;
@@ -1168,17 +1164,14 @@ regnext(register char *p)
 }
 
 #ifdef DEBUG
-
 STATIC char *regprop();
 
 /* regdump - dump a regexp onto stdout in vaguely comprehensible form */
 void
 regdump(regexp *r)
 {
-	register char *s, op = EXACTLY;	/* Arbitrary non-END op. */
-	register char *next;
-	extern char *strchr();
-	s = r->program + 1;
+	register char *next, op = EXACTLY;	/* Arbitrary non-END op. */
+	register char *s = r->program + 1;
 
 	while (op != END) {	/* While that wasn't END last time... */
 		op = OP(s);
@@ -1232,33 +1225,43 @@ regprop(char *op)
 		case BOL:
 			p = "BOL";
 			break;
+
 		case EOL:
 			p = "EOL";
 			break;
+
 		case ANY:
 			p = "ANY";
 			break;
+
 		case ANYOF:
 			p = "ANYOF";
 			break;
+
 		case ANYBUT:
 			p = "ANYBUT";
 			break;
+
 		case BRANCH:
 			p = "BRANCH";
 			break;
+
 		case EXACTLY:
 			p = "EXACTLY";
 			break;
+
 		case NOTHING:
 			p = "NOTHING";
 			break;
+
 		case BACK:
 			p = "BACK";
 			break;
+
 		case END:
 			p = "END";
 			break;
+
 		case OPEN + 1:
 		case OPEN + 2:
 		case OPEN + 3:
@@ -1271,6 +1274,7 @@ regprop(char *op)
 			sprintf(buf+strlen(buf), "OPEN%d", (int)(OP(op) - OPEN));
 			p = NULL;
 			break;
+
 		case CLOSE + 1:
 		case CLOSE + 2:
 		case CLOSE + 3:
@@ -1283,12 +1287,15 @@ regprop(char *op)
 			sprintf(buf + strlen(buf), "CLOSE%d", (int)(OP(op) - CLOSE));
 			p = NULL;
 			break;
+
 		case STAR:
 			p = "STAR";
 			break;
+
 		case PLUS:
 			p = "PLUS";
 			break;
+
 		default:
 			regerror("corrupted opcode");
 			break;
@@ -1300,15 +1307,13 @@ regprop(char *op)
 }
 #endif
 
-/*
- * The following is provided for those people who do not have strcspn() in
- * their C libraries.  They should get off their butts and do something
- * about it; at least one public-domain implementation of those (highly
- * useful) string routines has been published on Usenet.
- */
+/* The following is provided for those people who do not have strcspn() in
+ * their C libraries.  They should get off their butts and do something about
+ * it; at least one public-domain implementation of those (highly useful)
+ * string routines has been published on Usenet. */
 #ifdef STRCSPN
-/* strcspn - find length of initial segment of s1 consisting entirely
- * of characters not from s2 */
+/* strcspn - find length of initial segment of s1 consisting entirely of
+             characters not from s2 */
 static int
 strcspn(char *s1, char *s2)
 {

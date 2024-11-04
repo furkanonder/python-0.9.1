@@ -2,12 +2,12 @@
 
 /* This expects a filename containing the grammar as argv[1] (UNIX).
    It writes its output on two files in the current directory:
-   - "graminit.c" gets the grammar as a bunch of initialized data
-   - "graminit.h" gets the grammar's non-terminals as #defines.
+   	- "graminit.c" gets the grammar as a bunch of initialized data
+   	- "graminit.h" gets the grammar's non-terminals as #defines.
    Error messages and status info during the generation process are
    written to stdout, or sometimes to stderr. */
 
-#include "pgenheaders.h"
+#include "malloc.h"
 #include "grammar.h"
 #include "node.h"
 #include "parsetok.h"
@@ -77,13 +77,6 @@ getgrammar(char *filename)
 		exit(1);
 	}
 	return g;
-}
-
-void
-fatal(char *msg)
-{
-	fprintf(stderr, "pgen: FATAL ERROR: %s\n", msg);
-	exit(1);
 }
 
 /* XXX TO DO:

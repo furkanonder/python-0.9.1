@@ -28,7 +28,6 @@ delbitset(bitset ss)
 
 int
 addbit(bitset ss, int ibit)
-
 {
 	int ibyte = BIT2BYTE(ibit);
 	BYTE mask = BIT2MASK(ibit);
@@ -40,13 +39,11 @@ addbit(bitset ss, int ibit)
 	return 1;
 }
 
-#if 0 /* Now a macro */
-int
-testbit(bitset ss, int ibit)
-{
-	return (ss[BIT2BYTE(ibit)] & BIT2MASK(ibit)) != 0;
-}
-#endif
+//int
+//testbit(bitset ss, int ibit)
+//{
+//	return (ss[BIT2BYTE(ibit)] & BIT2MASK(ibit)) != 0;
+//}
 
 int
 samebitset(bitset ss1, bitset ss2, int nbits)

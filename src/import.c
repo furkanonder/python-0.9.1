@@ -1,25 +1,25 @@
 /* Module definition and import implementation */
 
-#include "allobjects.h"
+#include <string.h>
 
+#include "object.h"
+#include "stringobject.h"
+#include "listobject.h"
+#include "dictobject.h"
+#include "moduleobject.h"
+#include "errors.h"
 #include "node.h"
-#include "token.h"
 #include "graminit.h"
-#include "import.h"
 #include "errcode.h"
 #include "sysmodule.h"
 #include "pythonrun.h"
 #include "modsupport.h"
 
 /* Define pathname separator used in file names */
-
-#ifndef SEP
 #define SEP '/'
-#endif
 
 static object *modules;
-
-/* Initialization */
+static int init_builtin(char *name);
 
 void
 initimport()
@@ -58,9 +58,8 @@ add_module(char *name)
 static FILE *
 open_module(char *name, char *suffix, char *namebuf)
 {
-	object *path;
+	object *path = sysget("path");
 	FILE *fp;
-	path = sysget("path");
 
 	if (path == NULL || !is_listobject(path)) {
 		strcpy(namebuf, name);
@@ -68,16 +67,14 @@ open_module(char *name, char *suffix, char *namebuf)
 		fp = fopen(namebuf, "r");
 	}
 	else {
-		int npath = getlistsize(path);
 		fp = NULL;
-		for (int i = 0; i < npath; i++) {
+		for (int i = 0; i < getlistsize(path); i++) {
 			object *v = getlistitem(path, i);
-			int len;
 			if (!is_stringobject(v)) {
 				continue;
             }
 			strcpy(namebuf, getstringvalue(v));
-			len = getstringsize(v);
+			int len = getstringsize(v);
 			if (len > 0 && namebuf[len - 1] != SEP) {
 				namebuf[len++] = SEP;
             }
@@ -96,11 +93,10 @@ static object *
 get_module(object *m, char *name, object **m_ret)
 {
 	object *d;
-	FILE *fp;
 	node *n;
 	int err;
 	char namebuf[256];
-	fp = open_module(name, ".py", namebuf);
+	FILE *fp = open_module(name, ".py", namebuf);
 
 	if (fp == NULL) {
 		if (m == NULL) {
@@ -132,8 +128,7 @@ get_module(object *m, char *name, object **m_ret)
 static object *
 load_module(char *name)
 {
-	object *m, *v;
-	v = get_module((object *)NULL, name, &m);
+	object *m, *v = get_module((object *)NULL, name, &m);
 
 	if (v == NULL) {
 		return NULL;
@@ -141,8 +136,6 @@ load_module(char *name)
 	DECREF(v);
 	return m;
 }
-
-static int init_builtin(char *name);
 
 object *
 import_module(char *name)
@@ -177,8 +170,7 @@ static void
 cleardict(object *d)
 {
 	for (int i = getdictsize(d); --i >= 0; ) {
-		char *k;
-		k = getdictkey(d, i);
+		char *k = getdictkey(d, i);
 		if (k != NULL) {
 			(void) dictremove(d, k);
         }
@@ -192,14 +184,11 @@ doneimport()
 		/* Explicitly erase all modules; this is the safest way
 		   to get rid of at least *some* circular dependencies */
 		for (int i = getdictsize(modules); --i >= 0; ) {
-			char *k;
-			k = getdictkey(modules, i);
+			char *k = getdictkey(modules, i);
 			if (k != NULL) {
-				object *m;
-				m = dictlookup(modules, k);
+				object *m = dictlookup(modules, k);
 				if (m != NULL && is_moduleobject(m)) {
-					object *d;
-					d = getmoduledict(m);
+					object *d = getmoduledict(m);
 					if (d != NULL && is_dictobject(d)) {
 						cleardict(d);
 					}
@@ -210,7 +199,6 @@ doneimport()
 	}
 	DECREF(modules);
 }
-
 
 /* Initialize built-in modules when first imported */
 

@@ -4,14 +4,12 @@
 /* XXX This uses longjmp() from a signal out of fgets().
    Should use read() instead?! */
 
-#include "pgenheaders.h"
-
+#include <stdio.h>
 #include <signal.h>
 #include <setjmp.h>
 
 #include "errcode.h"
 #include "sigtype.h"
-#include "fgetsintr.h"
 #include "intrcheck.h"
 
 #define sig_block()		/*empty*/

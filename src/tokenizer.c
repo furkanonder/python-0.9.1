@@ -10,10 +10,6 @@
 #include "errcode.h"
 #include "intrcheck.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -242,46 +238,67 @@ tok_1char(int c)
 	switch (c) {
 		case '(':
 			return LPAR;
+
 		case ')':
 			return RPAR;
+
 		case '[':
 			return LSQB;
+
 		case ']':
 			return RSQB;
+
 		case ':':
 			return COLON;
+
 		case ',':
 			return COMMA;
+
 		case ';':
 			return SEMI;
+
 		case '+':
 			return PLUS;
+
 		case '-':
 			return MINUS;
+
 		case '*':
 			return STAR;
+
 		case '/':
 			return SLASH;
+
 		case '|':
 			return VBAR;
+
 		case '&':
 			return AMPER;
+
 		case '<':
 			return LESS;
+
 		case '>':
 			return GREATER;
+
 		case '=':
 			return EQUAL;
+
 		case '.':
 			return DOT;
+
 		case '%':
 			return PERCENT;
+
 		case '`':
 			return BACKQUOTE;
+
 		case '{':
 			return LBRACE;
+
 		case '}':
 			return RBRACE;
+
 		default:
 			return OP;
 	}

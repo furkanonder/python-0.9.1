@@ -16,9 +16,9 @@ typedef struct _stackentry {
 } stackentry;
 
 typedef struct _stack {
-	stackentry	*s_top;		/* Top entry */
-	stackentry	 s_base[MAXSTACK];/* Array of stack entries */
-								/* NB The stack grows down */
+	stackentry	*s_top;				/* Top entry */
+	stackentry	 s_base[MAXSTACK];	/* Array of stack entries */
+									/* NB The stack grows down */
 } stack;
 
 typedef struct {

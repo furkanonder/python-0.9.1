@@ -1,6 +1,11 @@
 /* String object implementation */
 
-#include "allobjects.h"
+#include <string.h>
+
+#include "object.h"
+#include "stringobject.h"
+#include "errors.h"
+#include "malloc.h"
 
 object *
 newsizedstringobject(char *str, int size)

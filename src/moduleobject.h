@@ -8,7 +8,6 @@ extern "C" {
 /* Module object interface */
 
 extern typeobject Moduletype;
-
 #define is_moduleobject(op) ((op)->ob_type == &Moduletype)
 
 extern object *newmoduleobject(char *);

@@ -8,7 +8,6 @@ extern "C" {
 /* File object interface */
 
 extern typeobject Filetype;
-
 #define is_fileobject(op) ((op)->ob_type == &Filetype)
 
 extern object *newfileobject(char *, char *);

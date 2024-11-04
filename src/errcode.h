@@ -6,9 +6,8 @@ extern "C" {
 #endif
 
 /* Error codes passed around between file input, tokenizer, parser and
-   interpreter.  This was necessary so we can turn them into Python
-   exceptions at a higher level. */
-
+   interpreter.  This was necessary so we can turn them into Python exceptions
+   at a higher level. */
 #define E_OK		10   /* No error */
 #define E_EOF		11   /* (Unexpected) EOF read */
 #define E_INTR		12   /* Interrupted */

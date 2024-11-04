@@ -54,6 +54,7 @@ make
 - Removed `patchlevel.h`.
 - Removed `SYSV` preprocessor directives.
 - Removed `initargs`, `initcalls` and `donecalls` functions.
+- Removed `allobjects.h`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

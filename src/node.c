@@ -1,12 +1,16 @@
 /* Parse tree node implementation */
 
-#include "pgenheaders.h"
+#include "malloc.h"
 #include "node.h"
+
+#define XXX 3 /* Node alignment factor to speed up realloc */
+#define XXXROUNDUP(n) ((n) == 1 ? 1 : ((n) + XXX - 1) / XXX * XXX)
 
 node *
 newtree(int type)
 {
 	node *n = NEW(node, 1);
+
 	if (n == NULL) {
 		return NULL;
     }
@@ -18,14 +22,10 @@ newtree(int type)
 	return n;
 }
 
-#define XXX 3 /* Node alignment factor to speed up realloc */
-#define XXXROUNDUP(n) ((n) == 1 ? 1 : ((n) + XXX - 1) / XXX * XXX)
-
 node *
 addchild(register node *n1, int type, char *str, int lineno)
 {
-	register int nch = n1->n_nchildren;
-	register int nch1 = nch + 1;
+	register int nch = n1->n_nchildren, nch1 = nch + 1;
 	register node *n;
 
 	if (XXXROUNDUP(nch) < nch1) {
@@ -46,8 +46,19 @@ addchild(register node *n1, int type, char *str, int lineno)
 	return n;
 }
 
-/* Forward */
-static void freechildren(node *);
+static void
+freechildren(node *n)
+{
+	for (int i = NCH(n); --i >= 0;) {
+		freechildren(CHILD(n, i));
+	}
+	if (n->n_child != NULL) {
+		DEL(n->n_child);
+	}
+	if (STR(n) != NULL) {
+		DEL(STR(n));
+	}
+}
 
 void
 freetree(node *n)
@@ -56,18 +67,4 @@ freetree(node *n)
 		freechildren(n);
 		DEL(n);
 	}
-}
-
-static void
-freechildren(node *n)
-{
-	for (int i = NCH(n); --i >= 0;) {
-		freechildren(CHILD(n, i));
-    }
-	if (n->n_child != NULL) {
-		DEL(n->n_child);
-    }
-	if (STR(n) != NULL) {
-		DEL(STR(n));
-    }
 }

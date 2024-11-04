@@ -8,7 +8,6 @@ extern "C" {
 /* Method object interface */
 
 extern typeobject Methodtype;
-
 #define is_methodobject(op) ((op)->ob_type == &Methodtype)
 
 typedef object *(*method)(object *, object *);

@@ -1,19 +1,24 @@
 /* POSIX module implementation */
 
-#include <signal.h>
 #include <string.h>
-#include <setjmp.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/dir.h>
 #include <unistd.h>
 
-#include "allobjects.h"
+#include "object.h"
+#include "intobject.h"
+#include "stringobject.h"
+#include "tupleobject.h"
+#include "listobject.h"
+#include "dictobject.h"
+#include "methodobject.h"
+#include "moduleobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "modsupport.h"
 
 extern char *strerror(int);
-
 /* Return a dictionary corresponding to the POSIX environment table */
 extern char **environ;
 
@@ -313,7 +318,6 @@ posix_utimes(object *self, object *args)
 }
 
 #ifndef NO_LSTAT
-
 static object *
 posix_lstat(object *self, object *args)
 {
@@ -344,7 +348,6 @@ posix_symlink(object *self, object *args)
 	extern int symlink(const char *, const char *);
 	return posix_2str(args, symlink);
 }
-
 #endif /* NO_LSTAT */
 
 static struct methodlist posix_methods[] = {

@@ -2,7 +2,15 @@
 
 #include <string.h>
 
-#include "allobjects.h"
+#include "object.h"
+#include "intobject.h"
+#include "stringobject.h"
+#include "tupleobject.h"
+#include "listobject.h"
+#include "dictobject.h"
+#include "methodobject.h"
+#include "moduleobject.h"
+#include "errors.h"
 #include "modsupport.h"
 #include "import.h"
 

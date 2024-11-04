@@ -1,13 +1,19 @@
 /* Method object implementation */
 
-#include "allobjects.h"
-#include "token.h"
+#include <string.h>
+
+#include "object.h"
+#include "objimpl.h"
+#include "stringobject.h"
+#include "methodobject.h"
+#include "errors.h"
+#include "malloc.h"
 
 typedef struct {
 	OB_HEAD
-	char *m_name;
-	method m_meth;
-	object *m_self;
+	char	*m_name;
+	method 	m_meth;
+	object 	*m_self;
 } methodobject;
 
 /* char *name: static string */
@@ -102,14 +108,10 @@ typeobject Methodtype = {
 	0,							/*tp_as_mapping*/
 };
 
-/* Find a method in a module's method table.
-   Usually called from an object's getattr method. */
-
+/* Find a method in a module's method table.  Usually called from an object's
+getattr method. */
 object *
-findmethod(ml, op, name)
-	struct methodlist *ml;
-	object *op;
-	char *name;
+findmethod(struct methodlist *ml, object *op, char *name)
 {
 	for (; ml->ml_name != NULL; ml++) {
 		if (strcmp(name, ml->ml_name) == 0)

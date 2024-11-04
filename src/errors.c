@@ -1,9 +1,8 @@
 /* Error handling -- see also run.c */
 
 /* New error handling interface.
-
-   The following problem exists (existed): methods of built-in modules
-   are called with 'self' and 'args' arguments, but without a context
+   The following problem exists (existed): methods of built-in modules are
+   called with 'self' and 'args' arguments, but without a context
    argument, so they have no way to raise a specific exception.
    The same is true for the object implementations: no context argument.
    The old convention was to set 'errno' and to return NULL.
@@ -28,22 +27,23 @@
   value) or err_setstr(exception, string), and returns NULL.  These
   functions save the value for later use by puterrno().  To adapt this
   scheme to a multi-threaded environment, only the implementation of
-  err_setval() has to be changed.
-*/
-
-#include "allobjects.h"
+  err_setval() has to be changed. */
 
 #include <errno.h>
 #ifndef errno
 extern int errno;
 #endif
 
+#include "object.h"
+#include "intobject.h"
+#include "stringobject.h"
+#include "tupleobject.h"
+#include "errors.h"
 #include "errcode.h"
 
 extern char *strerror(int);
 
 /* Last exception stored by err_setval() */
-
 static object *last_exception;
 static object *last_exc_val;
 
@@ -53,7 +53,6 @@ err_setval(object *exception, object *value)
 	XDECREF(last_exception);
 	XINCREF(exception);
 	last_exception = exception;
-	
 	XDECREF(last_exc_val);
 	XINCREF(value);
 	last_exc_val = value;
@@ -69,6 +68,7 @@ void
 err_setstr(object *exception, char *string)
 {
 	object *value = newstringobject(string);
+
 	err_setval(exception, value);
 	XDECREF(value);
 }
@@ -134,7 +134,6 @@ err_badcall()
 }
 
 /* Set the error appropriate to the given input error code (see errcode.h) */
-
 void
 err_input(int err)
 {
@@ -142,21 +141,27 @@ err_input(int err)
 		case E_DONE:
 		case E_OK:
 			break;
+
 		case E_SYNTAX:
 			err_setstr(RuntimeError, "syntax error");
 			break;
+
 		case E_TOKEN:
 			err_setstr(RuntimeError, "illegal token");
 			break;
+
 		case E_INTR:
 			err_set(KeyboardInterrupt);
 			break;
+
 		case E_NOMEM:
 			err_nomem();
 			break;
+
 		case E_EOF:
 			err_set(EOFError);
 			break;
+
 		default:
 			err_setstr(RuntimeError, "unknown input error");
 			break;

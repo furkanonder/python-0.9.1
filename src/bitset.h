@@ -10,7 +10,7 @@ typedef BYTE    *bitset;
 
 bitset newbitset(int nbits);
 void delbitset(bitset bs);
-/* int testbit(bitset bs, int ibit); /* Now a macro, see below */
+/* int testbit(bitset bs, int ibit); Now a macro, see below */
 int addbit(bitset bs, int ibit);     /* Returns 0 if already set */
 int samebitset(bitset bs1, bitset bs2, int nbits);
 void mergebitset(bitset bs1, bitset bs2, int nbits);

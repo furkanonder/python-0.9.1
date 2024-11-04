@@ -1,15 +1,20 @@
 /* Math module -- standard C math library functions, pi and e */
 
-#include "allobjects.h"
-
+#include <math.h>
 #include <errno.h>
 #ifndef errno
 extern int errno;
 #endif
 
+#include "object.h"
+#include "intobject.h"
+#include "floatobject.h"
+#include "tupleobject.h"
+#include "dictobject.h"
+#include "methodobject.h"
+#include "moduleobject.h"
+#include "errors.h"
 #include "modsupport.h"
-
-#include <math.h>
 
 static int
 getdoublearg(register object *args, double *px)
@@ -94,10 +99,7 @@ FUNC1(math_cosh, cosh)
 FUNC1(math_exp, exp)
 FUNC1(math_fabs, fabs)
 FUNC1(math_floor, floor)
-#if 0
-/* XXX This one is not in the Amoeba library yet, so what the heck... */
-FUNC2(math_fmod, fmod)
-#endif
+//FUNC2(math_fmod, fmod)
 FUNC1(math_log, log)
 FUNC1(math_log10, log10)
 FUNC2(math_pow, pow)
@@ -107,12 +109,9 @@ FUNC1(math_sqrt, sqrt)
 FUNC1(math_tan, tan)
 FUNC1(math_tanh, tanh)
 
-#if 0
-/* What about these? */
-double	frexp(double x, int *i);
-double	ldexp(double x, int n);
-double	modf(double x, double *i);
-#endif
+//double	frexp(double x, int *i);
+//double	ldexp(double x, int n);
+//double	modf(double x, double *i);
 
 static struct methodlist math_methods[] = {
 	{"acos", 	math_acos},
@@ -125,16 +124,12 @@ static struct methodlist math_methods[] = {
 	{"exp", 	math_exp},
 	{"fabs",	math_fabs},
 	{"floor", 	math_floor},
-#if 0
-	{"fmod", 	math_fmod},
-	{"frexp",	math_freqp},
-	{"ldexp", 	math_ldexp},
-#endif
+//	{"fmod", 	math_fmod},
+//	{"frexp",	math_freqp},
+//	{"ldexp", 	math_ldexp},
 	{"log", 	math_log},
 	{"log10", 	math_log10},
-#if 0
-	{"modf", 	math_modf},
-#endif
+//	{"modf", 	math_modf},
 	{"pow", 	math_pow},
 	{"sin", 	math_sin},
 	{"sinh",	math_sinh},

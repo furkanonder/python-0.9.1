@@ -1,6 +1,13 @@
 /* Class object implementation */
 
-#include "allobjects.h"
+#include "object.h"
+#include "objimpl.h"
+#include "tupleobject.h"
+#include "dictobject.h"
+#include "funcobject.h"
+#include "classobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "structmember.h"
 
 typedef struct {
@@ -13,8 +20,7 @@ typedef struct {
 object *
 newclassobject(object *bases, object *methods)
 {
-	classobject *op;
-	op = NEWOBJ(classobject, &Classtype);
+	classobject *op = NEWOBJ(classobject, &Classtype);
 
 	if (op == NULL) {
 		return NULL;
@@ -43,8 +49,7 @@ class_dealloc(classobject *op)
 static object *
 class_getattr(register classobject *op, register char *name)
 {
-	register object *v;
-	v = dictlookup(op->cl_methods, name);
+	register object *v = dictlookup(op->cl_methods, name);
 
 	if (v != NULL) {
 		INCREF(v);

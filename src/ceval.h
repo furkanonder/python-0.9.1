@@ -5,8 +5,7 @@
 extern "C" {
 #endif
 
-/* Interface to execute compiled code */
-/* This header depends on "compile.h" */
+/* Interface to execute compiled code. This header depends on "compile.h" */
 
 object *eval_code(codeobject *, object *, object *, object *);
 object *getglobals(void);

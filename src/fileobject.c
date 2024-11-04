@@ -2,12 +2,20 @@
 
 /* XXX This should become a built-in module 'io'.  It should support more
    functionality, better exception handling for invalid calls, etc.
-   (Especially reading on a write-only file or vice versa!)
-   It should also cooperate with posix to support popen(), which should
-   share most code but have a special close function. */
+   (Especially reading on a write-only file or vice versa!)  It should also
+   cooperate with posix to support popen(), which should share most code but
+   have a special close function. */
 
-#include "allobjects.h"
+#include <string.h>
 
+#include "object.h"
+#include "objimpl.h"
+#include "intobject.h"
+#include "stringobject.h"
+#include "methodobject.h"
+#include "fileobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "errno.h"
 #ifndef errno
 extern int errno;
@@ -53,9 +61,8 @@ newopenfileobject(FILE *fp, char *name, char *mode)
 object *
 newfileobject(char *name, char *mode)
 {
-	fileobject *f;
+	fileobject *f = (fileobject *)newopenfileobject((FILE *)NULL, name, mode);
 	FILE *fp;
-	f = (fileobject *)newopenfileobject((FILE *)NULL, name, mode);
 
 	if (f == NULL) {
 		return NULL;
@@ -101,8 +108,8 @@ file_repr(fileobject *f)
 {
 	char buf[300];
 
-	/* XXX This differs from file_print if the filename contains
-	   quotes or other funny characters. */
+	/* XXX This differs from file_print if the filename contains quotes or
+       other funny characters. */
 	sprintf(buf, "<%s file '%.256s', mode '%.10s'>",
             f->f_fp == NULL ? "closed" : "open", getstringvalue(f->f_name),
 			getstringvalue(f->f_mode));
@@ -155,7 +162,6 @@ file_read(fileobject *f, object *args)
 }
 
 /* XXX Should this be unified with raw_input()? */
-
 static object *
 file_readline(fileobject *f, object *args)
 {

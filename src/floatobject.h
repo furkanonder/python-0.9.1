@@ -14,7 +14,6 @@ typedef struct {
 } floatobject;
 
 extern typeobject Floattype;
-
 #define is_floatobject(op) ((op)->ob_type == &Floattype)
 
 extern object *newfloatobject(double);

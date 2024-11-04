@@ -29,7 +29,6 @@ typedef struct _frame {
 /* Standard object interface */
 
 extern typeobject Frametype;
-
 #define is_frameobject(op) ((op)->ob_type == &Frametype)
 
 frameobject * newframeobject(frameobject *, codeobject *, object *, object *,
@@ -46,7 +45,6 @@ frameobject * newframeobject(frameobject *, codeobject *, object *, object *,
 #define GETITEMNAME(v, i) getstringvalue(getlistitem((v), (i)))
 #endif
 #define GETUSTRINGVALUE(s) ((unsigned char *)GETSTRINGVALUE(s))
-
 /* Code access macros */
 #define Getconst(f, i)	(GETITEM((f)->f_code->co_consts, (i)))
 #define Getname(f, i)	(GETITEMNAME((f)->f_code->co_names, (i)))

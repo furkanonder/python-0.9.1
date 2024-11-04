@@ -1,6 +1,11 @@
 /* Python interpreter main program */
 
-#include "allobjects.h"
+#include <string.h>
+
+#include "object.h"
+#include "moduleobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "grammar.h"
 #include "node.h"
 #include "parsetok.h"
@@ -60,7 +65,6 @@ initall()
 	
 	/* Modules 'builtin' and 'sys' are initialized here,
 	   they are needed by random bits of the interpreter. */
-	
 	initbuiltin();	/* Also initializes builtin exceptions */
 	initsys();
 	initintr();		/* For intrcheck() */

@@ -1,9 +1,8 @@
 /* Grammar implementation */
 
-#include "pgenheaders.h"
-
 #include <ctype.h>
 
+#include "pgenheaders.h"
 #include "assert.h"
 #include "token.h"
 #include "grammar.h"
@@ -82,10 +81,9 @@ addarc(dfa *d, int from, int to, int lbl)
 int
 addlabel(labellist *ll, int type, char *str)
 {
-	int i;
 	label *lb;
 	
-	for (i = 0; i < ll->ll_nlabels; i++) {
+	for (int i = 0; i < ll->ll_nlabels; i++) {
 		if (ll->ll_label[i].lb_type == type &&
 			strcmp(ll->ll_label[i].lb_str, str) == 0)
 			return i;
@@ -105,10 +103,9 @@ addlabel(labellist *ll, int type, char *str)
 int
 findlabel(labellist *ll, int type, char *str)
 {
-	int i;
 	label *lb;
 	
-	for (i = 0; i < ll->ll_nlabels; i++) {
+	for (int i = 0; i < ll->ll_nlabels; i++) {
 		if (ll->ll_label[i].lb_type == type /*&&
 			strcmp(ll->ll_label[i].lb_str, str) == 0*/)
 			return i;
@@ -117,31 +114,20 @@ findlabel(labellist *ll, int type, char *str)
 	abort();
 }
 
-/* Forward */
-static void translabel(grammar *, label *);
-
-void
-translatelabels(grammar *g)
-{
-	printf("Translating labels ...\n");
-	/* Don't translate EMPTY */
-	for (int i = EMPTY+1; i < g->g_ll.ll_nlabels; i++)
-		translabel(g, &g->g_ll.ll_label[i]);
-}
-
 static void
 translabel(grammar *g, label *lb)
 {
-	if (debugging)
+	if (debugging) {
 		printf("Translating label %s ...\n", labelrepr(lb));
-	
+	}
+
 	if (lb->lb_type == NAME) {
 		for (int i = 0; i < g->g_ndfas; i++) {
 			if (strcmp(lb->lb_str, g->g_dfa[i].d_name) == 0) {
 				if (debugging) {
 					printf("Label %s is non-terminal %d.\n", lb->lb_str,
-						g->g_dfa[i].d_type);
-                }
+							g->g_dfa[i].d_type);
+				}
 				lb->lb_type = g->g_dfa[i].d_type;
 				lb->lb_str = NULL;
 				return;
@@ -151,7 +137,7 @@ translabel(grammar *g, label *lb)
 			if (strcmp(lb->lb_str, tok_name[i]) == 0) {
 				if (debugging) {
 					printf("Label %s is terminal %d.\n", lb->lb_str, i);
-                }
+				}
 				lb->lb_type = i;
 				lb->lb_str = NULL;
 				return;
@@ -160,19 +146,19 @@ translabel(grammar *g, label *lb)
 		printf("Can't translate NAME label '%s'\n", lb->lb_str);
 		return;
 	}
-	
+
 	if (lb->lb_type == STRING) {
 		if (isalpha(lb->lb_str[1])) {
-			char *p, *strchr();
+			char *p;
 			if (debugging) {
 				printf("Label %s is a keyword\n", lb->lb_str);
-            }
+			}
 			lb->lb_type = NAME;
 			lb->lb_str++;
 			p = strchr(lb->lb_str, '\'');
 			if (p) {
 				*p = '\0';
-            }
+			}
 		}
 		else {
 			if (lb->lb_str[2] == lb->lb_str[0]) {
@@ -183,14 +169,24 @@ translabel(grammar *g, label *lb)
 				}
 				else {
 					printf("Unknown OP label %s\n", lb->lb_str);
-                }
+				}
 			}
 			else {
 				printf("Can't translate STRING label %s\n", lb->lb_str);
-            }
+			}
 		}
 	}
 	else {
 		printf("Can't translate label '%s'\n", labelrepr(lb));
+	}
+}
+
+void
+translatelabels(grammar *g)
+{
+	printf("Translating labels ...\n");
+	/* Don't translate EMPTY */
+	for (int i = EMPTY+1; i < g->g_ll.ll_nlabels; i++) {
+		translabel(g, &g->g_ll.ll_label[i]);
     }
 }

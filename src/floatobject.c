@@ -1,17 +1,20 @@
 /* Float object implementation */
 
-/* XXX There should be overflow checks here, but it's hard to check
-   for any kind of float exception without losing portability. */
+/* XXX There should be overflow checks here, but it's hard to check for any
+   kind of float exception without losing portability. */
 
-#include "allobjects.h"
-
+#include <ctype.h>
+#include <math.h>
 #include <errno.h>
 #ifndef errno
 extern int errno;
 #endif
 
-#include <ctype.h>
-#include <math.h>
+#include "object.h"
+#include "floatobject.h"
+#include "stringobject.h"
+#include "errors.h"
+#include "malloc.h"
 
 object *
 newfloatobject(double fval)
@@ -53,11 +56,10 @@ float_buf_repr(char *buf, floatobject *v)
 {
 	register char *cp;
 
-	/* Subroutine for float_repr and float_print.
-	   We want float numbers to be recognizable as such,
-	   i.e., they should contain a decimal point or an exponent.
-	   However, %g may print the number as an integer;
-	   in such cases, we append ".0" to the string. */
+	/* Subroutine for float_repr and float_print.  We want float numbers to be
+       recognizable as such, i.e., they should contain a decimal point or an
+       exponent. However, %g may print the number as an integer; in such cases,
+       we append ".0" to the string. */
 	sprintf(buf, "%.12g", v->ob_fval);
 	cp = buf;
 	if (*cp == '-') {
@@ -229,9 +231,7 @@ typeobject Floattype = {
 	0,							/*tp_as_mapping*/
 };
 
-/*
-XXX This is not enough.  Need:
+/* XXX This is not enough.  Need:
 - automatic casts for mixed arithmetic (3.1 * 4)
 - mixed comparisons (!)
-- look at other uses of ints that could be extended to floats
-*/
+- look at other uses of ints that could be extended to floats */

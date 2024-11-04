@@ -6,7 +6,6 @@
 #include "token.h"
 
 /* Return the DFA for the given type */
-
 dfa *
 finddfa(grammar *g, register int type)
 {

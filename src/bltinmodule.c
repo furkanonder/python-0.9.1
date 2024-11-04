@@ -1,18 +1,30 @@
 /* Built-in functions */
 
-#include "allobjects.h"
+#include <stdio.h>
+#include <string.h>
 
+#include "object.h"
+#include "intobject.h"
+#include "floatobject.h"
+#include "tupleobject.h"
+#include "listobject.h"
+#include "dictobject.h"
+#include "methodobject.h"
+#include "moduleobject.h"
+#include "fileobject.h"
+#include "errors.h"
 #include "node.h"
 #include "graminit.h"
 #include "errcode.h"
 #include "sysmodule.h"
-#include "bltinmodule.h"
 #include "import.h"
 #include "pythonrun.h"
-#include "compile.h" /* For ceval.h */
+#include "compile.h"	/* For ceval.h */
 #include "ceval.h"
 #include "modsupport.h"
 #include "fgetsintr.h"
+
+static object *builtin_dict;
 
 static object *
 builtin_abs(object *self, object *v)
@@ -469,8 +481,6 @@ static struct methodlist builtin_methods[] = {
 	{NULL, 			NULL},
 };
 
-static object *builtin_dict;
-
 object *
 getbuiltin(char *name)
 {
@@ -513,8 +523,7 @@ initerrors()
 void
 initbuiltin()
 {
-	object *m;
-	m = initmodule("builtin", builtin_methods);
+	object *m = initmodule("builtin", builtin_methods);
 	builtin_dict = getmoduledict(m);
 
 	INCREF(builtin_dict);

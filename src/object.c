@@ -1,15 +1,20 @@
 /* Generic object operations; and implementation of None (NoObject) */
 
-#include "allobjects.h"
+#include <string.h>
+
+#include "object.h"
+#include "stringobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "intrcheck.h"
 
 #ifdef REF_DEBUG
 long ref_total;
 #endif
 
-/* Object allocation routines used by NEWOBJ and NEWVAROBJ macros.
-   These are used by the individual routines for object creation.
-   Do not call them otherwise, they do not initialize the object! */
+/* Object allocation routines used by NEWOBJ and NEWVAROBJ macros.  These are
+   used by the individual routines for object creation.  Do not call them
+   otherwise, they do not initialize the object! */
 
 object *
 newobject(typeobject *tp)
@@ -24,9 +29,7 @@ newobject(typeobject *tp)
 	return op;
 }
 
-#if 0 /* unused */
-
-varobject *
+/* varobject *
 newvarobject(typeobject *tp, unsigned int size)
 {
 	varobject *op = (varobject *)malloc(tp->tp_basicsize
@@ -38,9 +41,7 @@ newvarobject(typeobject *tp, unsigned int size)
 	op->ob_type = tp;
 	op->ob_size = size;
 	return op;
-}
-
-#endif
+} */
 
 int StopPrint; /* Flag to indicate printing must be stopped */
 static int prlevel;
@@ -166,12 +167,9 @@ setattr(object *v, char *name, object *w)
 	}
 }
 
-
-/*
-NoObject is usable as a non-NULL undefined value, used by the macro None.
-There is (and should be!) no way to create other objects of this type,
-so there is exactly one (which is indestructible, by the way).
-*/
+/* NoObject is usable as a non-NULL undefined value, used by the macro None.
+   There is (and should be!) no way to create other objects of this type,
+   so there is exactly one (which is indestructible, by the way). */
 static void
 none_print(object *op, FILE *fp, int flags)
 {
@@ -205,9 +203,7 @@ object NoObject = {
 	OB_HEAD_INIT(&Notype)
 };
 
-
 #ifdef TRACE_REFS
-
 static object refchain = {&refchain, &refchain};
 
 NEWREF(object *op)
@@ -258,5 +254,4 @@ printrefs(FILE *fp)
 		putc('\n', fp);
 	}
 }
-
 #endif

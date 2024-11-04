@@ -1,6 +1,10 @@
 /* Integer object implementation */
 
-#include "allobjects.h"
+#include "object.h"
+#include "intobject.h"
+#include "stringobject.h"
+#include "errors.h"
+#include "malloc.h"
 
 /* Standard Booleans */
 
@@ -28,15 +32,14 @@ err_zdiv()
 	return NULL;
 }
 
-/* Integers are quite normal objects, to make object handling uniform.
-   (Using odd pointers to represent integers would save much space
-   but require extra checks for this special case throughout the code.)
-   Since, a typical Python program spends much of its time allocating
-   and deallocating integers, these operations should be very fast.
-   Therefore we use a dedicated allocation scheme with a much lower
-   overhead (in space and time) than straight malloc(): a simple
-   dedicated free list, filled when necessary with memory from malloc().
-*/
+/* Integers are quite normal objects, to make object handling uniform.  (Using
+   odd pointers to represent integers would save much space but require extra
+   checks for this special case throughout the code.)  Since, a typical Python
+   program spends much of its time allocating and deallocating integers, these
+   operations should be very fast. Therefore we use a dedicated allocation
+   scheme with a much lower overhead (in space and time) than straight
+   malloc(): a simple dedicated free list, filled when necessary with memory
+   from malloc(). */
 
 #define BLOCK_SIZE		1000	/* 1K less typical malloc overhead */
 #define N_INTOBJECTS	(BLOCK_SIZE / sizeof(intobject))
@@ -74,7 +77,7 @@ newintobject(long ival)
 	NEWREF(v);
 	v->ob_type = &Inttype;
 	v->ob_ival = ival;
-	return (object *) v;
+	return (object *)v;
 }
 
 static void

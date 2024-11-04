@@ -1,6 +1,7 @@
 /* Type object implementation */
 
-#include "allobjects.h"
+#include "object.h"
+#include "stringobject.h"
 
 static void
 type_print(typeobject *v, FILE *fp, int flags)

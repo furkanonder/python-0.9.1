@@ -1,6 +1,13 @@
 /* List object implementation */
 
-#include "allobjects.h"
+#include "object.h"
+#include "objimpl.h"
+#include "stringobject.h"
+#include "tupleobject.h"
+#include "listobject.h"
+#include "methodobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "modsupport.h"
 
 object *

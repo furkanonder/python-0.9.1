@@ -1,6 +1,5 @@
 /* Print a bunch of C initializers that represent a grammar */
 
-#include "pgenheaders.h"
 #include "grammar.h"
 
 /* Forward */

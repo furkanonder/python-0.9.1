@@ -1,15 +1,17 @@
 /* Time module */
 
-#include "allobjects.h"
-#include "modsupport.h"
-#include "sigtype.h"
-
 #include <signal.h>
 #include <setjmp.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/time.h>
 #include <time.h>
+
+#include "object.h"
+#include "intobject.h"
+#include "methodobject.h"
+#include "errors.h"
+#include "modsupport.h"
+#include "sigtype.h"
 
 /* Time methods */
 

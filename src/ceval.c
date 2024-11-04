@@ -1,7 +1,19 @@
 /* Execute compiled code */
 
-#include "allobjects.h"
+#include <stdio.h>
 
+#include "object.h"
+#include "intobject.h"
+#include "floatobject.h"
+#include "tupleobject.h"
+#include "listobject.h"
+#include "dictobject.h"
+#include "methodobject.h"
+#include "moduleobject.h"
+#include "funcobject.h"
+#include "classobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "import.h"
 #include "sysmodule.h"
 #include "compile.h"
@@ -439,8 +451,7 @@ cmp_member(object *v, object *w)
 
 	/* Special case for char in string */
 	if (is_stringobject(w)) {
-		register char *s, *end;
-		register char c;
+		register char *s, *end, c;
 		if (!is_stringobject(v) || getstringsize(v) != 1) {
 			err_setstr(TypeError,
                        "string member test needs char left operand");
@@ -477,8 +488,7 @@ cmp_member(object *v, object *w)
 static object *
 cmp_outcome(enum cmp_op op, register object *v, register object *w)
 {
-	register int cmp;
-	register int res = 0;
+	register int cmp, res = 0;
 
 	switch (op) {
 		case IS:
@@ -488,6 +498,7 @@ cmp_outcome(enum cmp_op op, register object *v, register object *w)
 				res = !res;
             }
 			break;
+
 		case IN:
 		case NOT_IN:
 			res = cmp_member(v, w);
@@ -498,27 +509,34 @@ cmp_outcome(enum cmp_op op, register object *v, register object *w)
 				res = !res;
             }
 			break;
+
 		case EXC_MATCH:
 			res = cmp_exception(v, w);
 			break;
+
 		default:
 			cmp = cmpobject(v, w);
 			switch (op) {
 				case LT:
                     res = cmp < 0;
                     break;
+
 				case LE:
                     res = cmp <= 0;
                     break;
+
 				case EQ:
                     res = cmp == 0;
                     break;
+
 				case NE:
                     res = cmp != 0;
                     break;
+
 				case GT:
                     res = cmp > 0;
                     break;
+
 				case GE:
                     res = cmp >= 0;
                     break;
@@ -533,12 +551,10 @@ cmp_outcome(enum cmp_op op, register object *v, register object *w)
 static int
 import_from(object *locals, object *v, char *name)
 {
-	object *w, *x;
-	w = getmoduledict(v);
+	object *w = getmoduledict(v), *x;
 
 	if (name[0] == '*') {
-		int n = getdictsize(w);
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < getdictsize(w); i++) {
 			name = getdictkey(w, i);
 			if (name == NULL || name[0] == '_') {
 				continue;
@@ -592,11 +608,11 @@ build_class(object *v, object *w)
 
 /* Status code for main loop (reason for stack unwind) */
 enum why_code {
-	WHY_NOT,	/* No error */
+	WHY_NOT,		/* No error */
 	WHY_EXCEPTION,	/* Exception occurred */
 	WHY_RERAISE,	/* Exception re-raised by 'finally' */
-	WHY_RETURN,	/* 'return' statement */
-	WHY_BREAK	/* 'break' statement */
+	WHY_RETURN,		/* 'return' statement */
+	WHY_BREAK		/* 'break' statement */
 };
 
 /* Interpreter main loop */
@@ -604,41 +620,39 @@ object *
 eval_code(codeobject *co, object *globals, object *locals, object *arg)
 {
 	register unsigned char *next_instr;
-	register int opcode;	/* Current opcode */
-	register int oparg;	/* Current opcode argument, if any */
+	register int opcode;		/* Current opcode */
+	register int oparg;			/* Current opcode argument, if any */
 	register object **stack_pointer;
 	register enum why_code why; /* Reason for block stack unwind */
-	register int err;	/* Error status -- nonzero if error */
-	register object *x;	/* Result object -- NULL if error */
-	register object *v;	/* Temporary objects popped off stack */
-	register object *w;
-	register object *u;
-	register object *t;
-	register frameobject *f; /* Current frame */
-	int lineno;		/* Current line number */
-	object *retval;		/* Return value iff why == WHY_RETURN */
-	char *name;		/* Name used by some instructions */
-	FILE *fp;		/* Used by print operations */
+	register int err;			/* Error status -- nonzero if error */
+	register object *x;			/* Result object -- NULL if error */
+	register object *v;			/* Temporary objects popped off stack */
+	register object *w, *u, *t;
+	register frameobject *f; 	/* Current frame */
+	int lineno;					/* Current line number */
+	object *retval;				/* Return value iff why == WHY_RETURN */
+	char *name;					/* Name used by some instructions */
+	FILE *fp;					/* Used by print operations */
 #ifdef TRACE
 	int trace = dictlookup(globals, "__trace__") != NULL;
 #endif
 
 /* Code access macros */
-#define GETCONST(i)	Getconst(f, i)
-#define GETNAME(i)	Getname(f, i)
+#define GETCONST(i)		Getconst(f, i)
+#define GETNAME(i)		Getname(f, i)
 #define FIRST_INSTR()	(GETUSTRINGVALUE(f->f_code->co_code))
 #define INSTR_OFFSET()	(next_instr - FIRST_INSTR())
-#define NEXTOP()	(*next_instr++)
-#define NEXTARG()	(next_instr += 2, (next_instr[-1] << 8) + next_instr[-2])
-#define JUMPTO(x)	(next_instr = FIRST_INSTR() + (x))
-#define JUMPBY(x)	(next_instr += (x))
+#define NEXTOP()		(*next_instr++)
+#define NEXTARG()		(next_instr += 2, (next_instr[-1] << 8) + next_instr[-2])
+#define JUMPTO(x)		(next_instr = FIRST_INSTR() + (x))
+#define JUMPBY(x)		(next_instr += (x))
 
 /* Stack manipulation macros */
 #define STACK_LEVEL()	(stack_pointer - f->f_valuestack)
-#define EMPTY()		(STACK_LEVEL() == 0)
-#define TOP()		(stack_pointer[-1])
+#define EMPTY()			(STACK_LEVEL() == 0)
+#define TOP()			(stack_pointer[-1])
 #define BASIC_PUSH(v)	(*stack_pointer++ = (v))
-#define BASIC_POP()	(*--stack_pointer)
+#define BASIC_POP()		(*--stack_pointer)
 
 #ifdef TRACE
 #define PUSH(v)		(BASIC_PUSH(v), trace && prtrace(TOP(), "push"))
@@ -706,14 +720,11 @@ eval_code(codeobject *co, object *globals, object *locals, object *arg)
 			}
 		}
 #endif
-
 	    /* Main switch on opcode */
 	    switch (opcode) {
-
-	        /* BEWARE!
-	           It is essential that any operation that fails sets either
-	           x to NULL, err to nonzero, or why to anything but WHY_NOT,
-	           and that no operation that succeeds does this! */
+	        /* BEWARE! It is essential that any operation that fails sets
+			   either x to NULL, err to nonzero, or why to anything but
+			   WHY_NOT, and that no operation that succeeds does this! */
 
 	        /* case STOP_CODE: this is an error! */
 
@@ -1336,7 +1347,6 @@ eval_code(codeobject *co, object *globals, object *locals, object *arg)
 			}
 		}
 #endif
-
 		/* Log traceback info if this is a real exception */
 		if (why == WHY_EXCEPTION) {
 			int lasti = INSTR_OFFSET() - 1;
@@ -1374,15 +1384,12 @@ eval_code(codeobject *co, object *globals, object *locals, object *arg)
 						INCREF(val);
 					}
 					v = tb_fetch();
-					/* Make the raw exception data
-					   available to the handler,
-					   so a program can emulate the
-					   Python main loop.  Don't do
+					/* Make the raw exception data available to the handler,
+					   so a program can emulate the Python main loop.  Don't do
 					   this for 'finally'. */
 					if (b->b_type == SETUP_EXCEPT) {
-#if 0 /* Oops, this breaks too many things */
-						sysset("exc_traceback", v);
-#endif
+						/* Oops, this breaks too many things
+						 * sysset("exc_traceback", v); */
 						sysset("exc_value", val);
 						sysset("exc_type", exc);
 						err_clear();

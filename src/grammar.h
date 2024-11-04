@@ -7,6 +7,7 @@ extern "C" {
 
 /* Grammar interface */
 
+#include <stdio.h>
 #include "bitset.h" /* Sigh... */
 
 /* A label of an arc */

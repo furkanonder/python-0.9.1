@@ -2,9 +2,7 @@
 
 #include <stdio.h>
 
-#ifndef PYTHONPATH
 #define PYTHONPATH ".:/usr/local/lib/python"
-#endif
 
 extern char *getenv();
 
@@ -12,6 +10,7 @@ char *
 getpythonpath()
 {
 	char *path = getenv("PYTHONPATH");
+
 	if (path == 0) {
 		path = PYTHONPATH;
     }

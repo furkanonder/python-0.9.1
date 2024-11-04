@@ -28,7 +28,7 @@ extern int regexec();
 extern int reglexec();
 #endif
 extern void regsub();
-extern void regerror();
+extern void regerror(char *);
 
 #ifdef __cplusplus
 }

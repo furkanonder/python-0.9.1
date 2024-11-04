@@ -1,30 +1,33 @@
 /* System module */
 
-/*
-Various bits of information used by the interpreter are collected in
+/* Various bits of information used by the interpreter are collected in
 module 'sys'.
 Function member:
-- exit(sts): call (C, POSIX) exit(sts)
+	- exit(sts): call (C, POSIX) exit(sts)
 Data members:
-- stdin, stdout, stderr: standard file objects
-- modules: the table of modules (dictionary)
-- path: module search path (list of strings)
-- argv: script arguments (list of strings)
-- ps1, ps2: optional primary and secondary prompts (strings)
-*/
+	- stdin, stdout, stderr: standard file objects
+	- modules: the table of modules (dictionary)
+	- path: module search path (list of strings)
+	- argv: script arguments (list of strings)
+	- ps1, ps2: optional primary and secondary prompts (strings) */
 
-#include "allobjects.h"
+#include <string.h>
 
-#include "sysmodule.h"
+#include "object.h"
+#include "stringobject.h"
+#include "listobject.h"
+#include "dictobject.h"
+#include "methodobject.h"
+#include "moduleobject.h"
+#include "fileobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "import.h"
 #include "modsupport.h"
 #include "pythonrun.h"
 
 /* Define delimiter used in $PYTHONPATH */
-
-#ifndef DELIM
 #define DELIM ':'
-#endif
 
 static object *sysdict;
 
@@ -75,7 +78,7 @@ sys_exit(object *self, object *args)
 
 static struct methodlist sys_methods[] = {
 	{"exit",	sys_exit},
-	{NULL,		NULL}		/* sentinel */
+	{NULL,		NULL}	/* sentinel */
 };
 
 static object *sysin, *sysout, *syserr;
@@ -84,11 +87,11 @@ void
 initsys()
 {
 	object *m = initmodule("sys", sys_methods);
-
 	sysdict = getmoduledict(m);
+
 	INCREF(sysdict);
-	/* NB keep an extra ref to the std files to avoid closing them
-	   when the user deletes them */
+	/* NB keep an extra ref to the std files to avoid closing them when the
+       user deletes them */
 	/* XXX File objects should have a "don't close" flag instead */
 	sysin = newopenfileobject(stdin, "<stdin>", "r");
 	sysout = newopenfileobject(stdout, "<stdout>", "w");
@@ -108,11 +111,9 @@ initsys()
 static object *
 makepathobject(char *path, int delim)
 {
-	int i, n;
-	char *p;
+	int i, n = 1;
+	char *p = path;
 	object *v, *w;
-	n = 1;
-	p = path;
 
 	while ((p = strchr(p, delim)) != NULL) {
 		n++;
@@ -125,7 +126,7 @@ makepathobject(char *path, int delim)
 	for (i = 0; ; i++) {
 		p = strchr(path, delim);
 		if (p == NULL) {
-			p = strchr(path, '\0'); /* End of string */
+			p = strchr(path, '\0');	/* End of string */
         }
 		w = newsizedstringobject(path, (int)(p - path));
 		if (w == NULL) {

@@ -7,6 +7,7 @@ extern "C" {
 
 /* Tokenizer interface */
 
+#include <stdio.h>
 #include "token.h"	/* For token types */
 
 #define MAXINDENT 100	/* Max indentation level */

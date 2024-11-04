@@ -3,18 +3,25 @@
 /* XXX TO DO:
    XXX Compute maximum needed stack sizes while compiling
    XXX Generate simple jump for break/return outside 'try...finally'
-   XXX Include function name in code (and module names?)
-*/
+   XXX Include function name in code (and module names?) */
 
-#include "allobjects.h"
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "object.h"
+#include "objimpl.h"
+#include "intobject.h"
+#include "floatobject.h"
+#include "listobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "node.h"
 #include "token.h"
 #include "graminit.h"
 #include "compile.h"
 #include "opcode.h"
 #include "structmember.h"
-
-#include <ctype.h>
 
 #define OFF(x) offsetof(codeobject, x)
 
@@ -59,8 +66,6 @@ typeobject Codetype = {
 	0,							/*tp_as_mapping*/
 };
 
-static codeobject *newcodeobject(object *, object *, object *, char *);
-
 static codeobject *
 newcodeobject(object *code, object *consts, object *names, char *filename)
 {
@@ -99,14 +104,14 @@ newcodeobject(object *code, object *consts, object *names, char *filename)
 
 /* Data structure used internally */
 struct compiling {
-	object *c_code;		/* string */
-	object *c_consts;	/* list of objects */
-	object *c_names;	/* list of strings (names) */
-	int c_nexti;		/* index into c_code */
-	int c_errors;		/* counts errors occurred */
-	int c_infunction;	/* set when compiling a function */
-	int c_loops;		/* counts nested loops */
-	char *c_filename;	/* filename of current node */
+	object *c_code;			/* string */
+	object *c_consts;		/* list of objects */
+	object *c_names;		/* list of strings (names) */
+	int 	c_nexti;		/* index into c_code */
+	int 	c_errors;		/* counts errors occurred */
+	int 	c_infunction;	/* set when compiling a function */
+	int 	c_loops;		/* counts nested loops */
+	char 	*c_filename;	/* filename of current node */
 };
 
 /* Prototypes */
@@ -344,33 +349,43 @@ parsestr(char *s)
 			case '\\':
                 *p++ = '\\';
                 break;
+
 			case '\'':
                 *p++ = '\'';
                 break;
+
 			case 'b':
                 *p++ = '\b';
                 break;
+
 			case 'f':
                 *p++ = '\014';
                 break; /* FF */
+
 			case 't':
                 *p++ = '\t';
                 break;
+
 			case 'n':
                 *p++ = '\n';
                 break;
+
 			case 'r':
                 *p++ = '\r';
                 break;
+
 			case 'v':
                 *p++ = '\013';
                 break; /* VT */
+
 			case 'E':
                 *p++ = '\033';
             	break; /* ESC, not C */
+
 			case 'a':
                 *p++ = '\007';
             	break; /* BEL, not classic C */
+
 			case '0':
             case '1':
         	case '2':
@@ -388,6 +403,7 @@ parsestr(char *s)
 				}
 				*p++ = c;
 				break;
+
 			case 'x':
 				if (isxdigit(*s)) {
 					sscanf(s, "%x", &c);
@@ -397,6 +413,7 @@ parsestr(char *s)
 					} while (isxdigit(*s));
 					break;
 				}
+
 			/* FALLTHROUGH */
 			default:
                 *p++ = '\\';
@@ -443,6 +460,7 @@ com_atom(struct compiling *c, node *n)
 				com_node(c, CHILD(n, 1));
             }
 			break;
+
 		case LSQB:
 			if (TYPE(CHILD(n, 1)) == RSQB) {
 				com_addoparg(c, BUILD_LIST, 0);
@@ -451,13 +469,16 @@ com_atom(struct compiling *c, node *n)
 				com_list_constructor(c, CHILD(n, 1));
             }
 			break;
+
 		case LBRACE:
 			com_addoparg(c, BUILD_MAP, 0);
 			break;
+
 		case BACKQUOTE:
 			com_node(c, CHILD(n, 1));
 			com_addbyte(c, UNARY_CONVERT);
 			break;
+
 		case NUMBER:
 			if ((v = parsenumber(STR(ch))) == NULL) {
 				c->c_errors++;
@@ -469,6 +490,7 @@ com_atom(struct compiling *c, node *n)
 			}
 			com_addoparg(c, LOAD_CONST, i);
 			break;
+
 		case STRING:
 			if ((v = parsestr(STR(ch))) == NULL) {
 				c->c_errors++;
@@ -480,9 +502,11 @@ com_atom(struct compiling *c, node *n)
 			}
 			com_addoparg(c, LOAD_CONST, i);
 			break;
+
 		case NAME:
 			com_addopname(c, LOAD_NAME, ch);
 			break;
+
 		default:
 			fprintf(stderr, "node type %d\n", TYPE(ch));
 			err_setstr(SystemError, "com_atom: unexpected node type");
@@ -555,12 +579,15 @@ com_apply_trailer(struct compiling *c, node *n)
 		case LPAR:
 			com_call_function(c, CHILD(n, 1));
 			break;
+
 		case DOT:
 			com_select_member(c, CHILD(n, 1));
 			break;
+
 		case LSQB:
 			com_apply_subscript(c, CHILD(n, 1));
 			break;
+
 		default:
 			err_setstr(SystemError, "com_apply_trailer: unknown trailer type");
 			c->c_errors++;
@@ -600,12 +627,15 @@ com_term(struct compiling *c, node *n)
 			case STAR:
 				op = BINARY_MULTIPLY;
 				break;
+
 			case SLASH:
 				op = BINARY_DIVIDE;
 				break;
+
 			case PERCENT:
 				op = BINARY_MODULO;
 				break;
+
 			default:
 				err_setstr(SystemError,
                            "com_term: term operator not *, / or %");
@@ -629,9 +659,11 @@ com_expr(struct compiling *c, node *n)
 			case PLUS:
 				op = BINARY_ADD;
 				break;
+
 			case MINUS:
 				op = BINARY_SUBTRACT;
 				break;
+
 			default:
 				err_setstr(SystemError, "com_expr: expr operator not + or -");
 				c->c_errors++;
@@ -652,10 +684,13 @@ cmp_type(node *n)
 		switch (TYPE(n)) {
 			case LESS:
                 return LT;
+
 			case GREATER:
                 return GT;
+
 			case EQUAL:
                 return EQ;
+
 			case NAME:
                 if (strcmp(STR(n), "in") == 0) {
                 	return IN;
@@ -676,11 +711,13 @@ cmp_type(node *n)
                     return NE;
                 }
 				break;
+
 			case GREATER:
                 if (t2 == EQUAL) {
                 	return GE;
                 }
 				break;
+
 			case NAME:
                 if (strcmp(STR(CHILD(n, 1)), "in") == 0) {
 					return NOT_IN;
@@ -783,12 +820,9 @@ com_not_test(struct compiling *c, node *n)
 static void
 com_and_test(struct compiling *c, node *n)
 {
-	int i;
-	int anchor;
+	int i = 0, anchor = 0;
 
 	REQ(n, and_test); /* not_test ('and' not_test)* */
-	anchor = 0;
-	i = 0;
 	for (;;) {
 		com_not_test(c, CHILD(n, i));
 		if ((i += 2) >= NCH(n)) {
@@ -805,12 +839,9 @@ com_and_test(struct compiling *c, node *n)
 static void
 com_test(struct compiling *c, node *n)
 {
-	int i;
-	int anchor;
+	int i = 0, anchor = 0;
 
 	REQ(n, test); /* and_test ('and' and_test)* */
-	anchor = 0;
-	i = 0;
 	for (;;) {
 		com_and_test(c, CHILD(n, i));
 		if ((i += 2) >= NCH(n)) {
@@ -875,9 +906,11 @@ com_assign_trailer(struct compiling *c, node *n, int assigning)
 			err_setstr(TypeError, "can't assign to function call");
 			c->c_errors++;
 			break;
+
 		case DOT: /* '.' NAME */
 			com_assign_attr(c, CHILD(n, 1), assigning);
 			break;
+
 		case LSQB: /* '[' subscript ']' */
 			n = CHILD(n, 1);
 			REQ(n, subscript); /* subscript: expr | [expr] ':' [expr] */
@@ -888,6 +921,7 @@ com_assign_trailer(struct compiling *c, node *n, int assigning)
 				com_assign_subscript(c, CHILD(n, 0), assigning);
             }
 			break;
+
 		default:
 			err_setstr(TypeError, "unknown trailer type");
 			c->c_errors++;
@@ -999,32 +1033,35 @@ com_assign(struct compiling *c, node *n, int assigning)
 
 			case atom:
 				switch (TYPE(CHILD(n, 0))) {
-				case LPAR:
-					n = CHILD(n, 1);
-					if (TYPE(n) == RPAR) {
-						/* XXX Should allow () = () ??? */
-						err_setstr(TypeError, "can't assign to ()");
+					case LPAR:
+						n = CHILD(n, 1);
+						if (TYPE(n) == RPAR) {
+							/* XXX Should allow () = () ??? */
+							err_setstr(TypeError, "can't assign to ()");
+							c->c_errors++;
+							return;
+						}
+						break;
+
+					case LSQB:
+						n = CHILD(n, 1);
+						if (TYPE(n) == RSQB) {
+							err_setstr(TypeError, "can't assign to []");
+							c->c_errors++;
+							return;
+						}
+						com_assign_list(c, n, assigning);
+						return;
+
+					case NAME:
+						com_assign_name(c, CHILD(n, 0), assigning);
+						return;
+
+					default:
+						err_setstr(TypeError, "can't assign to constant");
 						c->c_errors++;
 						return;
 					}
-					break;
-				case LSQB:
-					n = CHILD(n, 1);
-					if (TYPE(n) == RSQB) {
-						err_setstr(TypeError, "can't assign to []");
-						c->c_errors++;
-						return;
-					}
-					com_assign_list(c, n, assigning);
-					return;
-				case NAME:
-					com_assign_name(c, CHILD(n, 0), assigning);
-					return;
-				default:
-					err_setstr(TypeError, "can't assign to constant");
-					c->c_errors++;
-					return;
-				}
 				break;
 
 			default:
@@ -1207,8 +1244,8 @@ com_for_stmt(struct compiling *c, node *n)
 	com_backpatch(c, break_anchor);
 }
 
-/* Although 'execpt' and 'finally' clauses can be combined
-   syntactically, they are compiled separately.  In fact,
+/*  Although 'execpt' and 'finally' clauses can be combined syntactically, they
+	are compiled separately.  In fact,
 	try: S
 	except E1: S1
 	except E2: S2
@@ -1221,12 +1258,11 @@ com_for_stmt(struct compiling *c, node *n)
 	    except E2: S2
 	    ...
 	finally: Sf
-   meaning that the 'finally' clause is entered even if things
-   go wrong again in an exception handler.  Note that this is
-   not the case for exception handlers: at most one is entered.
+   meaning that the 'finally' clause is entered even if things go wrong again
+   in an exception handler.  Note that this is not the case for exception
+   handlers: at most one is entered.
    
    Code generated for "try: S finally: Sf" is as follows:
-   
 		SETUP_FINALLY	L
 		<code for S>
 		POP_BLOCK
@@ -1234,33 +1270,30 @@ com_for_stmt(struct compiling *c, node *n)
 	L:	<code for Sf>
 		END_FINALLY
    
-   The special instructions use the block stack.  Each block
-   stack entry contains the instruction that created it (here
-   SETUP_FINALLY), the level of the value stack at the time the
-   block stack entry was created, and a label (here L).
+   The special instructions use the block stack.  Each block stack entry
+   contains the instruction that created it (here SETUP_FINALLY), the level of
+   the value stack at the time the block stack entry was created, and a
+   label (here L).
    
    SETUP_FINALLY:
-	Pushes the current value stack level and the label
-	onto the block stack.
+	Pushes the current value stack level and the label onto the block stack.
    POP_BLOCK:
-	Pops en entry from the block stack, and pops the value
-	stack until its level is the same as indicated on the
-	block stack.  (The label is ignored.)
+	Pops en entry from the block stack, and pops the value stack until its
+	level is the same as indicated on the block stack.  (The label is ignored.)
    END_FINALLY:
-	Pops a variable number of entries from the *value* stack
-	and re-raises the exception they specify.  The number of
-	entries popped depends on the (pseudo) exception type.
+	Pops a variable number of entries from the *value* stack and re-raises the
+    exception they specify.  The number of entries popped depends on the
+    (pseudo) exception type.
    
-   The block stack is unwound when an exception is raised:
-   when a SETUP_FINALLY entry is found, the exception is pushed
-   onto the value stack (and the exception condition is cleared),
-   and the interpreter jumps to the label gotten from the block
-   stack.
+   The block stack is unwound when an exception is raised: when a SETUP_FINALLY
+   entry is found, the exception is pushed onto the value stack (and the
+   exception condition is cleared), and the interpreter jumps to the label
+   gotten from the block stack.
    
    Code generated for "try: S except E1, V1: S1 except E2, V2: S2 ...":
-   (The contents of the value stack is shown in [], with the top
-   at the right; 'tb' is trace-back info, 'val' the exception's
-   associated value, and 'exc' the exception.)
+   (The contents of the value stack is shown in [], with the top at the right;
+   'tb' is trace-back info, 'val' the exception's associated value, and 'exc'
+   the exception.)
    
    Value stack		Label	Instruction	Argument
    []				SETUP_EXCEPT	L1
@@ -1288,8 +1321,7 @@ com_for_stmt(struct compiling *c, node *n)
    
    []			L0:	<next statement>
    
-   Of course, parts are not generated if Vi or Ei is not present.
-*/
+   Of course, parts are not generated if Vi or Ei is not present. */
 
 static void
 com_try_stmt(struct compiling *c, node *n)
@@ -1403,11 +1435,10 @@ static void
 com_bases(struct compiling *c, node *n)
 {
 	int nbases;
+
 	REQ(n, baselist);
-	/*
-	baselist: atom arguments (',' atom arguments)*
-	arguments: '(' [testlist] ')'
-	*/
+	/* baselist: atom arguments (',' atom arguments)*
+	   arguments: '(' [testlist] ')' */
 	for (int i = 0; i < NCH(n); i += 3) {
 		com_node(c, CHILD(n, i));
     }
@@ -1418,12 +1449,11 @@ static void
 com_classdef(struct compiling *c, node *n)
 {
 	object *v;
+
 	REQ(n, classdef);
-	/*
-	classdef: 'class' NAME parameters ['=' baselist] ':' suite
-	baselist: atom arguments (',' atom arguments)*
-	arguments: '(' [testlist] ')'
-	*/
+	/* classdef: 'class' NAME parameters ['=' baselist] ':' suite
+	   baselist: atom arguments (',' atom arguments)*
+	   arguments: '(' [testlist] ')' */
 	if (NCH(n) == 7) {
 		com_bases(c, CHILD(n, 4));
     }
@@ -1453,6 +1483,7 @@ com_node(struct compiling *c, node *n)
 		case funcdef:
 			com_funcdef(c, n);
 			break;
+
 		case classdef:
 			com_classdef(c, n);
 			break;
@@ -1473,14 +1504,18 @@ com_node(struct compiling *c, node *n)
 		case expr_stmt:
 			com_expr_stmt(c, n);
 			break;
+
 		case print_stmt:
 			com_print_stmt(c, n);
 			break;
+
 		case del_stmt: /* 'del' exprlist NEWLINE */
 			com_assign(c, CHILD(n, 1), 0/*delete*/);
 			break;
+
 		case pass_stmt:
 			break;
+
 		case break_stmt:
 			if (c->c_loops == 0) {
 				err_setstr(TypeError, "'break' outside loop");
@@ -1488,27 +1523,35 @@ com_node(struct compiling *c, node *n)
 			}
 			com_addbyte(c, BREAK_LOOP);
 			break;
+
 		case return_stmt:
 			com_return_stmt(c, n);
 			break;
+
 		case raise_stmt:
 			com_raise_stmt(c, n);
 			break;
+
 		case import_stmt:
 			com_import_stmt(c, n);
 			break;
+
 		case if_stmt:
 			com_if_stmt(c, n);
 			break;
+
 		case while_stmt:
 			com_while_stmt(c, n);
 			break;
+
 		case for_stmt:
 			com_for_stmt(c, n);
 			break;
+
 		case try_stmt:
 			com_try_stmt(c, n);
 			break;
+
 		case suite:
 			com_suite(c, n);
 			break;
@@ -1517,30 +1560,39 @@ com_node(struct compiling *c, node *n)
 		case testlist:
 			com_list(c, n);
 			break;
+
 		case test:
 			com_test(c, n);
 			break;
+
 		case and_test:
 			com_and_test(c, n);
 			break;
+
 		case not_test:
 			com_not_test(c, n);
 			break;
+
 		case comparison:
 			com_comparison(c, n);
 			break;
+
 		case exprlist:
 			com_list(c, n);
 			break;
+
 		case expr:
 			com_expr(c, n);
 			break;
+
 		case term:
 			com_term(c, n);
 			break;
+
 		case factor:
 			com_factor(c, n);
 			break;
+
 		case atom:
 			com_atom(c, n);
 			break;
@@ -1623,7 +1675,6 @@ compile_node(struct compiling *c, node *n)
 	com_addoparg(c, SET_LINENO, n->n_lineno);
 	
 	switch (TYPE(n)) {
-
 		case single_input: /* One interactive command */
 			/* NEWLINE | simple_stmt | compound_stmt NEWLINE */
 			com_addbyte(c, REFUSE_ARGS);

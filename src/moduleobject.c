@@ -1,6 +1,14 @@
 /* Module object implementation */
 
-#include "allobjects.h"
+#include <string.h>
+
+#include "object.h"
+#include "objimpl.h"
+#include "stringobject.h"
+#include "dictobject.h"
+#include "moduleobject.h"
+#include "errors.h"
+#include "malloc.h"
 
 typedef struct {
 	OB_HEAD

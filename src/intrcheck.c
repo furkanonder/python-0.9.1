@@ -1,10 +1,7 @@
 /* Check for interrupts */
 
-#ifndef OK
-
 /* Default version -- for real operating systems and for Standard C */
 
-#include <stdio.h>
 #include <signal.h>
 #include "sigtype.h"
 
@@ -35,5 +32,3 @@ intrcheck()
 	interrupted = 0;
 	return 1;
 }
-
-#endif /* !OK */

@@ -1,7 +1,16 @@
 /* Regular expression objects */
 /* This needs V8 or Henry Spencer's regexp! */
 
-#include "allobjects.h"
+#include "object.h"
+#include "objimpl.h"
+#include "intobject.h"
+#include "stringobject.h"
+#include "tupleobject.h"
+#include "dictobject.h"
+#include "methodobject.h"
+#include "moduleobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "modsupport.h"
 #include "regexp.h"
 

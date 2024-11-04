@@ -1,6 +1,10 @@
 /* Function object implementation */
 
-#include "allobjects.h"
+#include "object.h"
+#include "objimpl.h"
+#include "funcobject.h"
+#include "errors.h"
+#include "malloc.h"
 #include "structmember.h"
 
 typedef struct {

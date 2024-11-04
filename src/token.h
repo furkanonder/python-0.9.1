@@ -39,14 +39,12 @@ extern "C" {
 #define N_TOKENS	30
 
 /* Special definitions for cooperation with parser */
-
 #define NT_OFFSET    256
-
 #define ISTERMINAL(x)		((x) < NT_OFFSET)
 #define ISNONTERMINAL(x)	((x) >= NT_OFFSET)
 #define ISEOF(x)		    ((x) == ENDMARKER)
 
-extern char *tok_name[]; /* Token names */
+extern char *tok_name[];    /* Token names */
 extern int tok_1char(int);
 
 #ifdef __cplusplus

@@ -1,6 +1,5 @@
 /* Parser-tokenizer link implementation */
 
-#include <stdio.h>
 #include <string.h>
 
 #include "malloc.h"
@@ -8,7 +7,6 @@
 #include "node.h"
 #include "grammar.h"
 #include "parser.h"
-#include "parsetok.h"
 #include "errcode.h"
 
 /* Parse input coming from the given tokenizer structure. Return error code. */
