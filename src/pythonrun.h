@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include "node.h"
+
 /* Interfaces to parse and execute pieces of python code */
 
 void initall(void);
