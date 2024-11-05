@@ -138,7 +138,7 @@ static label labels[19] = {
 	{7, 0},
 	{8, 0},
 };
-static grammar gram = {
+grammar gram = {
 	6,
 	dfas,
 	{19, labels},

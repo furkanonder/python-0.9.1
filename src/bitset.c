@@ -2,6 +2,7 @@
 
 #include "pgenheaders.h"
 #include "bitset.h"
+#include "errors.h"
 
 bitset
 newbitset(int nbits)

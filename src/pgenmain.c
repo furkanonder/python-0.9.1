@@ -4,8 +4,8 @@
    It writes its output on two files in the current directory:
    	- "graminit.c" gets the grammar as a bunch of initialized data
    	- "graminit.h" gets the grammar's non-terminals as #defines.
-   Error messages and status info during the generation process are
-   written to stdout, or sometimes to stderr. */
+   Error messages and status info during the generation process are written to
+   stdout, or sometimes to stderr. */
 
 #include "malloc.h"
 #include "grammar.h"
@@ -79,6 +79,12 @@ getgrammar(char *filename)
 	return g;
 }
 
+void
+fatal(char *msg)
+{
+	fprintf(stderr, "pgen: FATAL ERROR: %s\n", msg);
+	exit(1);
+}
+
 /* XXX TO DO:
-   - check for duplicate definitions of names (instead of fatal err)
-*/
+   - check for duplicate definitions of names (instead of fatal err) */

@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include "node.h"
+
 /* Parser generator interface */
 
 extern grammar gram;

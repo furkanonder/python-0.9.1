@@ -3,6 +3,7 @@
 #include "pgenheaders.h"
 #include "grammar.h"
 #include "token.h"
+#include "errors.h"
 
 extern int debugging;
 

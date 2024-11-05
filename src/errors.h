@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include "object.h"
+
 /* Error handling definitions */
 void err_set(object *);
 void err_setval(object *, object *);

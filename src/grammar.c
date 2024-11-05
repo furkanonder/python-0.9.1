@@ -6,6 +6,7 @@
 #include "assert.h"
 #include "token.h"
 #include "grammar.h"
+#include "errors.h"
 
 extern int debugging;
 

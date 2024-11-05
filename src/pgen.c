@@ -9,6 +9,7 @@
 #include "grammar.h"
 #include "metagrammar.h"
 #include "pgen.h"
+#include "errors.h"
 
 extern int debugging;
 
@@ -32,11 +33,49 @@ typedef struct _nfa {
 	int			nf_start, nf_finish;
 } nfa;
 
+typedef struct _nfagrammar {
+	int			gr_nnfas;
+	nfa			**gr_nfa;
+	labellist	gr_ll;
+} nfagrammar;
+
+typedef struct _ss_arc {
+	bitset	sa_bitset;
+	int		sa_arrow;
+	int		sa_label;
+} ss_arc;
+
+typedef struct _ss_state {
+	bitset	ss_ss;
+	int		ss_narcs;
+	ss_arc	*ss_arc;
+	int		ss_deleted;
+	int		ss_finish;
+	int		ss_rename;
+} ss_state;
+
+typedef struct _ss_dfa {
+	int			sd_nstates;
+	ss_state 	*sd_state;
+} ss_dfa;
+
+/* Forwards */
+static void compile_rule(nfagrammar *gr, node *n);
+static void compile_rhs(labellist *ll, nfa *nf, node *n, int *pa, int *pb);
+static void compile_alt(labellist *ll, nfa *nf, node *n, int *pa, int *pb);
+static void compile_item(labellist *ll, nfa *nf, node *n, int *pa, int *pb);
+static void compile_atom(labellist *ll, nfa *nf, node *n, int *pa, int *pb);
+static void makedfa(nfagrammar *gr, nfa *nf, dfa *d);
+static void simplify(int xx_nstates, ss_state *xx_state);
+static void convert(dfa *d, int xx_nstates, ss_state *xx_state);
+static void printssdfa(int xx_nstates, ss_state *xx_state, int nbits,
+                       labellist *ll, char *msg);
+
 static int
 addnfastate(nfa *nf)
 {
 	nfastate *st;
-	
+
 	RESIZE(nf->nf_state, nfastate, nf->nf_nstates + 1);
 	if (nf->nf_state == NULL) {
 		fatal("out of mem");
@@ -66,7 +105,7 @@ static nfa *
 newnfa(char *name)
 {
 	nfa *nf = NEW(nfa, 1);
-	static type = NT_OFFSET; /* All types will be disjunct */
+	static int type = NT_OFFSET; /* All types will be disjunct */
 
 	if (nf == NULL) {
 		fatal("no mem for new nfa");
@@ -78,12 +117,6 @@ newnfa(char *name)
 	nf->nf_start = nf->nf_finish = -1;
 	return nf;
 }
-
-typedef struct _nfagrammar {
-	int			gr_nnfas;
-	nfa			**gr_nfa;
-	labellist	gr_ll;
-} nfagrammar;
 
 static nfagrammar *
 newnfagrammar()
@@ -131,7 +164,7 @@ metacompile(node *n)
 {
 	nfagrammar *gr;
 	int i;
-	
+
 	printf("Compiling (meta-) parse tree into NFA grammar\n");
 	gr = newnfagrammar();
 	REQ(n, MSTART);
@@ -145,11 +178,11 @@ metacompile(node *n)
 	return gr;
 }
 
-static
+static void
 compile_rule(nfagrammar *gr, node *n)
 {
 	nfa *nf;
-	
+
 	REQ(n, RULE);
 	REQN(n->n_nchildren, 4);
 	n = n->n_child;
@@ -164,11 +197,11 @@ compile_rule(nfagrammar *gr, node *n)
 	REQ(n, NEWLINE);
 }
 
-static
+static void
 compile_rhs(labellist *ll, nfa *nf, node *n, int *pa, int *pb)
 {
 	int i, a, b;
-	
+
 	REQ(n, RHS);
 	i = n->n_nchildren;
 	REQN(i, 1);
@@ -197,11 +230,11 @@ compile_rhs(labellist *ll, nfa *nf, node *n, int *pa, int *pb)
 	}
 }
 
-static
+static void
 compile_alt(labellist *ll, nfa *nf, node *n, int *pa, int *pb)
 {
 	int i, a, b;
-	
+
 	REQ(n, ALT);
 	i = n->n_nchildren;
 	REQN(i, 1);
@@ -223,11 +256,11 @@ compile_alt(labellist *ll, nfa *nf, node *n, int *pa, int *pb)
 	}
 }
 
-static
+static void
 compile_item(labellist *ll, nfa *nf, node *n, int *pa, int *pb)
 {
 	int i, a, b;
-	
+
 	REQ(n, ITEM);
 	i = n->n_nchildren;
 	REQN(i, 1);
@@ -262,11 +295,11 @@ compile_item(labellist *ll, nfa *nf, node *n, int *pa, int *pb)
 	}
 }
 
-static
+static void
 compile_atom(labellist *ll, nfa *nf, node *n, int *pa, int *pb)
 {
 	int i;
-	
+
 	REQ(n, ATOM);
 	i = n->n_nchildren;
 	REQN(i, 1);
@@ -294,7 +327,7 @@ dumpstate(labellist *ll, nfa *nf, int istate)
 {
 	nfastate *st;
 	nfaarc *ar;
-	
+
 	printf("%c%2d%c", istate == nf->nf_start ? '*' : ' ', istate,
 		   istate == nf->nf_finish ? '.' : ' ');
 	st = &nf->nf_state[istate];
@@ -337,39 +370,16 @@ addclosure(bitset ss, nfa *nf, int istate)
 	}
 }
 
-typedef struct _ss_arc {
-	bitset	sa_bitset;
-	int		sa_arrow;
-	int		sa_label;
-} ss_arc;
-
-typedef struct _ss_state {
-	bitset	ss_ss;
-	int		ss_narcs;
-	ss_arc	*ss_arc;
-	int		ss_deleted;
-	int		ss_finish;
-	int		ss_rename;
-} ss_state;
-
-typedef struct _ss_dfa {
-	int			sd_nstates;
-	ss_state 	*sd_state;
-} ss_dfa;
-
-static
+static void
 makedfa(nfagrammar *gr, nfa *nf, dfa *d)
 {
-	int nbits = nf->nf_nstates;
-	bitset ss;
-	int xx_nstates;
+	int xx_nstates, istate, jstate, iarc, jarc, ibit, nbits = nf->nf_nstates;
+    bitset ss = newbitset(nbits);
 	ss_state *xx_state, *yy;
 	ss_arc *zz;
-	int istate, jstate, iarc, jarc, ibit;
 	nfastate *st;
 	nfaarc *ar;
-	
-	ss = newbitset(nbits);
+
 	addclosure(ss, nf, nf->nf_start);
 	xx_state = NEW(ss_state, 1);
 	if (xx_state == NULL) {
@@ -385,9 +395,9 @@ makedfa(nfagrammar *gr, nfa *nf, dfa *d)
 	if (yy->ss_finish) {
 		printf("Error: nonterminal '%s' may produce empty.\n", nf->nf_name);
     }
-	
-	/* This algorithm is from a book written before
-	   the invention of structured programming... */
+
+	/* This algorithm is from a book written before the invention of structured
+	   programming... */
 
 	/* For each unmarked state... */
 	for (istate = 0; istate < xx_nstates; ++istate) {
@@ -449,31 +459,31 @@ makedfa(nfagrammar *gr, nfa *nf, dfa *d)
 		 done:	;
 		}
 	}
-	
+
 	if (debugging) {
 		printssdfa(xx_nstates, xx_state, nbits, &gr->gr_ll,
                    "before minimizing");
-    	}
-	
+    }
+
 	simplify(xx_nstates, xx_state);
-	
+
 	if (debugging) {
 		printssdfa(xx_nstates, xx_state, nbits, &gr->gr_ll,
                    "after minimizing");
     }
-	
+
 	convert(d, xx_nstates, xx_state);
 	/* XXX cleanup */
 }
 
-static
+static void
 printssdfa(int xx_nstates, ss_state *xx_state, int nbits, labellist *ll,
            char *msg)
 {
 	int i, ibit, iarc;
 	ss_state *yy;
 	ss_arc *zz;
-	
+
 	printf("Subset DFA %s\n", msg);
 	for (i = 0; i < xx_nstates; i++) {
 		yy = &xx_state[i];
@@ -501,12 +511,10 @@ printssdfa(int xx_nstates, ss_state *xx_state, int nbits, labellist *ll,
 
 /* PART THREE -- SIMPLIFY DFA */
 
-/* Simplify the DFA by repeatedly eliminating states that are
-   equivalent to another oner.  This is NOT Algorithm 3.3 from
-   [Aho&Ullman 77].  It does not always finds the minimal DFA,
-   but it does usually make a much smaller one...  (For an example
-   of sub-optimal behaviour, try S: x a b+ | y a b+.)
-*/
+/* Simplify the DFA by repeatedly eliminating states that are equivalent to
+   another oner.  This is NOT Algorithm 3.3 from [Aho&Ullman 77].  It does not
+   always finds the minimal DFA, but it does usually make a much smaller one...
+   (For an example of sub-optimal behaviour, try S: x a b+ | y a b+.) */
 
 static int
 samestate(ss_state *s1, ss_state *s2)
@@ -541,7 +549,7 @@ renamestates(int xx_nstates, ss_state *xx_state, int from, int to)
 	}
 }
 
-static
+static void
 simplify(int xx_nstates, ss_state *xx_state)
 {
 	int changes;
@@ -570,12 +578,12 @@ simplify(int xx_nstates, ss_state *xx_state)
 /* PART FOUR -- GENERATE PARSING TABLES */
 
 /* Convert the DFA into a grammar that can be used by our parser */
-static
+static void
 convert(dfa *d, int xx_nstates, ss_state *xx_state)
 {
 	ss_state *yy;
 	ss_arc *zz;
-	
+
 	for (int i = 0; i < xx_nstates; i++) {
 		yy = &xx_state[i];
 		if (yy->ss_deleted) {
@@ -583,13 +591,13 @@ convert(dfa *d, int xx_nstates, ss_state *xx_state)
         }
 		yy->ss_rename = addstate(d);
 	}
-	
+
 	for (int i = 0; i < xx_nstates; i++) {
 		yy = &xx_state[i];
 		if (yy->ss_deleted) {
 			continue;
         }
-		for (j = 0; j < yy->ss_narcs; j++) {
+		for (int j = 0; j < yy->ss_narcs; j++) {
 			zz = &yy->ss_arc[j];
 			addarc(d, yy->ss_rename, xx_state[zz->sa_arrow].ss_rename,
 				   zz->sa_label);
@@ -598,7 +606,7 @@ convert(dfa *d, int xx_nstates, ss_state *xx_state)
 			addarc(d, yy->ss_rename, yy->ss_rename, 0);
         }
 	}
-	
+
 	d->d_initial = 0;
 }
 
@@ -610,14 +618,14 @@ maketables(nfagrammar *gr)
 	nfa *nf;
 	dfa *d;
 	grammar *g;
-	
+
 	if (gr->gr_nnfas == 0) {
 		return NULL;
     }
 	g = newgrammar(gr->gr_nfa[0]->nf_type);
 	/* XXX first rule must be start rule */
 	g->g_ll = gr->gr_ll;
-	
+
 	for (int i = 0; i < gr->gr_nnfas; i++) {
 		nf = gr->gr_nfa[i];
 		if (debugging) {
@@ -643,31 +651,23 @@ pgen(node *n)
 	return g;
 }
 
-/*
-
-Description
+/* Description
 -----------
+Input is a grammar in extended BNF (using * for repetition, + for at-least-once
+repetition, [] for optional parts, | for alternatives and () for grouping).
+This has already been parsed and turned into a parse tree.
 
-Input is a grammar in extended BNF (using * for repetition, + for
-at-least-once repetition, [] for optional parts, | for alternatives and
-() for grouping).  This has already been parsed and turned into a parse
-tree.
+Each rule is considered as a regular expression in its own right.  It is turned
+into a Non-deterministic Finite Automaton (NFA), which is then turned into a
+Deterministic Finite Automaton (DFA), which is then optimized to reduce the
+number of states.  See [Aho&Ullman 77] chapter 3, or similar compiler books
+(this technique is more often used for lexical analyzers).
 
-Each rule is considered as a regular expression in its own right.
-It is turned into a Non-deterministic Finite Automaton (NFA), which
-is then turned into a Deterministic Finite Automaton (DFA), which is then
-optimized to reduce the number of states.  See [Aho&Ullman 77] chapter 3,
-or similar compiler books (this technique is more often used for lexical
-analyzers).
-
-The DFA's are used by the parser as parsing tables in a special way
-that's probably unique.  Before they are usable, the FIRST sets of all
-non-terminals are computed.
+The DFA's are used by the parser as parsing tables in a special way that's
+probably unique.  Before they are usable, the FIRST sets of all non-terminals
+are computed.
 
 Reference
 ---------
-
-[Aho&Ullman 77]
-	Aho&Ullman, Principles of Compiler Design, Addison-Wesley 1977
-	(first edition)
-*/
+Aho & Ullman, Principles of Compiler Design,
+Addison-Wesley 1977 (first edition) */
