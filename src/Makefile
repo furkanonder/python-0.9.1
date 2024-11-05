@@ -1,235 +1,55 @@
-# Makefile for Python
-# ===================
-#
-# If you are in a hurry, you can just edit this Makefile to choose the
-# correct settings for RANLIB below, and type "make" in this
-# directory.
-#
-# If have more time, read the section on configurable options below.
-# It may still be wise to begin building the minimal portable Python,
-# to see if it works at all, and select options later.  You don't have
-# to rebuild all objects when you turn on options; all dependencies
-# are concentrated in the file "config.c" which is rebuilt whenever
-# the Makefile changes.  (Except if you turn on the GNU Readline option
-# you may have to toss out the tokenizer.o object.)
+CC = cc
+CFLAGS = -c
+AR = ar
+RANLIB = ranlib
+LIBS = -lm
+DEFPYTHONPATH = '-DPYTHONPATH=".:../lib"'
 
-# Operating System Defines (ALWAYS READ THIS)
-# ===========================================
+STANDARD_OBJ = acceler.o bltinmodule.o ceval.o classobject.o compile.o \
+	dictobject.o errors.o fgetsintr.o fileobject.o floatobject.o \
+	frameobject.o funcobject.o graminit.o grammar1.o import.o intobject.o \
+	intrcheck.o listnode.o listobject.o mathmodule.o methodobject.o \
+	modsupport.o moduleobject.o node.o object.o parser.o parsetok.o \
+	posixmodule.o regexp.o regexpmodule.o stringobject.o structmember.o \
+    sysmodule.o timemodule.o tokenizer.o traceback.o tupleobject.o \
+    typeobject.o
 
-# Choose one of the following two lines depending on whether your system
-# requires the use of 'ranlib' after creating a library, or not.
-RANLIB =	ranlib	# For BSD
+GENOBJECTS = acceler.o fgetsintr.o grammar1.o intrcheck.o listnode.o node.o \
+		parser.o parsetok.o tokenizer.o bitset.o firstsets.o grammar.o \
+		metagrammar.o pgen.o pgenmain.o printgrammar.o
 
-# If your system doesn't have symbolic links, uncomment the following
-# line.
-#NOSYMLINKDEF=	-DNO_LSTAT
+GENSOURCES = acceler.c fgetsintr.c grammar1.c intrcheck.c listnode.c node.c \
+		parser.c parsetok.c tokenizer.c bitset.c firstsets.c grammar.c \
+		metagrammar.c pgen.c pgenmain.c printgrammar.c
 
-# Installation Options
-# ====================
+all: python
 
-# You may want to change DEFPYTHONPATH to reflect where you install the
-# Python module library. The default contains "../lib" so running
-# the interpreter from the source/build directory as distributed will
-# find the library (admittedly a hack).
+python_gen: $(GENOBJECTS)
+	$(CC) $(GENSOURCES) -o python_gen
+	./python_gen Grammar
 
-DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
+python: python_gen libpython.a pythonmain.o config.o
+	$(CC) pythonmain.o config.o libpython.a $(LIBS) -o python
 
-# Further porting hints
-# =====================
-#
-# If you don't have the header file <string.h>, but you do have
-# <strings.h>, create a file "string.h" in this directory which contains
-# the single line "#include <strings.h>", and add "-I." to CFLAGS.
-# If you don't have the functions strchr and strrchr, add definitions
-# "-Dstrchr=index -Dstrrchr=rindex" to CFLAGS.  (NB: CFLAGS is not
-# defined in this Makefile.)
+libpython.a: $(STANDARD_OBJ)
+	-rm -f @lib
+	$(AR) cr @lib $(STANDARD_OBJ)
+	$(RANLIB) @lib
+	mv @lib libpython.a
 
-# Configurable Options
-# ====================
-#
-# Python can be configured to interface to various system libraries that
-# are not available on all systems.  It is also possible to configure
-# the input module to use the GNU Readline library for interactive
-# input.  For each configuration choice you must uncomment the relevant
-# section of the Makefile below.  Note: you may also have to change a
-# pathname and/or an architecture identifier that is hardcoded in the
-# Makefile.
-#
-# Read the comments to determine if you can use the option.  (You can
-# always leave all options off and build a minimal portable version of
-# Python.)
+pythonmain.o: pythonmain.c
+	$(CC) $(CFLAGS) -o pythonmain.o pythonmain.c
 
-# GNU Readline Option
-# ===================
-#
-# If you have the sources of the GNU Readline library you can have
-# full interactive command line editing and history in Python.
-# The GNU Readline library is distributed with the BASH shell
-# (I only know of version 1.05).  You must build the GNU Readline
-# library and the alloca routine it needs in their own source
-# directories (which are subdirectories of the bash source directory),
-# and plant a pointer to the BASH source directory in this Makefile.
-#
-# Uncomment and edit the following block to use the GNU Readline option.
-LIBREADLINE = -lreadline
-RL_USE 		= -DUSE_READLINE
-RL_LIBS		= $(LIBREADLINE)
-RL_LIBDEPS	= $(LIBREADLINE)
+config.o: config.c
+	$(CC) $(CFLAGS) $(DEFPYTHONPATH) -o config.o config.c
 
-# Major Definitions
-# =================
+clean:
+	-rm -f *.o python libpython.a python_gen graminit.c graminit.h
 
-STANDARD_OBJ=acceler.o bltinmodule.o ceval.o classobject.o \
-		compile.o dictobject.o errors.o fgetsintr.o \
-		fileobject.o floatobject.o $(FMOD_OBJ) frameobject.o \
-		funcobject.o $(GETCWD_OBJ) \
-		graminit.o grammar1.o import.o \
-		intobject.o intrcheck.o listnode.o listobject.o \
-		mathmodule.o methodobject.o modsupport.o \
-		moduleobject.o node.o object.o parser.o \
-		parsetok.o posixmodule.o regexp.o regexpmodule.o \
-		stringobject.o structmember.o \
-		sysmodule.o timemodule.o tokenizer.o traceback.o \
-		tupleobject.o typeobject.o
+%.o: %.c
+	$(CC) $(CFLAGS) $< -o $@
 
-STANDARD_SRC=acceler.c bltinmodule.c ceval.c classobject.c \
-		compile.c dictobject.c errors.c fgetsintr.c \
-		fileobject.c floatobject.c $(FMOD_SRC) frameobject.c \
-		funcobject.c $(GETCWD_SRC) \
-		graminit.c grammar1.c import.c \
-		intobject.c intrcheck.c listnode.c listobject.c \
-		mathmodule.c methodobject.c modsupport.c \
-		moduleobject.c node.c object.c parser.c \
-		parsetok.c posixmodule.c regexp.c regexpmodule.c \
-		stringobject.c structmember.c \
-		sysmodule.c timemodule.c tokenizer.c traceback.c \
-		tupleobject.c typeobject.c
+test: python
+	./python ../lib/testall.py
 
-CONFIGDEFS='-DPYTHONPATH="$(DEFPYTHONPATH)"'
-
-CONFIGINCLS=$(STDW_INCL)
-
-LIBDEPS=libpython.a $(RL_LIBDEPS)
-
-# NB: the ordering of items in LIBS is significant!
-LIBS = libpython.a $(RL_LIBS) -lm
-
-LIBOBJECTS=$(STANDARD_OBJ)
-
-LIBSOURCES=$(STANDARD_SRC)
-
-OBJECTS=pythonmain.o config.o
-
-SOURCES=$(LIBSOURCES) pythonmain.c config.c
-
-GENOBJECTS=acceler.o fgetsintr.o grammar1.o \
-		intrcheck.o listnode.o node.o parser.o \
-		parsetok.o tokenizer.o bitset.o \
-		firstsets.o grammar.o metagrammar.o pgen.o \
-		pgenmain.o printgrammar.o
-
-GENSOURCES=acceler.c fgetsintr.c grammar1.c \
-		intrcheck.c listnode.c node.c parser.c \
-		parsetok.c tokenizer.c bitset.c \
-		firstsets.c grammar.c metagrammar.c pgen.c \
-		pgenmain.c printgrammar.c
-
-
-# Main Targets
-# ============
-
-python:	libpython.a $(OBJECTS) $(LIBDEPS) Makefile
-		$(CC) $(CFLAGS) $(OBJECTS) $(LIBS) -o python
-
-libpython.a:$(LIBOBJECTS)
-		-rm -f @lib
-		ar cr @lib $(LIBOBJECTS)
-		$(RANLIB) @lib
-		mv @lib libpython.a
-
-python_gen:	$(GENOBJECTS) $(RL_LIBDEPS)
-		$(CC) $(CFLAGS) $(GENOBJECTS) $(RL_LIBS) -o python_gen
-
-
-# Utility Targets
-# ===============
-
-# Don't take the output from lint too seriously.  I have not attempted
-# to make Python lint-free.  But I use function prototypes.
-
-LINTFLAGS=-h
-
-LINTCPPFLAGS=$(CONFIGDEFS) $(CONFIGINCLS)
-
-LINT=lint
-
-lint::	$(SOURCES)
-		$(LINT) $(LINTFLAGS) $(LINTCPPFLAGS) $(SOURCES)
-
-lint::	$(GENSOURCES)
-		$(LINT) $(LINTFLAGS) $(GENSOURCES)
-
-# Generating dependencies is only necessary if you intend to hack Python.
-# You may change $(MKDEP) to your favorite dependency generator (it should
-# edit the Makefile in place).
-
-MKDEP=mkdep
-
-depend::
-		$(MKDEP) $(LINTCPPFLAGS) $(SOURCES) $(GENSOURCES)
-
-# You may change $(CTAGS) to suit your taste...
-
-CTAGS=ctags -t -w
-
-HEADERS=*.h
-
-tags:	$(SOURCES) $(GENSOURCES) $(HEADERS)
-		$(CTAGS) $(SOURCES) $(GENSOURCES) $(HEADERS)
-
-clean::
-		-rm -f *.o core [,#@]*
-
-clobber::	clean
-		-rm -f python python_gen libpython.a tags
-
-
-# Build Special Objects
-# =====================
-
-# You may change $(COMPILE) to reflect the default .c.o rule...
-
-COMPILE=	$(CC) -c $(CFLAGS)
-
-config.o:	config.c Makefile
-		$(COMPILE) $(CONFIGDEFS) $(CONFIGINCLS) $*.c
-
-fgetsintr.o:	fgetsintr.c
-		$(COMPILE) $(SIGTYPEDEF) $*.c
-
-intrcheck.o:	intrcheck.c
-		$(COMPILE) $(SIGTYPEDEF) $*.c
-
-posixmodule.o:	posixmodule.c
-		$(COMPILE) $(NOSYMLINKDEF) $*.c
-
-timemodule.o:	timemodule.c
-		$(COMPILE) $(SIGTYPEDEF) $*.c
-
-tokenizer.o:	tokenizer.c
-		$(COMPILE) $(RL_USE) $*.c
-
-.PRECIOUS:	python libpython.a graminit.c graminit.h
-
-# Generated Sources
-# =================
-#
-# Some source files are (or may be) generated.
-# The rules for doing so are given here.
-
-# The dependencies for graminit.[ch] are not turned on in the
-# distributed Makefile because the files themselves are distributed.
-# Turn them on if you want to hack the grammar.
-
-#graminit.c graminit.h:	Grammar python_gen
-#		python_gen Grammar
+.PHONY: all clean

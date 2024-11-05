@@ -26,6 +26,7 @@ make
 - Modified ticker variable in `ceval.c` after including `intrcheck.h`.
 - Fixed argument passing in `getstrintintarg` function for `getstrarg`.
 - Fixed parameter declaration in `reglexec` function in `regexp.c`.
+- Refactored `Makefile` for simplicity and improved maintainability.
 
 ### Removed
 - Removed the `shar` directory from the project structure.

@@ -1,10 +1,11 @@
 /* Configurable Python configuration file */
 
 #include <stdio.h>
+#include <stdlib.h>
 
+#ifndef PYTHONPATH
 #define PYTHONPATH ".:/usr/local/lib/python"
-
-extern char *getenv();
+#endif
 
 char *
 getpythonpath()

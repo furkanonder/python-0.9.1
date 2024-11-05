@@ -1,4 +1,8 @@
 *.o
 *.a
 python
+python_gen
 *~
+.idea/
+src/graminit.c
+src/graminit.h
