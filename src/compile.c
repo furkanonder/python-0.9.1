@@ -229,7 +229,7 @@ static void
 com_backpatch(struct compiling *c, int anchor)
 {
 	unsigned char *code = (unsigned char *)getstringvalue(c->c_code);
-	int target = c->c_nexti, lastanchor = 0, dist, prev;
+	int target = c->c_nexti, dist, prev;
 
 	for (;;) {
 		/* Make the JUMP instruction at anchor point to target */
@@ -240,7 +240,6 @@ com_backpatch(struct compiling *c, int anchor)
 		if (!prev) {
 			break;
         }
-		lastanchor = anchor;
 		anchor -= prev;
 	}
 }
@@ -430,7 +429,6 @@ static void
 com_list_constructor(struct compiling *c, node *n)
 {
 	int len;
-	object *v, *w;
 
 	if (TYPE(n) != testlist) {
 		REQ(n, exprlist);
@@ -899,8 +897,6 @@ com_assign_subscript(struct compiling *c, node *n, int assigning)
 static void
 com_assign_trailer(struct compiling *c, node *n, int assigning)
 {
-	char *name;
-
 	REQ(n, trailer);
 	switch (TYPE(CHILD(n, 0))) {
 		case LPAR: /* '(' [exprlist] ')' */
@@ -1435,8 +1431,6 @@ com_funcdef(struct compiling *c, node *n)
 static void
 com_bases(struct compiling *c, node *n)
 {
-	int nbases;
-
 	REQ(n, baselist);
 	/* baselist: atom arguments (',' atom arguments)*
 	   arguments: '(' [testlist] ')' */
