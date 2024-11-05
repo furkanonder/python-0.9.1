@@ -60,6 +60,7 @@ make
 - Removed custom offsetof implementation from `structmember.h`.
 - Removed `strerror.c`.
 - Removed `pgenheaders.h`.
+- Removed `assert.h` as its functionality is now provided by the standard library `<assert.h>`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

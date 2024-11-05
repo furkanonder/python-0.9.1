@@ -4,9 +4,9 @@
 /* XXX To do: error recovery */
 
 #include <string.h>
+#include <assert.h>
 
 #include "malloc.h"
-#include "assert.h"
 #include "token.h"
 #include "grammar.h"
 #include "node.h"

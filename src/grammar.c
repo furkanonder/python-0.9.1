@@ -1,10 +1,11 @@
 /* Grammar implementation */
 
 #include <ctype.h>
+#include <assert.h>
+
 #include <string.h>
 
 #include "malloc.h"
-#include "assert.h"
 #include "token.h"
 #include "grammar.h"
 #include "errors.h"
