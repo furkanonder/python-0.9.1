@@ -204,8 +204,6 @@ builtin_input(object *self, object *v)
 {
 	FILE *in = sysgetfile("stdin", stdin);
 	FILE *out = sysgetfile("stdout", stdout);
-	node *n;
-	int err;
 	object *m, *d;
 
 	flushline();
@@ -415,7 +413,6 @@ builtin_raw_input(object *self, object *v)
 {
 	FILE *in = sysgetfile("stdin", stdin);
 	FILE *out = sysgetfile("stdout", stdout);
-	char *p;
 	int err;
 	int n = 1000;
 
