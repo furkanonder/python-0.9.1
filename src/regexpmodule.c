@@ -104,7 +104,7 @@ regexp_exec(regexpobject *re, object *args)
 }
 
 static struct methodlist regexp_methods[] = {
-	"exec",		(method)regexp_exec,
+	{"exec",	(method)regexp_exec},
 	{NULL,		NULL}	/* sentinel */
 };
 
