@@ -34,27 +34,6 @@ RANLIB =	ranlib	# For BSD
 
 DEFPYTHONPATH= .:/usr/local/lib/python:/ufs/guido/lib/python:../lib
 
-# For "Pure" BSD Systems
-# ======================
-#
-# "Pure" BSD systems (as opposed to enhanced BSD derivatives like SunOS)
-# often miss certain standard library functions.  Source for
-# these is provided, you just have to turn it on.  This may work for
-# other systems as well, where these things are needed.
-
-# If your system does not have a strerror() function in the library,
-# uncomment the following two lines to use one I wrote.  (Actually, this
-# is missing in most systems I have encountered, so it is turned on
-# in the Makefile.  Turn it off if your system doesn't have sys_errlist.)
-
-# STRERROR_SRC=  strerror.c
-# STRERROR_OBJ=  strerror.o
-
-# If your signal() function believes signal handlers return int,
-# uncomment the following line.
-
-#SIGTYPEDEF=	-DSIGTYPE=int
-
 # Further porting hints
 # =====================
 #
@@ -109,7 +88,6 @@ STANDARD_OBJ=acceler.o bltinmodule.o ceval.o classobject.o \
 		mathmodule.o methodobject.o modsupport.o \
 		moduleobject.o node.o object.o parser.o \
 		parsetok.o posixmodule.o regexp.o regexpmodule.o \
-		$(STRERROR_OBJ) \
 		stringobject.o structmember.o \
 		sysmodule.o timemodule.o tokenizer.o traceback.o \
 		tupleobject.o typeobject.o
@@ -123,7 +101,6 @@ STANDARD_SRC=acceler.c bltinmodule.c ceval.c classobject.c \
 		mathmodule.c methodobject.c modsupport.c \
 		moduleobject.c node.c object.c parser.c \
 		parsetok.c posixmodule.c regexp.c regexpmodule.c \
-		$(STRERROR_SRC) \
 		stringobject.c structmember.c \
 		sysmodule.c timemodule.c tokenizer.c traceback.c \
 		tupleobject.c typeobject.c

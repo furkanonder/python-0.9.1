@@ -30,6 +30,7 @@
   err_setval() has to be changed. */
 
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #ifndef errno
 extern int errno;
@@ -41,8 +42,6 @@ extern int errno;
 #include "tupleobject.h"
 #include "errors.h"
 #include "errcode.h"
-
-extern char *strerror(int);
 
 /* Last exception stored by err_setval() */
 static object *last_exception;

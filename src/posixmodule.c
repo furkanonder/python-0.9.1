@@ -18,7 +18,6 @@
 #include "malloc.h"
 #include "modsupport.h"
 
-extern char *strerror(int);
 /* Return a dictionary corresponding to the POSIX environment table */
 extern char **environ;
 

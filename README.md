@@ -57,6 +57,7 @@ make
 - Removed `allobjects.h`.
 - Removed `config.h`.
 - Removed custom offsetof implementation from `structmember.h`.
+- Removed `strerror.c`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
