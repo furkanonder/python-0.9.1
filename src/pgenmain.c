@@ -22,7 +22,6 @@ int
 main(int argc, char **argv)
 {
 	grammar *g;
-	node *n;
 	FILE *fp;
 	char *filename;
 
