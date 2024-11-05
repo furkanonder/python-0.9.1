@@ -305,17 +305,6 @@ goaway(int sts)
 	/*NOTREACHED*/
 }
 
-static
-void finaloutput()
-{
-#ifdef TRACE_REFS
-	if (!askyesno("Print left references?")) {
-		return;
-    }
-	printrefs(stderr);
-#endif /* TRACE_REFS */
-}
-
 /* Ask a yes/no question */
 static int
 askyesno(char *prompt)
