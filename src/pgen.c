@@ -355,7 +355,7 @@ dumpnfa(labellist *ll, nfa *nf)
 
 /* PART TWO -- CONSTRUCT DFA -- Algorithm 3.1 from [Aho&Ullman 77] */
 
-static int
+static void
 addclosure(bitset ss, nfa *nf, int istate)
 {
 	if (addbit(ss, istate)) {
