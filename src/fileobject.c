@@ -62,7 +62,6 @@ object *
 newfileobject(char *name, char *mode)
 {
 	fileobject *f = (fileobject *)newopenfileobject((FILE *)NULL, name, mode);
-	FILE *fp;
 
 	if (f == NULL) {
 		return NULL;
