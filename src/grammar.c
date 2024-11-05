@@ -1,8 +1,9 @@
 /* Grammar implementation */
 
 #include <ctype.h>
+#include <string.h>
 
-#include "pgenheaders.h"
+#include "malloc.h"
 #include "assert.h"
 #include "token.h"
 #include "grammar.h"

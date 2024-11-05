@@ -2,7 +2,7 @@
 
 /* For a description, see the comments at end of this file */
 
-#include "pgenheaders.h"
+#include "malloc.h"
 #include "assert.h"
 #include "token.h"
 #include "node.h"

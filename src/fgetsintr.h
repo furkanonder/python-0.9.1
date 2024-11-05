@@ -1,6 +1,8 @@
 #ifndef Py_FGETSINTR_H
 #define Py_FGETSINTR_H
 
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -4,7 +4,7 @@
 /* XXX Need a better interface to report errors than writing to stderr */
 /* XXX Should use editor resource to fetch true tab size on Macintosh */
 
-#include "pgenheaders.h"
+#include "malloc.h"
 #include "fgetsintr.h"
 #include "tokenizer.h"
 #include "errcode.h"

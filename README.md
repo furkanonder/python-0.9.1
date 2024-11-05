@@ -59,6 +59,7 @@ make
 - Removed `config.h`.
 - Removed custom offsetof implementation from `structmember.h`.
 - Removed `strerror.c`.
+- Removed `pgenheaders.h`.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.

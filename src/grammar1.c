@@ -1,6 +1,6 @@
 /* Grammar subroutines needed by parser */
 
-#include "pgenheaders.h"
+#include "malloc.h"
 #include "assert.h"
 #include "grammar.h"
 #include "token.h"

@@ -1,6 +1,6 @@
 /* Computation of FIRST stets */
 
-#include "pgenheaders.h"
+#include "malloc.h"
 #include "grammar.h"
 #include "token.h"
 #include "errors.h"

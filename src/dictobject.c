@@ -9,6 +9,9 @@
 	   - uses a different hash function:
 		 h = 0; p = str; while (*p) h = (h << 5) - h + *p++; */
 
+#include <string.h>
+
+#include "malloc.h"
 #include "object.h"
 #include "objimpl.h"
 #include "intobject.h"
@@ -17,7 +20,6 @@
 #include "dictobject.h"
 #include "methodobject.h"
 #include "errors.h"
-#include "pgenheaders.h"
 #include "modsupport.h"
 
 /* Table of primes suitable as keys, in ascending order. The first line are the

@@ -1,6 +1,9 @@
 /* Bitset primitives used by the parser generator */
 
-#include "pgenheaders.h"
+#include <stdio.h>
+#include <string.h>
+
+#include "malloc.h"
 #include "bitset.h"
 #include "errors.h"
 

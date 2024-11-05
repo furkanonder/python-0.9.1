@@ -11,7 +11,6 @@ static void printlabels(grammar *, FILE *);
 void
 printgrammar(grammar *g, FILE *fp)
 {
-	fprintf(fp, "#include \"pgenheaders.h\"\n");
 	fprintf(fp, "#include \"grammar.h\"\n");
 	printdfas(g, fp);
 	printlabels(g, fp);
