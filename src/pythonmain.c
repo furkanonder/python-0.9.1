@@ -305,6 +305,7 @@ goaway(int sts)
 	/*NOTREACHED*/
 }
 
+#ifdef TRACE_REFS
 /* Ask a yes/no question */
 static int
 askyesno(char *prompt)
@@ -317,6 +318,7 @@ askyesno(char *prompt)
     }
 	return buf[0] == 'y' || buf[0] == 'Y';
 }
+#endif
 
 /*	XXX WISH LIST
 	- possible new types:

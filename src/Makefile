@@ -1,55 +1,78 @@
+# Compiler settings
 CC = cc
-CFLAGS = -c
+CFLAGS = -Wall
+
+# Tools
 AR = ar
 RANLIB = ranlib
-LIBS = -lm
-DEFPYTHONPATH = '-DPYTHONPATH=".:../lib"'
 
-STANDARD_OBJ = acceler.o bltinmodule.o ceval.o classobject.o compile.o \
+# Libraries and paths
+LIBS = -lm
+PYTHON_PATH_DEF = '-DPYTHONPATH=".:../lib"'
+
+# Output files
+TARGET = python
+LIBPYTHON = libpython.a
+PGEN = python_gen
+
+# Object files groups
+STANDARD_OBJS = \
+	acceler.o bltinmodule.o ceval.o classobject.o compile.o \
 	dictobject.o errors.o fgetsintr.o fileobject.o floatobject.o \
 	frameobject.o funcobject.o graminit.o grammar1.o import.o intobject.o \
 	intrcheck.o listnode.o listobject.o mathmodule.o methodobject.o \
 	modsupport.o moduleobject.o node.o object.o parser.o parsetok.o \
 	posixmodule.o regexp.o regexpmodule.o stringobject.o structmember.o \
-    sysmodule.o timemodule.o tokenizer.o traceback.o tupleobject.o \
-    typeobject.o
+	sysmodule.o timemodule.o tokenizer.o traceback.o tupleobject.o \
+	typeobject.o
 
-GENOBJECTS = acceler.o fgetsintr.o grammar1.o intrcheck.o listnode.o node.o \
-		parser.o parsetok.o tokenizer.o bitset.o firstsets.o grammar.o \
-		metagrammar.o pgen.o pgenmain.o printgrammar.o
+PGEN_OBJS = \
+	acceler.o fgetsintr.o grammar1.o intrcheck.o listnode.o node.o \
+	parser.o parsetok.o tokenizer.o bitset.o firstsets.o grammar.o \
+	metagrammar.o pgen.o pgenmain.o printgrammar.o
 
-GENSOURCES = acceler.c fgetsintr.c grammar1.c intrcheck.c listnode.c node.c \
-		parser.c parsetok.c tokenizer.c bitset.c firstsets.c grammar.c \
-		metagrammar.c pgen.c pgenmain.c printgrammar.c
+# Default target
+all: $(TARGET)
 
-all: python
+# Main target
+$(TARGET): $(PGEN) $(LIBPYTHON) pythonmain.o config.o
+	$(CC) pythonmain.o config.o $(LIBPYTHON) $(LIBS) -o $(TARGET)
 
-python_gen: $(GENOBJECTS)
-	$(CC) $(GENSOURCES) -o python_gen
-	./python_gen Grammar
+# Library target
+$(LIBPYTHON): $(STANDARD_OBJS)
+	$(AR) cr $(LIBPYTHON) $(STANDARD_OBJS)
+	$(RANLIB) $(LIBPYTHON)
 
-python: python_gen libpython.a pythonmain.o config.o
-	$(CC) pythonmain.o config.o libpython.a $(LIBS) -o python
+# Grammar generator
+$(PGEN): $(PGEN_OBJS)
+	$(CC) $(CFLAGS) -o $(PGEN) $(PGEN_OBJS)
+	./$(PGEN) Grammar
 
-libpython.a: $(STANDARD_OBJ)
-	-rm -f @lib
-	$(AR) cr @lib $(STANDARD_OBJ)
-	$(RANLIB) @lib
-	mv @lib libpython.a
+# Generate the grammar
+graminit.c graminit.h: Grammar $(PGEN)
+	./$(PGEN) Grammar
 
+# Special files with additional dependencies
 pythonmain.o: pythonmain.c
-	$(CC) $(CFLAGS) -o pythonmain.o pythonmain.c
+	$(CC) $(CFLAGS) -c pythonmain.c
 
 config.o: config.c
-	$(CC) $(CFLAGS) $(DEFPYTHONPATH) -o config.o config.c
+	$(CC) $(CFLAGS) $(PYTHON_PATH_DEF) -c config.c
 
+# Testing
+test: $(TARGET)
+	./$(TARGET) ../lib/testall.py
+
+# Clean up
 clean:
-	-rm -f *.o python libpython.a python_gen graminit.c graminit.h
+	rm -f *.o $(TARGET) $(LIBPYTHON) $(PGEN) graminit.c graminit.h
 
-%.o: %.c
-	$(CC) $(CFLAGS) $< -o $@
+# Show help
+help:
+	@echo "Targets:"
+	@echo "  all      - Build the Python interpreter"
+	@echo "  test     - Run tests"
+	@echo "  clean    - Remove build files"
+	@echo "  help     - Show this help"
 
-test: python
-	./python ../lib/testall.py
-
-.PHONY: all clean
+.PHONY: all clean test help
