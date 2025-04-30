@@ -4,14 +4,16 @@
 /* XXX Need a better interface to report errors than writing to stderr */
 /* XXX Should use editor resource to fetch true tab size on Macintosh */
 
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <string.h>
+#include <ctype.h>
+
 #include "malloc.h"
 #include "fgetsintr.h"
 #include "tokenizer.h"
 #include "errcode.h"
 #include "intrcheck.h"
-
-#include <readline/readline.h>
-#include <readline/history.h>
 
 #define TABSIZE 4
 
