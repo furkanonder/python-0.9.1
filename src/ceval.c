@@ -1373,8 +1373,8 @@ eval_code(codeobject *co, object *globals, object *locals, object *arg)
 				JUMPTO(b->b_handler);
 				break;
 			}
-			if (b->b_type == SETUP_FINALLY || b->b_type == SETUP_EXCEPT
-                && why == WHY_EXCEPTION)
+			if (b->b_type == SETUP_FINALLY
+                || (b->b_type == SETUP_EXCEPT && why == WHY_EXCEPTION))
             {
 				if (why == WHY_EXCEPTION) {
 					object *exc, *val;

@@ -45,6 +45,7 @@ Launch the Python interpreter:
 - Fixed parameter declaration in `reglexec` function in `regexp.c`.
 - Refactored `Makefile` for simplicity and improved maintainability.
 - Added explicit parentheses to clarify logical operator precedence in `bltinmodule.c`.
+- Added explicit parentheses to clarify logical operator precedence in `ceval.c`.
 
 ### Removed
 - Removed the `shar` directory from the project structure.
