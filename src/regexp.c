@@ -893,7 +893,7 @@ regmatch(char *prog)
 			case BOL:
 	#ifdef MULTILINE
 				if (!(reginput == regbol
-                      || reginput > regbol && *(reginput - 1) == '\n'))
+                      || (reginput > regbol && *(reginput - 1) == '\n')))
 	#else
 				if (reginput != regbol)
 	#endif
