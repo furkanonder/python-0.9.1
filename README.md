@@ -37,13 +37,14 @@ Launch the Python interpreter:
 - Integrated `GNU Readline` support in the `Makefile`.
 - Added `GNU Readline` headers in `tokenizer.c`.
 - Added header guards and C linkage.
-- Added configure script to simplify build configuration and feature detection
+- Added configure script to simplify build configuration and feature detection.
 
 ### Fixed
 - Modified ticker variable in `ceval.c` after including `intrcheck.h`.
 - Fixed argument passing in `getstrintintarg` function for `getstrarg`.
 - Fixed parameter declaration in `reglexec` function in `regexp.c`.
 - Refactored `Makefile` for simplicity and improved maintainability.
+- Added explicit parentheses to clarify logical operator precedence in `bltinmodule.c`.
 
 ### Removed
 - Removed the `shar` directory from the project structure.

@@ -122,7 +122,7 @@ builtin_divmod(object *self, object *v)
 		xdivy = xi / yi;
 	}
 	xmody = xi - xdivy * yi;
-	if (xmody < 0 && yi > 0 || xmody > 0 && yi < 0) {
+	if ((xmody < 0 && yi > 0) || (xmody > 0 && yi < 0)) {
 		xmody += yi;
 		xdivy -= 1;
 	}
@@ -158,9 +158,9 @@ exec_eval(object *v, int start)
             }
 		}
 	}
-	if (str == NULL || !is_stringobject(str) || globals != NULL
-        && !is_dictobject(globals) || locals != NULL
-        && !is_dictobject(locals))
+	if (str == NULL || !is_stringobject(str)
+		|| (globals != NULL && !is_dictobject(globals))
+        || (locals != NULL && !is_dictobject(locals)))
     {
 		err_setstr(TypeError,
                    "exec/eval arguments must be string[,dict[,dict]]");
