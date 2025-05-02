@@ -1,8 +1,9 @@
 *.o
-*.a
+.idea/
+libpython.a
 python
 python_gen
-*~
-.idea/
-src/graminit.c
-src/graminit.h
+graminit.c
+graminit.h
+Makefile
+pyconfig.h

@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "pyconfig.h"
 #include "object.h"
 #include "moduleobject.h"
 #include "errors.h"

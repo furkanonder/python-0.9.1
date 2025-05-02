@@ -3,10 +3,26 @@
 This repository is a refactored version of Python 0.9.1. You can access the
 original source from [here](https://github.com/smontanaro/python-0.9.1).
 
-## Building and Running
+## Compile and Build
+First, configure the build with:
 ```sh
 cd src
+./configure
+```
+Available configuration options:
+- `--with-readline`:  Enable GNU Readline support for enhanced command-line editing
+- `--help`:           Display all available configuration options
+```sh
+./configure
+```
+Once configuration is complete, build CPython with:
+```sh
 make
+```
+
+## Running
+Launch the Python interpreter:
+```
 ./python
 ```
 
@@ -21,6 +37,7 @@ make
 - Integrated `GNU Readline` support in the `Makefile`.
 - Added `GNU Readline` headers in `tokenizer.c`.
 - Added header guards and C linkage.
+- Added configure script to simplify build configuration and feature detection
 
 ### Fixed
 - Modified ticker variable in `ceval.c` after including `intrcheck.h`.

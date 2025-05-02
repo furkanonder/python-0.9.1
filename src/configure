@@ -1,0 +1,80 @@
+#!/bin/sh
+# Configure script for Python 0.9.1
+
+echo "Configuring Python 0.9.1..."
+
+# Default values for flags
+with_readline=no
+
+# Parse command line arguments
+for arg in "$@"; do
+    case "$arg" in
+        --with-readline)
+            with_readline=yes
+            ;;
+        --help)
+            echo "Usage: ./configure [options]"
+            echo "Options:"
+            echo "  --with-readline    Enable readline support if available"
+            echo "  --help             Display this help message"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $arg"
+            echo "Use --help for a list of available options"
+            exit 1
+            ;;
+    esac
+done
+
+# Check for requested flags
+READLINE_AVAILABLE=no
+
+# Check for readline if requested
+if [ "$with_readline" = "yes" ]; then
+    echo -n "Checking for readline... "
+    cat > conftest.c << EOF
+#include <stdio.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+
+int main() {
+    char *line = readline("Test: ");
+    add_history(line);
+    return 0;
+}
+EOF
+
+    if gcc -o conftest conftest.c -lreadline > /dev/null 2>&1; then
+        READLINE_AVAILABLE=yes
+        echo "found"
+    else
+        echo "not found"
+    fi
+    rm -f conftest.c conftest
+else
+    echo "Readline support disabled"
+fi
+
+# Create pyconfig.h
+echo "Creating pyconfig.h..."
+cat > pyconfig.h << EOF
+/* Generated automatically by configure */
+
+#ifndef Py_PYCONFIG_H
+#define Py_PYCONFIG_H
+
+$([ "$READLINE_AVAILABLE" = yes ] && echo "#define USE_READLINE")
+
+#endif /* !Py_PYCONFIG_H */
+EOF
+
+# Create Makefile from Makefile.in
+echo "Creating Makefile..."
+sed -e "s/@READLINE_AVAILABLE@/$READLINE_AVAILABLE/g" \
+    < Makefile.in > Makefile
+
+echo "Configuration completed successfully."
+echo "Features enabled:"
+[ "$READLINE_AVAILABLE" = "yes" ] && echo "  - Readline support"
+echo "Type 'make' to build Python."
