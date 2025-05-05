@@ -62,7 +62,7 @@ time_sleep(object *self, object *args)
 {
 	int secs;
 
-	SIGTYPE (*sigsave)();
+	SIGTYPE (*sigsave)(int);
 	if (!getintarg(args, &secs)) {
 		return NULL;
     }
@@ -72,7 +72,7 @@ time_sleep(object *self, object *args)
 		return NULL;
 	}
 	sigsave = signal(SIGINT, SIG_IGN);
-	if (sigsave != (SIGTYPE (*)()) SIG_IGN) {
+	if (sigsave != (SIGTYPE (*)(int)) SIG_IGN) {
 		signal(SIGINT, sleep_catcher);
     }
 	sleep(secs);
@@ -86,7 +86,7 @@ time_millisleep(object *self, object *args)
 {
 	long msecs;
 
-	SIGTYPE (*sigsave)();
+	SIGTYPE (*sigsave)(int);
 	if (!getlongarg(args, &msecs)) {
 		return NULL;
     }
@@ -96,7 +96,7 @@ time_millisleep(object *self, object *args)
 		return NULL;
 	}
 	sigsave = signal(SIGINT, SIG_IGN);
-	if (sigsave != (SIGTYPE (*)()) SIG_IGN) {
+	if (sigsave != (SIGTYPE (*)(int)) SIG_IGN) {
 		signal(SIGINT, sleep_catcher);
     }
 	millisleep(msecs);
