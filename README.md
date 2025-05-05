@@ -51,6 +51,7 @@ Launch the Python interpreter:
 - Updated signal handler function signature in `fgetsintr.c` to use the correct modern format that includes the signal number parameter.
 - Updated signal handler function signature in `timemodule.c` to use the correct modern format that includes the signal number parameter.
 - Removed conflicting local declaration of `strchr` function in `regexp.c`.
+- Replaced `SIGTYPE` macro with explicit `void` return type for signal handlers to improve clarity and reduce dependencies.
 
 ### Removed
 - Removed the `shar` directory from the project structure.
@@ -85,6 +86,7 @@ Launch the Python interpreter:
 - Removed `strerror.c`.
 - Removed `pgenheaders.h`.
 - Removed `assert.h` as its functionality is now provided by the standard library `<assert.h>`.
+- Removed `sigtype.h` and replaced its macro with explicit `void` return type for signal handlers.
 
 ## Moved
 - Moved license texts from the source code to the `LICENSE` file.
