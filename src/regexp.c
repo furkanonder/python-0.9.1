@@ -167,6 +167,10 @@ STATIC void regc(char b);
 STATIC void reginsert(char op, char *opnd);
 STATIC void regtail(char *p, char *val);
 STATIC void regoptail(char *p, char *val);
+STATIC int regtry(regexp *prog, char *string);
+STATIC int regmatch(char *prog);
+STATIC int regrepeat(char *p);
+
 #ifdef STRCSPN
 STATIC int strcspn();
 #endif
@@ -694,11 +698,6 @@ static char *regbol;		/* Beginning of input, for ^ check. */
 static char **regstartp;	/* Pointer to startp array. */
 static char **regendp;		/* Ditto for endp. */
 
-/* Forwards. */
-STATIC int regtry();
-STATIC int regmatch();
-STATIC int regrepeat();
-
 #ifdef DEBUG
 int regnarrate = 0;
 void regdump();
@@ -710,7 +709,6 @@ int
 regexec(register regexp *prog, register char *string)
 {
 	register char *s;
-	extern char *strchr();
 
 	/* Be paranoid... */
 	if (prog == NULL || string == NULL) {
@@ -783,7 +781,6 @@ int
 reglexec(register regexp *prog, register char *string, int offset)
 {
 	register char *s;
-	extern char *strchr();
 
 	/* Be paranoid... */
 	if (prog == NULL || string == NULL) {

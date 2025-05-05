@@ -22,13 +22,13 @@ typedef struct regexp {
 	char program[1];	/* Unwarranted chumminess with compiler. */
 } regexp;
 
-extern regexp *regcomp();
-extern int regexec();
+extern regexp *regcomp(char *exp);
+extern int regexec(regexp *prog, char *string);
 #ifdef MULTILINE
-extern int reglexec();
+extern int reglexec(regexp *prog, char *string, int offset);
 #endif
-extern void regsub();
-extern void regerror(char *);
+extern void regsub(regexp *prog, char *source, char *dest);
+extern void regerror(char *msg);
 
 #ifdef __cplusplus
 }
