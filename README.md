@@ -48,6 +48,7 @@ Launch the Python interpreter:
 - Added explicit parentheses to clarify logical operator precedence in `ceval.c`.
 - Added explicit parentheses to clarify logical operator precedence in `regexp.c`.
 - Added proper function pointer prototypes in `assign_subscript` function to eliminate deprecated-non-prototype warnings and improve type safety in `ceval.c`.
+- Updated signal handler function signature in `fgetsintr.c` to use the correct modern format that includes the signal number parameter.
 
 ### Removed
 - Removed the `shar` directory from the project structure.

@@ -28,7 +28,7 @@ int
 fgets_intr(char *buf, int size, FILE *fp)
 {
 	int ret;
-	SIGTYPE (*sigsave)();
+	SIGTYPE (*sigsave)(int);
 	
 	if (setjmp(jback)) {
 		clearerr(fp);
