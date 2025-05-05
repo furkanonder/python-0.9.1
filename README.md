@@ -47,6 +47,7 @@ Launch the Python interpreter:
 - Added explicit parentheses to clarify logical operator precedence in `bltinmodule.c`.
 - Added explicit parentheses to clarify logical operator precedence in `ceval.c`.
 - Added explicit parentheses to clarify logical operator precedence in `regexp.c`.
+- Added proper function pointer prototypes in `assign_subscript` function to eliminate deprecated-non-prototype warnings and improve type safety in `ceval.c`.
 
 ### Removed
 - Removed the `shar` directory from the project structure.

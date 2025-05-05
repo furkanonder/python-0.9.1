@@ -378,23 +378,24 @@ assign_subscript(object *w, object *key, object *v)
 	typeobject *tp = w->ob_type;
 	sequence_methods *sq;
 	mapping_methods *mp;
-	int (*func)();
+	int (*func_seq)(object *, int, object *);
+	int (*func_map)(object *, object *, object *);
 
 	if ((sq = tp->tp_as_sequence) != NULL
-         && (func = sq->sq_ass_item) != NULL)
+         && (func_seq = sq->sq_ass_item) != NULL)
 	{
 		if (!is_intobject(key)) {
 			err_setstr(TypeError, "sequence subscript must be integer");
 			return -1;
 		}
 		else {
-			return (*func)(w, (int)getintvalue(key), v);
+			return (*func_seq)(w, (int)getintvalue(key), v);
         }
 	}
 	else if ((mp = tp->tp_as_mapping) != NULL
-              && (func = mp->mp_ass_subscript) != NULL)
+              && (func_map = mp->mp_ass_subscript) != NULL)
     {
-		return (*func)(w, key, v);
+		return (*func_map)(w, key, v);
 	}
 	else {
 		err_setstr(TypeError, "can't assign to this subscripted object");
