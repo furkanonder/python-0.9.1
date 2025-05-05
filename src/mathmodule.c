@@ -80,12 +80,12 @@ math_2(object *args, double (*func)(double, double))
 }
 
 #define FUNC1(stubname, func) \
-	static object * stubname(self, args) object *self, *args; { \
+	static object * stubname(object *self, object *args) { \
 		return math_1(args, func); \
 	}
 
 #define FUNC2(stubname, func) \
-	static object * stubname(self, args) object *self, *args; { \
+	static object * stubname(object *self, object *args) { \
 		return math_2(args, func); \
 	}
 
