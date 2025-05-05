@@ -9,7 +9,6 @@
 #include <setjmp.h>
 
 #include "errcode.h"
-#include "sigtype.h"
 #include "intrcheck.h"
 
 #define sig_block()		/*empty*/
@@ -28,8 +27,8 @@ int
 fgets_intr(char *buf, int size, FILE *fp)
 {
 	int ret;
-	SIGTYPE (*sigsave)(int);
-	
+	void (*sigsave)(int);
+
 	if (setjmp(jback)) {
 		clearerr(fp);
 		signal(SIGINT, sigsave);

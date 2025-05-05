@@ -3,15 +3,13 @@
 /* Default version -- for real operating systems and for Standard C */
 
 #include <signal.h>
-#include "sigtype.h"
 
 static int interrupted;
 
-static SIGTYPE
+static void
 intcatcher(int sig)
 {
 	interrupted = 1;
-
 	signal(SIGINT, intcatcher);
 }
 
